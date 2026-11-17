@@ -138,9 +138,9 @@
 ---
 
 ### Checkpoint 2: Public Views Functional
-- [ ] Tab Tugas, Info & Kampus, dan Jadwal terintegrasi penuh di halaman utama (`src/app/page.tsx`).
-- [ ] Seluruh filter dan interaksi sheet berjalan tanpa error console.
-- [ ] Build sukses: `npm run build`.
+- [x] Tab Tugas, Info & Kampus, dan Jadwal terintegrasi penuh di halaman utama (`src/app/page.tsx`).
+- [x] Seluruh filter dan interaksi sheet berjalan tanpa error console.
+- [x] Build sukses: `npm run build`.
 
 ---
 

@@ -46,26 +46,26 @@ Membangun prototipe frontend interaktif untuk portal kelas **Chosenwan** secara 
 
 ### Phase 2: Mahasiswa Public Experience
 
-- [ ] **Task 4: Tab Tugas — BentoSummaryGrid & UrgentTaskCard**
+- [x] **Task 4: Tab Tugas — BentoSummaryGrid & UrgentTaskCard**
   - Membuat `BentoSummaryGrid` (grid 2x2: Total Tugas, Mendesak, Berita Kampus, Info Lomba) yang dapat diklik sebagai filter cepat.
   - Membuat `UrgentTaskCard` (kontras tinggi `bg-[#111318] text-white`) untuk tugas dengan batas waktu terdekat lengkap dengan badge jam mendesak.
-- [ ] **Task 5: Tab Tugas — TaskList, Filter Bar & TaskDetailSheet**
+- [x] **Task 5: Tab Tugas — TaskList, Filter Bar & TaskDetailSheet**
   - Membuat `TaskSearchBar` dengan filter mata kuliah dan pencarian teks.
   - Membuat `TaskCard` standar berlatar putih dengan badge status (`Aman`, `Mendesak`, `Lewat`).
   - Mengimplementasikan `TaskDetailSheet` menggunakan `shadcn Sheet` (bottom drawer) untuk instruksi lengkap dan tombol aksi CTA "Buka Link Pengumpulan".
-- [ ] **Task 6: Tab Info & Kampus — CategoryFilterPills & AnnouncementList**
+- [x] **Task 6: Tab Info & Kampus — CategoryFilterPills & AnnouncementList**
   - Membuat `CategoryFilterPills` horizontal (`Semua`, `Akademik / Jadwal`, `Berita Kampus`, `Info Lomba`).
   - Membuat `AnnouncementCard` dengan warna aksen badge kategori pastel (`#A8C0FF`, `#F6C866`, `#EA9DFB`) dengan teks `#111318`.
   - Menyertakan link sumber resmi eksternal yang dapat diklik langsung.
-- [ ] **Task 7: Tab Jadwal Statis — DaySelectorStrip & ScheduleTimeline**
+- [x] **Task 7: Tab Jadwal Statis — DaySelectorStrip & ScheduleTimeline**
   - Membuat `DaySelectorStrip` horizontal untuk 6 hari (`Sen` s.d. `Sab`) dengan penanda hari aktif berlatar `#111318`.
   - Membuat `ScheduleSlotCard` menampilkan jam mulai-selesai, mata kuliah, ruangan, dan dosen pengampu.
   - Menampilkan empty state ramah jika hari yang dipilih tidak ada jadwal kuliah.
 
 #### Checkpoint 2: Public Views Functional
-- [ ] Seluruh tab publik menampilkan data mock dengan benar.
-- [ ] Filter pencarian dan chip kategori berfungsi responsif.
-- [ ] Bottom sheet detail tugas terbuka lancar di mobile viewport.
+- [x] Seluruh tab publik menampilkan data mock dengan benar.
+- [x] Filter pencarian dan chip kategori berfungsi responsif.
+- [x] Bottom sheet detail tugas terbuka lancar di mobile viewport.
 
 ---
 
