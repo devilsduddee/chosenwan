@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useEffect } from "react"
+import React, { useState } from "react"
 import { useMockStore } from "@/lib/mock-store"
 import { useCurrentTime } from "@/lib/use-current-time"
 import { DaySelectorStrip } from "@/components/schedule/DaySelectorStrip"
@@ -9,16 +9,11 @@ import { Calendar, Coffee } from "lucide-react"
 
 export function ScheduleTimeline() {
   const { schedules } = useMockStore()
-  const { currentDay, mounted } = useCurrentTime()
+  const { currentDay } = useCurrentTime()
 
-  // Default day to Monday (1), synced to current day on mount
-  const [selectedDay, setSelectedDay] = useState<number>(1)
-
-  useEffect(() => {
-    if (mounted && currentDay >= 1 && currentDay <= 6) {
-      setSelectedDay(currentDay)
-    }
-  }, [mounted, currentDay])
+  // If user hasn't manually selected a day, default to currentDay
+  const [userSelectedDay, setUserSelectedDay] = useState<number | null>(null)
+  const selectedDay = userSelectedDay ?? currentDay
 
   const dayNames = ["", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"]
 
@@ -40,7 +35,7 @@ export function ScheduleTimeline() {
       </div>
 
       {/* Horizontal Day Selector */}
-      <DaySelectorStrip selectedDay={selectedDay} onSelectDay={setSelectedDay} />
+      <DaySelectorStrip selectedDay={selectedDay} onSelectDay={setUserSelectedDay} />
 
       {/* Active Day Title & Count */}
       <div className="flex items-center justify-between px-1">

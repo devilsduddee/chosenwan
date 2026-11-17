@@ -2,7 +2,7 @@
 
 import React from "react"
 import { Task, Announcement } from "@/types"
-import { Edit3, Trash2, Calendar, Link2, BookOpen, Megaphone } from "lucide-react"
+import { Edit3, Trash2, BookOpen, Megaphone } from "lucide-react"
 
 interface PublisherContentItemProps {
   type: "task" | "announcement"

@@ -2,7 +2,7 @@
 
 import React from "react"
 import { Schedule } from "@/types"
-import { Clock, MapPin, User, BookOpen } from "lucide-react"
+import { Clock, MapPin, User } from "lucide-react"
 
 interface ScheduleSlotCardProps {
   schedule: Schedule

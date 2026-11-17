@@ -2,7 +2,7 @@
 
 import React from "react"
 import { useMockStore } from "@/lib/mock-store"
-import { Search, X, Filter } from "lucide-react"
+import { Search, X } from "lucide-react"
 
 interface TaskFilterBarProps {
   statusFilter: "ALL" | "UPCOMING" | "PAST"

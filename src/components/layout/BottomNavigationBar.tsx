@@ -21,7 +21,7 @@ export function BottomNavigationBar() {
   return (
     <nav
       aria-label="Navigasi Utama"
-      className="fixed bottom-4 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-[430px] z-50 pointer-events-auto"
+      className="fixed bottom-[calc(1rem+env(safe-area-inset-bottom,0px))] left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-[430px] z-50 pointer-events-auto"
     >
       <div className="bg-white/95 backdrop-blur-lg border border-[#E4E7F0] shadow-[0_8px_30px_rgb(0,0,0,0.08)] rounded-full p-1.5 flex items-center justify-around">
         {navItems.map((item) => {

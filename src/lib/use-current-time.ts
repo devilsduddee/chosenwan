@@ -1,19 +1,30 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useSyncExternalStore } from "react"
+
+const emptySubscribe = () => () => {}
 
 export function useCurrentTime() {
-  const [now, setNow] = useState<number>(0)
-  const [currentDay, setCurrentDay] = useState<number>(1) // Default Senin (1)
-  const [mounted, setMounted] = useState(false)
+  const mounted = useSyncExternalStore(
+    emptySubscribe,
+    () => true,
+    () => false
+  )
 
-  useEffect(() => {
-    const nowDate = new Date()
-    setNow(nowDate.getTime())
-    const day = nowDate.getDay()
-    setCurrentDay(day === 0 ? 1 : day > 6 ? 1 : day)
-    setMounted(true)
-  }, [])
+  const now = useSyncExternalStore(
+    emptySubscribe,
+    () => Date.now(),
+    () => 0
+  )
+
+  const currentDay = useSyncExternalStore(
+    emptySubscribe,
+    () => {
+      const day = new Date().getDay()
+      return day === 0 ? 1 : day > 6 ? 1 : day
+    },
+    () => 1
+  )
 
   return { now, currentDay, mounted }
 }

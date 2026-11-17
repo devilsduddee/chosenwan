@@ -10,6 +10,7 @@ import {
   AnnouncementFormValues,
 } from "@/lib/validations"
 import { useMockStore } from "@/lib/mock-store"
+import { Task, Announcement } from "@/types"
 import { TaskFormFields } from "@/components/publisher/TaskFormFields"
 import { AnnouncementFormFields } from "@/components/publisher/AnnouncementFormFields"
 import {
@@ -37,7 +38,8 @@ export function ContentEditorDialog() {
     updateAnnouncement,
   } = useMockStore()
 
-  const [contentType, setContentType] = useState<"task" | "announcement">("task")
+  const [selectedType, setSelectedType] = useState<"task" | "announcement">("task")
+  const contentType = editingContent ? editingContent.type : selectedType
 
   // Forms
   const taskForm = useForm<TaskFormValues>({
@@ -63,12 +65,13 @@ export function ContentEditorDialog() {
     },
   })
 
-  // Pre-fill fields if editingContent is provided
+  // Pre-fill fields when modal opens or editingContent changes
   useEffect(() => {
+    if (!isEditorOpen) return
+
     if (editingContent) {
       if (editingContent.type === "task") {
-        setContentType("task")
-        const t = editingContent.data as any
+        const t = editingContent.data as Task
         const dateStr = t.due_date ? new Date(t.due_date).toISOString().slice(0, 16) : ""
         taskForm.reset({
           course_id: t.course_id || "",
@@ -79,8 +82,7 @@ export function ContentEditorDialog() {
           submission_url: t.submission_url || "",
         })
       } else {
-        setContentType("announcement")
-        const a = editingContent.data as any
+        const a = editingContent.data as Announcement
         announcementForm.reset({
           category_type: a.category_type || "ACADEMIC",
           course_id: a.course_id || "",
@@ -90,10 +92,23 @@ export function ContentEditorDialog() {
         })
       }
     } else {
-      taskForm.reset()
-      announcementForm.reset()
+      taskForm.reset({
+        course_id: "",
+        title: "",
+        instructions: "",
+        week_number: "",
+        due_date: "",
+        submission_url: "",
+      })
+      announcementForm.reset({
+        category_type: "ACADEMIC",
+        course_id: "",
+        title: "",
+        content: "",
+        source_url: "",
+      })
     }
-  }, [editingContent, isEditorOpen])
+  }, [editingContent, isEditorOpen, taskForm, announcementForm])
 
   const handleClose = () => {
     setIsEditorOpen(false)
@@ -168,7 +183,7 @@ export function ContentEditorDialog() {
           <div className="grid grid-cols-2 gap-1.5 p-1 bg-[#EEF1F6] rounded-2xl border border-[#E4E7F0] mt-3">
             <button
               type="button"
-              onClick={() => setContentType("task")}
+              onClick={() => setSelectedType("task")}
               className={`min-h-[40px] rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
                 contentType === "task"
                   ? "bg-[#111318] text-white shadow-xs"
@@ -180,7 +195,7 @@ export function ContentEditorDialog() {
             </button>
             <button
               type="button"
-              onClick={() => setContentType("announcement")}
+              onClick={() => setSelectedType("announcement")}
               className={`min-h-[40px] rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
                 contentType === "announcement"
                   ? "bg-[#111318] text-white shadow-xs"

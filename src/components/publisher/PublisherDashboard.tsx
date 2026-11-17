@@ -5,7 +5,7 @@ import { useMockStore } from "@/lib/mock-store"
 import { Task, Announcement } from "@/types"
 import { PublisherContentItem } from "@/components/publisher/PublisherContentItem"
 import { DeleteConfirmDialog } from "@/components/publisher/DeleteConfirmDialog"
-import { Plus, SlidersHorizontal, Inbox, RotateCcw } from "lucide-react"
+import { Plus, Inbox, RotateCcw } from "lucide-react"
 import { toast } from "sonner"
 
 export function PublisherDashboard() {

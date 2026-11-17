@@ -56,10 +56,39 @@ const STORAGE_KEY_ROLE = "chosenwan_mock_role"
 
 export function MockStoreProvider({ children }: { children: React.ReactNode }) {
   const [activeTab, setActiveTab] = useState<ActiveTab>("tasks")
-  const [userRole, setUserRole] = useState<UserRole>("guest")
+  const [userRole, setUserRole] = useState<UserRole>(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const saved = localStorage.getItem(STORAGE_KEY_ROLE)
+        if (saved === "guest" || saved === "ketua_kelas" || saved === "pj_matkul") {
+          return saved as UserRole
+        }
+      } catch {}
+    }
+    return "guest"
+  })
+
   const [courses] = useState<Course[]>(MOCK_COURSES)
-  const [tasks, setTasks] = useState<Task[]>(MOCK_TASKS)
-  const [announcements, setAnnouncements] = useState<Announcement[]>(MOCK_ANNOUNCEMENTS)
+  const [tasks, setTasks] = useState<Task[]>(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const saved = localStorage.getItem(STORAGE_KEY_TASKS)
+        if (saved) return JSON.parse(saved)
+      } catch {}
+    }
+    return MOCK_TASKS
+  })
+
+  const [announcements, setAnnouncements] = useState<Announcement[]>(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const saved = localStorage.getItem(STORAGE_KEY_ANNOUNCEMENTS)
+        if (saved) return JSON.parse(saved)
+      } catch {}
+    }
+    return MOCK_ANNOUNCEMENTS
+  })
+
   const [schedules] = useState<Schedule[]>(MOCK_SCHEDULES)
 
   const [searchQuery, setSearchQuery] = useState("")
@@ -72,24 +101,6 @@ export function MockStoreProvider({ children }: { children: React.ReactNode }) {
     type: "task" | "announcement"
     data: Task | Announcement
   } | null>(null)
-
-  // Load from LocalStorage if available
-  useEffect(() => {
-    try {
-      const savedTasks = localStorage.getItem(STORAGE_KEY_TASKS)
-      if (savedTasks) setTasks(JSON.parse(savedTasks))
-
-      const savedAnnouncements = localStorage.getItem(STORAGE_KEY_ANNOUNCEMENTS)
-      if (savedAnnouncements) setAnnouncements(JSON.parse(savedAnnouncements))
-
-      const savedRole = localStorage.getItem(STORAGE_KEY_ROLE)
-      if (savedRole && (savedRole === "guest" || savedRole === "ketua_kelas" || savedRole === "pj_matkul")) {
-        setUserRole(savedRole as UserRole)
-      }
-    } catch {
-      // LocalStorage access fallback (e.g. private mode or SSR)
-    }
-  }, [])
 
   // Sync to LocalStorage on change
   useEffect(() => {

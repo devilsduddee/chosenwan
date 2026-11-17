@@ -94,7 +94,7 @@ Membangun prototipe frontend interaktif untuk portal kelas **Chosenwan** secara 
 
 ### Phase 4: Polish, Mobile Tuning, & Quality Audit
 
-- [ ] **Task 11: Mobile UX Polish & Anti-Slop Audit**
+- [x] **Task 11: Mobile UX Polish & Anti-Slop Audit**
   - Menerapkan panduan `mobile-native`: minimal target sentuhan 44x44px, pencegahan zoom iOS pada form input (`font-size >= 16px`).
   - Memverifikasi kepatuhan aturan kontras warna pastel di `05-design.md` (tidak ada teks putih di atas pastel).
   - Melakukan audit batasan ukuran file: memastikan tidak ada satu pun file yang melebihi 500 baris kode (Aturan 2 AGENTS.md).

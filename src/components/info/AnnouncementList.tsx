@@ -4,7 +4,7 @@ import React from "react"
 import { useMockStore } from "@/lib/mock-store"
 import { CategoryFilterPills } from "@/components/info/CategoryFilterPills"
 import { AnnouncementCard } from "@/components/info/AnnouncementCard"
-import { Megaphone, Inbox } from "lucide-react"
+import { Inbox } from "lucide-react"
 
 export function AnnouncementList() {
   const { announcements, selectedCategoryFilter } = useMockStore()

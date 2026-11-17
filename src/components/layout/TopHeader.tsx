@@ -3,7 +3,6 @@
 import React from "react"
 import { useMockStore } from "@/lib/mock-store"
 import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
 import { GraduationCap, ShieldCheck, User, Plus } from "lucide-react"
 
 export function TopHeader() {

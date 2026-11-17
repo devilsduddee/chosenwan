@@ -227,6 +227,6 @@
 ---
 
 ### Checkpoint 4: Prototyping Ready for Review
-- [ ] Semua acceptance criteria Task 1 - 11 terpenuhi.
-- [ ] Aplikasi berjalan tanpa warning di browser desktop maupun simulasi mobile.
-- [ ] Siap direview oleh pengguna.
+- [x] Semua acceptance criteria Task 1 - 11 terpenuhi.
+- [x] Aplikasi berjalan tanpa warning di browser desktop maupun simulasi mobile.
+- [x] Siap direview oleh pengguna.
