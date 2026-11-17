@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 180" width="680" height="180">
+  <title>Chosenwan Lockup B</title>
+  <!-- Symbol scaled and placed at x=20, y=20 (140x140) -->
+  <g transform="translate(20, 20) scale(0.546875)">
+    <path fill="#111318" fill-rule="evenodd" d="M133 32C79.98 32 37 74.98 37 128C37 181.02 79.98 224 133 224C169.84 224 201.72 203.24 217.72 173.22C221.54 166.06 216.36 157.42 208.25 157.42C203.81 157.42 199.75 159.85 197.68 163.78C185.12 187.65 160.13 203.88 133 203.88C91.09 203.88 57.12 169.91 57.12 128C57.12 86.09 91.09 52.12 133 52.12C160.13 52.12 185.12 68.35 197.68 92.22C199.75 96.15 203.81 98.58 208.25 98.58C216.36 98.58 221.54 89.94 217.72 82.78C201.72 52.76 169.84 32 133 32ZM133 88C128.58 88 125 91.58 125 96V100L114.47 96.49C111.63 95.54 108.56 97.23 107.88 100.17C107.2 103.11 109.14 105.99 112.13 106.49L125 108.64V152H113C108.58 152 105 155.58 105 160C105 164.42 108.58 168 113 168H153C157.42 168 161 164.42 161 160C161 155.58 157.42 152 153 152H141V96C141 91.58 137.42 88 133 88Z" />
+  </g>
+  <!-- Wordmark "Chosenwan" -->
+  <text x="190" y="106" font-family="'Plus Jakarta Sans', system-ui, -apple-system, sans-serif" font-size="62" font-weight="800" fill="#111318" letter-spacing="-1.5">Chosenwan</text>
+  <text x="192" y="136" font-family="'Plus Jakarta Sans', system-ui, -apple-system, sans-serif" font-size="16" font-weight="600" fill="#6E7485" letter-spacing="2.5">PORTAL KELAS IF-A</text>
+</svg>
