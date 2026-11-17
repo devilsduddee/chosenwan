@@ -110,3 +110,13 @@ Coding agent wajib mengeksekusi pembangunan aplikasi secara bertahap dan melakuk
 4. **Langkah 4:** Bangun alur autentikasi publisher (Login email/password) dan Dashboard publisher.
 5. **Langkah 5:** Bangun form create/edit konten (Tugas & Pengumuman) dengan aksi ganda Simpan Draft vs Terbitkan.
 6. **Langkah 6:** Uji kelengkapan kriteria penerimaan (Acceptance Criteria), verifikasi batas 500 baris kode per file, dan siapkan deployment ke Vercel.
+
+<!-- BEGIN:nextjs-agent-rules -->
+
+## This is NOT the Next.js you know
+
+This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
+
+This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
+
+<!-- END:nextjs-agent-rules -->

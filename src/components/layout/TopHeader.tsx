@@ -78,7 +78,7 @@ export function TopHeader() {
             ) : (
               <ShieldCheck className="w-3.5 h-3.5 text-[#4CD98B]" strokeWidth={2} />
             )}
-            <span className="text-[11px] font-semibold">{roleLabel}</span>
+            <span className="text-[11px] font-semibold" suppressHydrationWarning>{roleLabel}</span>
           </button>
         </div>
       </div>

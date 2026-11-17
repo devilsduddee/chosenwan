@@ -2,6 +2,7 @@
 
 import React from "react"
 import { Task, Announcement } from "@/types"
+import { formatIndonesianDate } from "@/lib/date-utils"
 import { Edit3, Trash2, BookOpen, Megaphone } from "lucide-react"
 
 interface PublisherContentItemProps {
@@ -23,9 +24,8 @@ export function PublisherContentItem({
 
   const isDraft = item.status === "DRAFT"
 
-  const createdDate = new Date(item.created_at).toLocaleDateString("id-ID", {
-    day: "numeric",
-    month: "short",
+  const createdDate = formatIndonesianDate(item.created_at, {
+    shortMonth: true,
   })
 
   return (
@@ -83,7 +83,7 @@ export function PublisherContentItem({
 
       {/* Footer: Date & Actions */}
       <div className="pt-2 border-t border-[#E4E7F0]/60 flex items-center justify-between">
-        <span className="text-[11px] text-[#6E7485]">
+        <span className="text-[11px] text-[#6E7485]" suppressHydrationWarning>
           Dibuat: {createdDate}
         </span>
 

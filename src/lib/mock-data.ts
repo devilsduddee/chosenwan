@@ -33,11 +33,11 @@ export const MOCK_COURSES: Course[] = [
   },
 ]
 
-// Helper function to create relative dates
-const now = new Date()
-const hoursFromNow = (h: number) => new Date(now.getTime() + h * 3600 * 1000).toISOString()
+// Fixed reference baseline for deterministic mock dates across SSR and Client hydration
+const BASE_DATE = new Date("2026-11-17T12:00:00+07:00")
+const hoursFromNow = (h: number) => new Date(BASE_DATE.getTime() + h * 3600 * 1000).toISOString()
 const daysFromNow = (d: number, hour = 23, minute = 59) => {
-  const date = new Date(now)
+  const date = new Date(BASE_DATE)
   date.setDate(date.getDate() + d)
   date.setHours(hour, minute, 0, 0)
   return date.toISOString()

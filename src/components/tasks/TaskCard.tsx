@@ -4,6 +4,7 @@ import React from "react"
 import { Task } from "@/types"
 import { useMockStore } from "@/lib/mock-store"
 import { useCurrentTime } from "@/lib/use-current-time"
+import { formatIndonesianDate, formatIndonesianTime } from "@/lib/date-utils"
 import { Calendar, Link2, ChevronRight } from "lucide-react"
 
 interface TaskCardProps {
@@ -40,16 +41,13 @@ export function TaskCard({ task }: TaskCardProps) {
     )
   }
 
-  // Format date: "Kamis, 20 Nov • 23:59"
-  const formattedDate = dueDate.toLocaleDateString("id-ID", {
-    weekday: "short",
-    day: "numeric",
-    month: "short",
+  // Format date: "Kam, 20 Nov • 23:59"
+  const formattedDate = formatIndonesianDate(dueDate, {
+    showDayName: true,
+    shortDayName: true,
+    shortMonth: true,
   })
-  const formattedTime = dueDate.toLocaleTimeString("id-ID", {
-    hour: "2-digit",
-    minute: "2-digit",
-  })
+  const formattedTime = formatIndonesianTime(dueDate)
 
   return (
     <div
@@ -85,7 +83,7 @@ export function TaskCard({ task }: TaskCardProps) {
       <div className="mt-3 pt-2.5 border-t border-[#E4E7F0]/70 flex items-center justify-between text-xs">
         <div className="flex items-center gap-1.5 text-[#6E7485]">
           <Calendar className="w-3.5 h-3.5" strokeWidth={1.75} />
-          <span className="font-medium text-[11px]">
+          <span className="font-medium text-[11px]" suppressHydrationWarning>
             {formattedDate} • {formattedTime} WIB
           </span>
         </div>

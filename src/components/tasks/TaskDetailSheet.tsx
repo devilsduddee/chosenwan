@@ -3,6 +3,7 @@
 import React, { useState } from "react"
 import { useMockStore } from "@/lib/mock-store"
 import { useCurrentTime } from "@/lib/use-current-time"
+import { formatIndonesianDate, formatIndonesianTime } from "@/lib/date-utils"
 import {
   Sheet,
   SheetContent,
@@ -31,17 +32,11 @@ export function TaskDetailSheet() {
   const isPast = mounted && now > 0 ? dueDate.getTime() < now : false
   const diffHours = mounted && now > 0 ? Math.round((dueDate.getTime() - now) / (1000 * 3600)) : 48
 
-  const formattedDate = dueDate.toLocaleDateString("id-ID", {
-    weekday: "long",
-    day: "numeric",
-    month: "long",
-    year: "numeric",
+  const formattedDate = formatIndonesianDate(dueDate, {
+    showDayName: true,
+    showYear: true,
   })
-
-  const formattedTime = dueDate.toLocaleTimeString("id-ID", {
-    hour: "2-digit",
-    minute: "2-digit",
-  })
+  const formattedTime = formatIndonesianTime(dueDate)
 
   const handleCopyWhatsApp = () => {
     const text = `📢 *TUGAS KELAS: ${task.course?.name || task.course?.code}*\n` +
@@ -109,14 +104,14 @@ export function TaskDetailSheet() {
             </div>
             <div>
               <p className="text-[11px] text-[#6E7485] font-medium">Batas Waktu</p>
-              <p className="font-bold text-[#111318] text-xs leading-tight">
+              <p className="font-bold text-[#111318] text-xs leading-tight" suppressHydrationWarning>
                 {formattedDate}
               </p>
             </div>
           </div>
           <div className="text-right">
             <span className="text-[10px] text-[#6E7485] font-medium block">Pukul</span>
-            <span className="font-bold text-[#111318] text-xs">
+            <span className="font-bold text-[#111318] text-xs" suppressHydrationWarning>
               {formattedTime} WIB
             </span>
           </div>

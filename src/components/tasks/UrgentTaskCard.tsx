@@ -4,6 +4,7 @@ import React from "react"
 import { Task } from "@/types"
 import { useMockStore } from "@/lib/mock-store"
 import { useCurrentTime } from "@/lib/use-current-time"
+import { formatIndonesianTime } from "@/lib/date-utils"
 import { Clock, ArrowRight } from "lucide-react"
 
 interface UrgentTaskCardProps {
@@ -49,7 +50,7 @@ export function UrgentTaskCard({ task }: UrgentTaskCardProps) {
 
         <div className="flex items-center gap-1.5 bg-[#F05252] text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-xs">
           <Clock className="w-3 h-3 animate-pulse" strokeWidth={2.5} />
-          <span>{countdownText}</span>
+          <span suppressHydrationWarning>{countdownText}</span>
         </div>
       </div>
 
@@ -67,8 +68,8 @@ export function UrgentTaskCard({ task }: UrgentTaskCardProps) {
       <div className="mt-4 pt-3 border-t border-white/10 flex items-center justify-between">
         <div className="text-[11px] text-white/60">
           <span>Tenggat: </span>
-          <span className="text-white font-medium">
-            {dueDate.toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" })} WIB
+          <span className="text-white font-medium" suppressHydrationWarning>
+            {formatIndonesianTime(dueDate)} WIB
           </span>
         </div>
 

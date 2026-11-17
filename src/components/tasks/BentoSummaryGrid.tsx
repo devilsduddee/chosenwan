@@ -56,7 +56,9 @@ export function BentoSummaryGrid() {
         </div>
         <div className="mt-3">
           <p className="text-[11px] font-bold text-[#111318]/80">Mendesak</p>
-          <p className="text-2xl font-black text-[#111318] tracking-tight">{urgentTasksCount}</p>
+          <p className="text-2xl font-black text-[#111318] tracking-tight" suppressHydrationWarning>
+            {urgentTasksCount}
+          </p>
         </div>
       </div>
 

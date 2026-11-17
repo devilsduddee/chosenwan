@@ -2,6 +2,7 @@
 
 import React, { useState } from "react"
 import { Announcement } from "@/types"
+import { formatIndonesianDate } from "@/lib/date-utils"
 import { ExternalLink, Share2, Check, Calendar } from "lucide-react"
 import { toast } from "sonner"
 
@@ -13,10 +14,10 @@ export function AnnouncementCard({ announcement }: AnnouncementCardProps) {
   const [copied, setCopied] = useState(false)
 
   const createdDate = new Date(announcement.created_at)
-  const formattedDate = createdDate.toLocaleDateString("id-ID", {
-    weekday: "short",
-    day: "numeric",
-    month: "short",
+  const formattedDate = formatIndonesianDate(createdDate, {
+    showDayName: true,
+    shortDayName: true,
+    shortMonth: true,
   })
 
   // Category Configuration
@@ -83,7 +84,7 @@ export function AnnouncementCard({ announcement }: AnnouncementCardProps) {
 
         <div className="flex items-center gap-1 text-[11px] text-[#6E7485]">
           <Calendar className="w-3 h-3" />
-          <span>{formattedDate}</span>
+          <span suppressHydrationWarning>{formattedDate}</span>
         </div>
       </div>
 
