@@ -70,7 +70,8 @@ export function TopHeader() {
           <button
             type="button"
             onClick={toggleRole}
-            className="group flex items-center gap-1.5 h-8 px-2.5 rounded-full bg-[#EEF1F6] hover:bg-[#E4E7F0] border border-[#E4E7F0] text-xs font-medium text-[#111318] transition-all cursor-pointer active:scale-95"
+            aria-label="Beralih peran pengguna"
+            className="group flex items-center gap-1.5 min-h-[36px] px-3 rounded-full bg-[#EEF1F6] hover:bg-[#E4E7F0] border border-[#E4E7F0] text-xs font-medium text-[#111318] transition-all cursor-pointer active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#111318]"
             title="Klik untuk beralih antara Mode Mahasiswa dan Mode Publisher"
           >
             {userRole === "guest" ? (

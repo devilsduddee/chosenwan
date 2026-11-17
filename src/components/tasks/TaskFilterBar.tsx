@@ -19,24 +19,25 @@ export function TaskFilterBar({ statusFilter, setStatusFilter }: TaskFilterBarPr
   } = useMockStore()
 
   return (
-    <div className="space-y-2.5">
+    <div className="space-y-3">
       {/* Search Input & Course Selector */}
       <div className="flex items-center gap-2">
         {/* Search Field */}
         <div className="relative flex-1">
-          <Search className="w-4 h-4 text-[#6E7485] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+          <Search className="w-4 h-4 text-[#6E7485] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Cari judul tugas..."
-            className="w-full h-10 pl-9 pr-8 rounded-2xl bg-white border border-[#E4E7F0] text-xs text-[#111318] placeholder:text-[#6E7485] focus:outline-none focus:border-[#111318] transition-colors"
+            placeholder="Cari judul atau mata kuliah..."
+            className="w-full h-11 pl-10 pr-9 rounded-2xl bg-white border border-[#E4E7F0] text-xs text-[#111318] placeholder:text-[#6E7485] focus:outline-none focus:border-[#111318] transition-colors shadow-xs"
           />
           {searchQuery && (
             <button
               type="button"
               onClick={() => setSearchQuery("")}
-              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#6E7485] hover:text-[#111318]"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-[#6E7485] hover:text-[#111318] p-1"
+              aria-label="Hapus pencarian"
             >
               <X className="w-3.5 h-3.5" />
             </button>
@@ -48,9 +49,10 @@ export function TaskFilterBar({ statusFilter, setStatusFilter }: TaskFilterBarPr
           <select
             value={selectedCourseFilter}
             onChange={(e) => setSelectedCourseFilter(e.target.value)}
-            className="h-10 px-3 rounded-2xl bg-white border border-[#E4E7F0] text-xs font-semibold text-[#111318] focus:outline-none focus:border-[#111318] transition-colors cursor-pointer"
+            aria-label="Filter berdasarkan mata kuliah"
+            className="h-11 px-3.5 rounded-2xl bg-[#EEF1F6] border border-[#E4E7F0] text-xs font-bold text-[#111318] focus:outline-none focus:border-[#111318] transition-colors cursor-pointer shadow-xs"
           >
-            <option value="ALL">Semua Matkul</option>
+            <option value="ALL">Semua MK</option>
             {courses.map((c) => (
               <option key={c.id} value={c.id}>
                 {c.code}
@@ -61,14 +63,14 @@ export function TaskFilterBar({ statusFilter, setStatusFilter }: TaskFilterBarPr
       </div>
 
       {/* Quick Status Pills: Semua | Mendatang | Tenggat Lewat */}
-      <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5">
+      <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-0.5">
         <button
           type="button"
           onClick={() => setStatusFilter("ALL")}
-          className={`h-7 px-3 rounded-full text-[11px] font-semibold transition-all shrink-0 cursor-pointer ${
+          className={`min-h-[38px] px-4 py-2 rounded-full text-xs font-semibold transition-all shrink-0 cursor-pointer ${
             statusFilter === "ALL"
-              ? "bg-[#111318] text-white shadow-xs"
-              : "bg-white text-[#6E7485] border border-[#E4E7F0] hover:text-[#111318]"
+              ? "bg-[#111318] text-white shadow-xs font-bold scale-[1.02]"
+              : "bg-white text-[#6E7485] border border-[#E4E7F0] hover:text-[#111318] hover:bg-[#EEF1F6] active:scale-95"
           }`}
         >
           Semua
@@ -76,10 +78,10 @@ export function TaskFilterBar({ statusFilter, setStatusFilter }: TaskFilterBarPr
         <button
           type="button"
           onClick={() => setStatusFilter("UPCOMING")}
-          className={`h-7 px-3 rounded-full text-[11px] font-semibold transition-all shrink-0 cursor-pointer ${
+          className={`min-h-[38px] px-4 py-2 rounded-full text-xs font-semibold transition-all shrink-0 cursor-pointer ${
             statusFilter === "UPCOMING"
-              ? "bg-[#111318] text-white shadow-xs"
-              : "bg-white text-[#6E7485] border border-[#E4E7F0] hover:text-[#111318]"
+              ? "bg-[#111318] text-white shadow-xs font-bold scale-[1.02]"
+              : "bg-white text-[#6E7485] border border-[#E4E7F0] hover:text-[#111318] hover:bg-[#EEF1F6] active:scale-95"
           }`}
         >
           Aktif & Mendatang
@@ -87,10 +89,10 @@ export function TaskFilterBar({ statusFilter, setStatusFilter }: TaskFilterBarPr
         <button
           type="button"
           onClick={() => setStatusFilter("PAST")}
-          className={`h-7 px-3 rounded-full text-[11px] font-semibold transition-all shrink-0 cursor-pointer ${
+          className={`min-h-[38px] px-4 py-2 rounded-full text-xs font-semibold transition-all shrink-0 cursor-pointer ${
             statusFilter === "PAST"
-              ? "bg-[#111318] text-white shadow-xs"
-              : "bg-white text-[#6E7485] border border-[#E4E7F0] hover:text-[#111318]"
+              ? "bg-[#111318] text-white shadow-xs font-bold scale-[1.02]"
+              : "bg-white text-[#6E7485] border border-[#E4E7F0] hover:text-[#111318] hover:bg-[#EEF1F6] active:scale-95"
           }`}
         >
           Tenggat Terlewat

@@ -26,11 +26,11 @@ export function ScheduleTimeline() {
     <div className="space-y-4">
       {/* Header */}
       <div className="space-y-1">
-        <h2 className="text-lg font-extrabold text-[#111318] tracking-tight">
-          Jadwal Kuliah Statis
+        <h2 className="text-xl font-bold text-[#111318] tracking-tight">
+          Jadwal Kuliah
         </h2>
         <p className="text-xs text-[#6E7485] leading-relaxed">
-          Jadwal tetap perkuliahan per semester. Perubahan ruangan/jam insidental tampil di tab Info.
+          Jadwal tetap perkuliahan per semester. Perubahan ruangan atau jam tampil di tab Info.
         </p>
       </div>
 

@@ -82,6 +82,16 @@ export function PublisherDashboard() {
 
   return (
     <div className="space-y-4">
+      {/* Page Greeting Header */}
+      <div className="space-y-1">
+        <h2 className="text-xl font-bold text-[#111318] tracking-tight">
+          Kelola Konten
+        </h2>
+        <p className="text-xs text-[#6E7485] leading-relaxed">
+          Ruang kerja publisher untuk menyusun draft dan menerbitkan tugas atau pengumuman kelas.
+        </p>
+      </div>
+
       {/* Overview Card */}
       <div className="bg-white rounded-3xl p-5 border border-[#E4E7F0] shadow-xs space-y-4">
         <div className="flex items-center justify-between">

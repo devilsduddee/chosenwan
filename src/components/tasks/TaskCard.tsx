@@ -50,9 +50,10 @@ export function TaskCard({ task }: TaskCardProps) {
   const formattedTime = formatIndonesianTime(dueDate)
 
   return (
-    <div
+    <button
+      type="button"
       onClick={() => setSelectedTaskForDetail(task)}
-      className="bg-white rounded-2xl p-4 border border-[#E4E7F0] shadow-xs hover:border-[#111318]/40 transition-all cursor-pointer active:scale-[0.99] group"
+      className="w-full text-left bg-white rounded-3xl p-4 border border-[#E4E7F0] shadow-xs hover:border-[#111318]/30 transition-all cursor-pointer active:scale-[0.98] group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#111318]"
     >
       {/* Top Header Row */}
       <div className="flex items-center justify-between gap-2 mb-2">
@@ -97,6 +98,6 @@ export function TaskCard({ task }: TaskCardProps) {
           <ChevronRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
         </div>
       </div>
-    </div>
+    </button>
   )
 }

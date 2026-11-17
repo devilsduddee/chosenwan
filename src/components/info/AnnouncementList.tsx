@@ -25,11 +25,11 @@ export function AnnouncementList() {
     <div className="space-y-4">
       {/* Intro Header */}
       <div className="space-y-1">
-        <h2 className="text-lg font-extrabold text-[#111318] tracking-tight">
-          Info & Pengumuman Kampus
+        <h2 className="text-xl font-bold text-[#111318] tracking-tight">
+          Info & Kampus
         </h2>
         <p className="text-xs text-[#6E7485] leading-relaxed">
-          Pengumuman dosen, perubahan jadwal, berita kampus, dan info lomba tanpa misscom.
+          Pengumuman dosen, info akademik, berita kampus, dan peluang lomba terkurasi.
         </p>
       </div>
 

@@ -33,7 +33,7 @@ export function BottomNavigationBar() {
               key={item.id}
               type="button"
               onClick={() => setActiveTab(item.id)}
-              className={`min-h-[44px] min-w-[44px] flex items-center justify-center gap-1.5 px-3 py-2 rounded-full text-xs font-semibold transition-all duration-200 select-none cursor-pointer ${
+              className={`min-h-[44px] min-w-[44px] flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-semibold transition-all duration-200 select-none cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#111318] ${
                 isActive
                   ? "bg-[#111318] text-white shadow-sm scale-[1.02]"
                   : "text-[#6E7485] hover:text-[#111318] hover:bg-[#EEF1F6]/70 active:scale-95"

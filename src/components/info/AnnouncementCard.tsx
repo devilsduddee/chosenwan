@@ -117,7 +117,7 @@ export function AnnouncementCard({ announcement }: AnnouncementCardProps) {
         <button
           type="button"
           onClick={handleShare}
-          className="inline-flex items-center gap-1 text-xs font-semibold text-[#6E7485] hover:text-[#111318] p-1.5 rounded-lg hover:bg-[#EEF1F6] transition-colors cursor-pointer"
+          className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#111318] bg-[#EEF1F6] hover:bg-[#E4E7F0] px-3 py-1.5 rounded-full transition-all cursor-pointer active:scale-95"
           title="Salin info untuk WA"
         >
           {copied ? (
@@ -125,7 +125,7 @@ export function AnnouncementCard({ announcement }: AnnouncementCardProps) {
           ) : (
             <Share2 className="w-3.5 h-3.5" />
           )}
-          <span className="text-[11px]">{copied ? "Disalin" : "Bagi ke WA"}</span>
+          <span className="text-[11px] font-semibold">{copied ? "Tersalin" : "Bagi ke WA"}</span>
         </button>
       </div>
     </div>

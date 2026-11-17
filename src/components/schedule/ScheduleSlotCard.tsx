@@ -10,18 +10,18 @@ interface ScheduleSlotCardProps {
 
 export function ScheduleSlotCard({ schedule }: ScheduleSlotCardProps) {
   return (
-    <div className="bg-white rounded-2xl p-4 border border-[#E4E7F0] shadow-xs hover:border-[#111318]/30 transition-all flex flex-col gap-3">
+    <div className="bg-white rounded-3xl p-4.5 border border-[#E4E7F0] shadow-xs hover:border-[#111318]/30 transition-all flex flex-col gap-3">
       {/* Top Row: Time Range & Room Badge */}
       <div className="flex items-center justify-between gap-2">
-        <div className="inline-flex items-center gap-1.5 bg-[#EEF1F6] text-[#111318] text-xs font-bold px-2.5 py-1 rounded-full">
+        <div className="inline-flex items-center gap-1.5 bg-[#EEF1F6] text-[#111318] text-xs font-bold px-3 py-1 rounded-full">
           <Clock className="w-3.5 h-3.5 text-[#6E7485]" strokeWidth={2} />
           <span>
             {schedule.start_time} - {schedule.end_time} WIB
           </span>
         </div>
 
-        <div className="inline-flex items-center gap-1 text-[11px] font-semibold bg-[#A8C0FF] text-[#111318] px-2.5 py-1 rounded-full">
-          <MapPin className="w-3 h-3" strokeWidth={2} />
+        <div className="inline-flex items-center gap-1 text-[11px] font-bold bg-[#A8C0FF] text-[#111318] px-3 py-1 rounded-full">
+          <MapPin className="w-3 h-3 text-[#111318]" strokeWidth={2} />
           <span>{schedule.room}</span>
         </div>
       </div>

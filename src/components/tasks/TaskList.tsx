@@ -56,8 +56,18 @@ export function TaskList() {
 
   return (
     <div className="space-y-4">
+      {/* Page Greeting Header */}
+      <div className="space-y-1">
+        <h2 className="text-xl font-bold text-[#111318] tracking-tight">
+          Tugas Kelas
+        </h2>
+        <p className="text-xs text-[#6E7485] leading-relaxed">
+          Pantau batas waktu tugas kuliah, rincian instruksi, dan link pengumpulan.
+        </p>
+      </div>
+
       {/* 2x2 Bento Summary Grid */}
-      <BentoSummaryGrid />
+      <BentoSummaryGrid onSelectStatusFilter={setStatusFilter} />
 
       {/* Urgent Dark Anchor Card */}
       {urgentTask && statusFilter !== "PAST" && !searchQuery && selectedCourseFilter === "ALL" && (

@@ -28,13 +28,11 @@ export function UrgentTaskCard({ task }: UrgentTaskCardProps) {
       : `Sisa ~${diffHours} Jam Lagi`
 
   return (
-    <div
+    <button
+      type="button"
       onClick={() => setSelectedTaskForDetail(task)}
-      className="bg-[#111318] text-white rounded-3xl p-5 border border-[#111318] shadow-md relative overflow-hidden transition-all active:scale-[0.99] cursor-pointer group"
+      className="w-full text-left bg-[#111318] text-white rounded-3xl p-5 border border-[#111318] shadow-md relative overflow-hidden transition-all active:scale-[0.98] cursor-pointer group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F6C866] focus-visible:ring-offset-2"
     >
-      {/* Decorative subtle ambient circle */}
-      <div className="absolute -right-8 -bottom-8 w-32 h-32 bg-[#F6C866]/10 rounded-full blur-2xl pointer-events-none" />
-
       {/* Top Header Row */}
       <div className="flex items-center justify-between gap-2 mb-3">
         <div className="flex items-center gap-2">
@@ -78,6 +76,6 @@ export function UrgentTaskCard({ task }: UrgentTaskCardProps) {
           <ArrowRight className="w-3.5 h-3.5" strokeWidth={2} />
         </div>
       </div>
-    </div>
+    </button>
   )
 }
