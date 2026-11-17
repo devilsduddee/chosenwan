@@ -33,11 +33,17 @@ export const MOCK_COURSES: Course[] = [
   },
 ]
 
-// Fixed reference baseline for deterministic mock dates across SSR and Client hydration
-const BASE_DATE = new Date("2026-11-17T12:00:00+07:00")
-const hoursFromNow = (h: number) => new Date(BASE_DATE.getTime() + h * 3600 * 1000).toISOString()
+// Reference baseline for mock dates
+const getBaseDate = () => {
+  if (typeof window !== "undefined") {
+    return new Date()
+  }
+  return new Date("2026-11-17T12:00:00+07:00")
+}
+
+const hoursFromNow = (h: number) => new Date(getBaseDate().getTime() + h * 3600 * 1000).toISOString()
 const daysFromNow = (d: number, hour = 23, minute = 59) => {
-  const date = new Date(BASE_DATE)
+  const date = new Date(getBaseDate())
   date.setDate(date.getDate() + d)
   date.setHours(hour, minute, 0, 0)
   return date.toISOString()
@@ -51,7 +57,7 @@ export const MOCK_TASKS: Task[] = [
     title: "Tugas 3: Perancangan UI Mobile High-Fidelity",
     instructions: "Buat minimal 4 frame prototipe aplikasi mobile menggunakan tema Playful Bento di Figma. Cantumkan link Figma yang dapat diakses publik pada Google Classroom.",
     week_number: 6,
-    due_date: hoursFromNow(5), // Mendesak: Hari ini (~5 jam lagi)
+    due_date: daysFromNow(0, 23, 59), // Mendesak: Hari ini (23:59 WIB)
     submission_url: "https://classroom.google.com/c/example-imk",
     status: "PUBLISHED",
     created_at: daysFromNow(-3),

@@ -67,7 +67,7 @@ export function TaskList() {
       </div>
 
       {/* 2x2 Bento Summary Grid */}
-      <BentoSummaryGrid onSelectStatusFilter={setStatusFilter} />
+      <BentoSummaryGrid currentStatusFilter={statusFilter} onSelectStatusFilter={setStatusFilter} />
 
       {/* Urgent Dark Anchor Card */}
       {urgentTask && statusFilter !== "PAST" && !searchQuery && selectedCourseFilter === "ALL" && (
