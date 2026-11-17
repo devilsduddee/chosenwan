@@ -31,39 +31,39 @@ export function TopHeader() {
       : "Mahasiswa"
 
   return (
-    <header className="sticky top-0 z-40 bg-[#F6F7FB]/95 backdrop-blur-md px-4 pt-4 pb-3 border-b border-[#E4E7F0]/60">
-      <div className="flex items-center justify-between gap-3">
+    <header className="sticky top-0 z-40 bg-[#F6F7FB]/95 backdrop-blur-md px-4 pt-3.5 pb-2.5 border-b border-[#E4E7F0]/60">
+      <div className="flex items-center justify-between gap-2">
         {/* Left: Class Identity */}
-        <div className="flex items-center gap-2.5">
-          <div className="w-10 h-10 rounded-2xl bg-[#111318] flex items-center justify-center text-white shadow-sm shrink-0">
-            <GraduationCap className="w-5 h-5" strokeWidth={1.75} />
+        <div className="flex items-center gap-2 min-w-0">
+          <div className="w-9 h-9 rounded-2xl bg-[#111318] flex items-center justify-center text-white shadow-xs shrink-0">
+            <GraduationCap className="w-4.5 h-4.5" strokeWidth={1.75} />
           </div>
-          <div>
+          <div className="min-w-0">
             <div className="flex items-center gap-1.5">
-              <h1 className="text-base font-bold text-[#111318] tracking-tight leading-tight">
-                Chosenwan Pilot
+              <h1 className="text-sm sm:text-base font-bold text-[#111318] tracking-tight leading-tight truncate">
+                Chosenwan
               </h1>
-              <span className="text-[10px] font-semibold bg-[#A8C0FF] text-[#111318] px-1.5 py-0.5 rounded-full">
+              <span className="text-[10px] font-semibold bg-[#A8C0FF] text-[#111318] px-1.5 py-0.2 rounded-full shrink-0">
                 IF-A
               </span>
             </div>
-            <p className="text-[11px] text-[#6E7485] font-medium leading-none mt-0.5">
+            <p className="text-[10px] sm:text-[11px] text-[#6E7485] font-medium leading-none mt-0.5 truncate">
               Semester Genap 2026
             </p>
           </div>
         </div>
 
         {/* Right: Role Switcher & Action */}
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-1.5 shrink-0">
           {userRole !== "guest" && (
             <Button
               size="sm"
               onClick={handleCreateNew}
-              className="h-8 rounded-full bg-[#111318] hover:bg-[#111318]/90 text-white text-xs font-semibold px-2.5 shadow-sm"
+              className="h-[34px] rounded-full bg-[#111318] hover:bg-[#111318]/90 text-white text-xs font-semibold px-2.5 shadow-xs shrink-0"
               title="Buat Konten Baru"
             >
               <Plus className="w-3.5 h-3.5 mr-1" strokeWidth={2} />
-              Posting
+              <span>Posting</span>
             </Button>
           )}
 
@@ -71,15 +71,15 @@ export function TopHeader() {
             type="button"
             onClick={toggleRole}
             aria-label="Beralih peran pengguna"
-            className="group flex items-center gap-1.5 min-h-[36px] px-3 rounded-full bg-[#EEF1F6] hover:bg-[#E4E7F0] border border-[#E4E7F0] text-xs font-medium text-[#111318] transition-all cursor-pointer active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#111318]"
-            title="Klik untuk beralih antara Mode Mahasiswa dan Mode Publisher"
+            className="group flex items-center gap-1.5 min-h-[34px] h-[34px] px-2.5 rounded-full bg-[#EEF1F6] hover:bg-[#E4E7F0] border border-[#E4E7F0] text-xs font-semibold text-[#111318] transition-all cursor-pointer active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#111318] shrink-0"
+            title="Klik untuk beralih peran"
           >
             {userRole === "guest" ? (
-              <User className="w-3.5 h-3.5 text-[#6E7485]" strokeWidth={1.75} />
+              <User className="w-3.5 h-3.5 text-[#6E7485] shrink-0" strokeWidth={1.75} />
             ) : (
-              <ShieldCheck className="w-3.5 h-3.5 text-[#4CD98B]" strokeWidth={2} />
+              <ShieldCheck className="w-3.5 h-3.5 text-[#4CD98B] shrink-0" strokeWidth={2} />
             )}
-            <span className="text-[11px] font-semibold" suppressHydrationWarning>{roleLabel}</span>
+            <span className="text-[11px] font-bold" suppressHydrationWarning>{roleLabel}</span>
           </button>
         </div>
       </div>

@@ -29,7 +29,7 @@ export function PublisherContentItem({
   })
 
   return (
-    <div className="bg-white rounded-2xl p-4 border border-[#E4E7F0] shadow-xs hover:border-[#111318]/30 transition-all space-y-2.5">
+    <div className="bg-white rounded-3xl p-4 border border-[#E4E7F0] shadow-xs hover:border-[#111318]/30 transition-all space-y-2.5">
       {/* Top Header */}
       <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-1.5 flex-wrap">

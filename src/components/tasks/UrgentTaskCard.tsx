@@ -22,21 +22,21 @@ export function UrgentTaskCard({ task }: UrgentTaskCardProps) {
 
   const countdownText =
     diffHours <= 0
-      ? "Tenggat Waktu Hari Ini!"
+      ? "Hari Ini"
       : diffHours === 1
-      ? "Sisa 1 Jam Lagi"
-      : `Sisa ~${diffHours} Jam Lagi`
+      ? "1 Jam Lagi"
+      : `~${diffHours} Jam Lagi`
 
   return (
     <button
       type="button"
       onClick={() => setSelectedTaskForDetail(task)}
-      className="w-full text-left bg-[#111318] text-white rounded-3xl p-5 border border-[#111318] shadow-md relative overflow-hidden transition-all active:scale-[0.98] cursor-pointer group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F6C866] focus-visible:ring-offset-2"
+      className="w-full text-left bg-[#111318] text-white rounded-3xl p-4.5 sm:p-5 border border-[#111318] shadow-md relative overflow-hidden transition-all active:scale-[0.98] cursor-pointer group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F6C866] focus-visible:ring-offset-2"
     >
       {/* Top Header Row */}
-      <div className="flex items-center justify-between gap-2 mb-3">
-        <div className="flex items-center gap-2">
-          <span className="text-[11px] font-bold bg-[#A8C0FF] text-[#111318] px-2.5 py-0.5 rounded-full">
+      <div className="flex items-center justify-between gap-2 flex-wrap mb-2.5">
+        <div className="flex items-center gap-1.5 shrink-0">
+          <span className="text-[11px] font-bold bg-[#A8C0FF] text-[#111318] px-2.5 py-0.5 rounded-full shrink-0">
             {task.course?.code || "TUGAS"}
           </span>
           {task.week_number && (
@@ -46,8 +46,8 @@ export function UrgentTaskCard({ task }: UrgentTaskCardProps) {
           )}
         </div>
 
-        <div className="flex items-center gap-1.5 bg-[#F05252] text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-xs">
-          <Clock className="w-3 h-3 animate-pulse" strokeWidth={2.5} />
+        <div className="flex items-center gap-1.5 bg-[#F05252] text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-xs shrink-0">
+          <Clock className="w-3 h-3 animate-pulse shrink-0" strokeWidth={2.5} />
           <span suppressHydrationWarning>{countdownText}</span>
         </div>
       </div>

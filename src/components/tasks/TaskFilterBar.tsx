@@ -69,7 +69,7 @@ export function TaskFilterBar({ statusFilter, setStatusFilter }: TaskFilterBarPr
           onClick={() => setStatusFilter("ALL")}
           className={`min-h-[38px] px-4 py-2 rounded-full text-xs font-semibold transition-all shrink-0 cursor-pointer ${
             statusFilter === "ALL"
-              ? "bg-[#111318] text-white shadow-xs font-bold scale-[1.02]"
+              ? "bg-[#111318] text-white shadow-xs font-bold"
               : "bg-white text-[#6E7485] border border-[#E4E7F0] hover:text-[#111318] hover:bg-[#EEF1F6] active:scale-95"
           }`}
         >
@@ -80,7 +80,7 @@ export function TaskFilterBar({ statusFilter, setStatusFilter }: TaskFilterBarPr
           onClick={() => setStatusFilter("UPCOMING")}
           className={`min-h-[38px] px-4 py-2 rounded-full text-xs font-semibold transition-all shrink-0 cursor-pointer ${
             statusFilter === "UPCOMING"
-              ? "bg-[#111318] text-white shadow-xs font-bold scale-[1.02]"
+              ? "bg-[#111318] text-white shadow-xs font-bold"
               : "bg-white text-[#6E7485] border border-[#E4E7F0] hover:text-[#111318] hover:bg-[#EEF1F6] active:scale-95"
           }`}
         >
@@ -91,7 +91,7 @@ export function TaskFilterBar({ statusFilter, setStatusFilter }: TaskFilterBarPr
           onClick={() => setStatusFilter("PAST")}
           className={`min-h-[38px] px-4 py-2 rounded-full text-xs font-semibold transition-all shrink-0 cursor-pointer ${
             statusFilter === "PAST"
-              ? "bg-[#111318] text-white shadow-xs font-bold scale-[1.02]"
+              ? "bg-[#111318] text-white shadow-xs font-bold"
               : "bg-white text-[#6E7485] border border-[#E4E7F0] hover:text-[#111318] hover:bg-[#EEF1F6] active:scale-95"
           }`}
         >

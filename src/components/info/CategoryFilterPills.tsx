@@ -25,9 +25,9 @@ export function CategoryFilterPills() {
             key={cat.id}
             type="button"
             onClick={() => setSelectedCategoryFilter(cat.id)}
-            className={`min-h-[38px] px-3.5 py-1.5 rounded-full text-xs font-semibold flex items-center gap-1.5 shrink-0 transition-all select-none cursor-pointer ${
+            className={`min-h-[38px] px-3.5 py-1.5 rounded-full text-xs font-semibold flex items-center gap-1.5 shrink-0 transition-all select-none cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#111318] ${
               isActive
-                ? "bg-[#111318] text-white shadow-xs scale-[1.02]"
+                ? "bg-[#111318] text-white shadow-xs font-bold"
                 : "bg-white text-[#6E7485] border border-[#E4E7F0] hover:text-[#111318] hover:border-[#111318]/30 active:scale-95"
             }`}
           >
