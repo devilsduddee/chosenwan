@@ -3,7 +3,7 @@
 import React from "react"
 import { useMockStore } from "@/lib/mock-store"
 import { Button } from "@/components/ui/button"
-import { GraduationCap, ShieldCheck, User, Plus } from "lucide-react"
+import { ShieldCheck, User, Plus } from "lucide-react"
 
 export function TopHeader() {
   const { userRole, setUserRole, setIsEditorOpen, setEditingContent } = useMockStore()
@@ -34,21 +34,22 @@ export function TopHeader() {
     <header className="sticky top-0 z-40 bg-[#F6F7FB]/95 backdrop-blur-md px-4 pt-3.5 pb-2.5 border-b border-[#E4E7F0]/60">
       <div className="flex items-center justify-between gap-2">
         {/* Left: Class Identity */}
-        <div className="flex items-center gap-2 min-w-0">
-          <div className="w-9 h-9 rounded-2xl bg-[#111318] flex items-center justify-center text-white shadow-xs shrink-0">
-            <GraduationCap className="w-4.5 h-4.5" strokeWidth={1.75} />
+        <div className="flex items-center gap-2.5 min-w-0">
+          <div className="w-9 h-9 rounded-2xl bg-[#111318] p-1.5 flex items-center justify-center text-white shadow-xs shrink-0">
+            {/* Chosenwan Bento Spark Logo Mark */}
+            <svg viewBox="0 0 256 256" className="w-full h-full" fill="none">
+              <rect x="32" y="32" width="88" height="88" rx="28" fill="#FFFFFF" />
+              <rect x="136" y="32" width="88" height="88" rx="44" fill="#F6C866" />
+              <rect x="32" y="136" width="88" height="88" rx="44" fill="#A8C0FF" />
+              <rect x="136" y="136" width="88" height="88" rx="28" fill="#EA9DFB" />
+            </svg>
           </div>
           <div className="min-w-0">
-            <div className="flex items-center gap-1.5">
-              <h1 className="text-sm sm:text-base font-bold text-[#111318] tracking-tight leading-tight truncate">
-                Chosenwan
-              </h1>
-              <span className="text-[10px] font-semibold bg-[#A8C0FF] text-[#111318] px-1.5 py-0.2 rounded-full shrink-0">
-                IF-A
-              </span>
-            </div>
+            <h1 className="text-sm sm:text-base font-extrabold text-[#111318] tracking-tight leading-tight truncate">
+              Chosenwan
+            </h1>
             <p className="text-[10px] sm:text-[11px] text-[#6E7485] font-medium leading-none mt-0.5 truncate">
-              Semester Genap 2026
+              Portal Informasi Kelas
             </p>
           </div>
         </div>

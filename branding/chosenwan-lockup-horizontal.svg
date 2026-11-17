@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 180" width="640" height="180">
+  <title>Chosenwan Logo Lockup</title>
+  <!-- Symbol scaled to 132x132 and placed at x=24, y=24 -->
+  <g transform="translate(24, 24) scale(0.515625)">
+    <rect x="32" y="32" width="88" height="88" rx="28" fill="#111318" />
+    <rect x="136" y="32" width="88" height="88" rx="44" fill="#111318" />
+    <rect x="32" y="136" width="88" height="88" rx="44" fill="#111318" />
+    <rect x="136" y="136" width="88" height="88" rx="28" fill="#111318" />
+  </g>
+  <!-- Wordmark "Chosenwan" without IF-A -->
+  <text x="180" y="104" font-family="'Plus Jakarta Sans', system-ui, -apple-system, sans-serif" font-size="62" font-weight="800" fill="#111318" letter-spacing="-1.5">Chosenwan</text>
+  <text x="182" y="134" font-family="'Plus Jakarta Sans', system-ui, -apple-system, sans-serif" font-size="14" font-weight="600" fill="#6E7485" letter-spacing="3">PORTAL INFORMASI KELAS</text>
+</svg>

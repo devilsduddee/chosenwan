@@ -16,6 +16,14 @@ const plusJakartaSans = Plus_Jakarta_Sans({
 export const metadata: Metadata = {
   title: "Chosenwan: Portal Informasi Kelas",
   description: "Cek tugas kuliah, jadwal statis harian, dan pengumuman kampus kelas pilot dengan cepat.",
+  icons: {
+    icon: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/favicon.svg", type: "image/svg+xml" },
+    ],
+    apple: "/apple-touch-icon.png",
+  },
+  manifest: "/site.webmanifest",
 }
 
 export const viewport: Viewport = {

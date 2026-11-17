@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <title>Chosenwan Logo Symbol Color</title>
+  <!-- 4 Playful Bento modules in brand theme colors -->
+  <rect x="32" y="32" width="88" height="88" rx="28" fill="#111318" />
+  <rect x="136" y="32" width="88" height="88" rx="44" fill="#F6C866" />
+  <rect x="32" y="136" width="88" height="88" rx="44" fill="#A8C0FF" />
+  <rect x="136" y="136" width="88" height="88" rx="28" fill="#EA9DFB" />
+</svg>
