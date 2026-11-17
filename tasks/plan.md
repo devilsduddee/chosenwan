@@ -71,24 +71,24 @@ Membangun prototipe frontend interaktif untuk portal kelas **Chosenwan** secara 
 
 ### Phase 3: Publisher Experience & Content Form
 
-- [ ] **Task 8: Publisher Dashboard & Tab Status (Published vs Draft)**
+- [x] **Task 8: Publisher Dashboard & Tab Status (Published vs Draft)**
   - Membuat tampilan dashboard publisher dengan ringkasan status konten.
   - Membuat tab pemisah: `Terbit (Published)` vs `Draft (Disimpan)`.
   - Menyediakan tombol aksi cepat `+ Buat Konten Baru`.
-- [ ] **Task 9: ContentEditorForm (Tugas vs Info Simpel)**
+- [x] **Task 9: ContentEditorForm (Tugas vs Info Simpel)**
   - Membuat toggle segmented pill antara entri `Tugas Kuliah` dan `Pengumuman & Info`.
   - Form dinamis: validasi field tugas (matkul, deadline, instruksi) vs field info (kategori info, isi ringkas, tautan sumber).
   - Mengintegrasikan skema validasi `zod` + `react-hook-form`.
   - Membuat tombol aksi ganda: **Simpan Draft** (sekunder) dan **Terbitkan** (primer hitam pekat).
   - Menampilkan feedback notifikasi via `sonner` toast.
-- [ ] **Task 10: Delete Confirmation & Content Mutation Simulation**
+- [x] **Task 10: Delete Confirmation & Content Mutation Simulation**
   - Mengimplementasikan modal konfirmasi hapus menggunakan `shadcn AlertDialog` / `Dialog`.
   - Memastikan konten yang baru dibuat atau dihapus langsung ter-update di feed publik maupun dashboard publisher melalui `mock-store`.
 
 #### Checkpoint 3: Interactive Prototyping Complete
-- [ ] Siklus publikasi tugas dan pengumuman berfungsi end-to-end secara lokal.
-- [ ] Simpan draft berhasil dan hanya muncul di tab Draft publisher.
-- [ ] Toast notifikasi dan modal konfirmasi berjalan mulus.
+- [x] Siklus publikasi tugas dan pengumuman berfungsi end-to-end secara lokal.
+- [x] Simpan draft berhasil dan hanya muncul di tab Draft publisher.
+- [x] Toast notifikasi dan modal konfirmasi berjalan mulus.
 
 ---
 

@@ -199,9 +199,9 @@
 ---
 
 ### Checkpoint 3: End-to-End Prototyping Complete
-- [ ] Pengguna dapat mencoba alur lengkap sebagai Mahasiswa (baca, cari, filter, lihat detail tugas/jadwal) maupun Publisher (buat tugas, buat pengumuman, simpan draft, terbitkan, edit, hapus).
-- [ ] Data tersinkronisasi via `mock-store`.
-- [ ] Build sukses: `npm run build`.
+- [x] Pengguna dapat mencoba alur lengkap sebagai Mahasiswa (baca, cari, filter, lihat detail tugas/jadwal) maupun Publisher (buat tugas, buat pengumuman, simpan draft, terbitkan, edit, hapus).
+- [x] Data tersinkronisasi via `mock-store`.
+- [x] Build sukses: `npm run build`.
 
 ---
 
