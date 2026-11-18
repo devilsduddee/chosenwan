@@ -1,6 +1,6 @@
 "use client"
 
-import React from "react"
+import React, { useMemo } from "react"
 import { useMockStore } from "@/lib/mock-store"
 import { CategoryFilterPills } from "@/components/info/CategoryFilterPills"
 import { AnnouncementCard } from "@/components/info/AnnouncementCard"
@@ -9,17 +9,15 @@ import { Inbox } from "lucide-react"
 export function AnnouncementList() {
   const { announcements, selectedCategoryFilter } = useMockStore()
 
-  // Only published items for public view
-  const publishedAnnouncements = announcements.filter((a) => a.status === "PUBLISHED")
-
-  // Filter by category pill
-  const filtered = publishedAnnouncements.filter((a) => {
-    if (selectedCategoryFilter === "ALL") return true
-    return a.category_type === selectedCategoryFilter
-  })
-
-  // Sort by created_at newest first
-  filtered.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+  const filtered = useMemo(() => {
+    return announcements
+      .filter((a) => {
+        if (a.status !== "PUBLISHED") return false
+        if (selectedCategoryFilter === "ALL") return true
+        return a.category_type === selectedCategoryFilter
+      })
+      .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+  }, [announcements, selectedCategoryFilter])
 
   return (
     <div className="space-y-4">

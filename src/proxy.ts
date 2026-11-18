@@ -10,7 +10,7 @@ const SCANNER_PATH_PATTERNS = [
   /^\/phpmyadmin/i,
   /^\/cgi-bin/i,
   /^\/vendor\/phpunit/i,
-  /^\/(admin|config|setup)\.php$/i,
+  /\.php$/i,
 ]
 
 const BLOCKED_BOT_AGENTS = [
@@ -38,10 +38,7 @@ function resolveLimitPolicy(pathname: string): { bucket: string; limit: number; 
   if (pathname.startsWith("/api/")) {
     return { bucket: "api", limit: 20, windowMs: 60_000 }
   }
-  if (pathname.startsWith("/login")) {
-    return { bucket: "login", limit: 15, windowMs: 60_000 }
-  }
-  return { bucket: "page", limit: 60, windowMs: 60_000 }
+  return { bucket: "login", limit: 15, windowMs: 60_000 }
 }
 
 export function proxy(request: NextRequest) {
@@ -57,9 +54,12 @@ export function proxy(request: NextRequest) {
     })
   }
 
-  // 2. Block aggressive AI & SEO scrapers to save Vercel bandwidth
-  const userAgent = (request.headers.get("user-agent") || "").toLowerCase()
-  if (userAgent && BLOCKED_BOT_AGENTS.some((bot) => userAgent.includes(bot))) {
+  // 2. Reject empty/suspicious short User-Agents & aggressive scrapers on guarded routes
+  const userAgent = (request.headers.get("user-agent") || "").trim().toLowerCase()
+  if (
+    userAgent.length < 5 ||
+    BLOCKED_BOT_AGENTS.some((bot) => userAgent.includes(bot))
+  ) {
     return new NextResponse("Forbidden", {
       status: 403,
       headers: {
@@ -68,7 +68,7 @@ export function proxy(request: NextRequest) {
     })
   }
 
-  // 3. Apply per-IP rate limiting per route category
+  // 3. Apply per-IP rate limiting on auth/API routes (static routes /, /portal stay cached on CDN)
   const ip = extractClientIp(request.headers)
   const policy = resolveLimitPolicy(pathname)
   const result = checkRateLimit(`${policy.bucket}:${ip}`, {
@@ -103,8 +103,18 @@ export function proxy(request: NextRequest) {
   return response
 }
 
+// Keep static pages (/, /portal) on Vercel Edge CDN without proxy compute; guard auth, API, & scanner probes
 export const config = {
   matcher: [
-    "/((?!_next/static|_next/image|favicon\\.ico|favicon\\.svg|apple-touch-icon\\.png|icon-.*\\.png|maskable-512\\.png|site\\.webmanifest|robots\\.txt|sitemap\\.xml).*)",
+    "/api/:path*",
+    "/login",
+    "/wp-:path*",
+    "/xmlrpc.php",
+    "/.env:path*",
+    "/.git:path*",
+    "/phpmyadmin:path*",
+    "/cgi-bin/:path*",
+    "/vendor/:path*",
+    "/:path*.php",
   ],
 }

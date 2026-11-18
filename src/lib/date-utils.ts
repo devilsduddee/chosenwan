@@ -87,3 +87,17 @@ export function formatIndonesianTime(dateInput: string | Date | number): string 
   const minutes = String(d.getMinutes()).padStart(2, "0")
   return `${hours}:${minutes}`
 }
+
+export const URGENT_WINDOW_MS = 24 * 3600 * 1000
+
+export function isTaskUrgent(dueDate: string | Date, nowMs: number): boolean {
+  if (nowMs <= 0) return false
+  const dueMs = new Date(dueDate).getTime()
+  const diff = dueMs - nowMs
+  return diff > 0 && diff <= URGENT_WINDOW_MS
+}
+
+export function isTaskPast(dueDate: string | Date, nowMs: number): boolean {
+  if (nowMs <= 0) return false
+  return new Date(dueDate).getTime() < nowMs
+}

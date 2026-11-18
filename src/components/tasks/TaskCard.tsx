@@ -4,7 +4,7 @@ import React from "react"
 import { Task } from "@/types"
 import { useMockStore } from "@/lib/mock-store"
 import { useCurrentTime } from "@/lib/use-current-time"
-import { formatIndonesianDate, formatIndonesianTime } from "@/lib/date-utils"
+import { formatIndonesianDate, formatIndonesianTime, isTaskPast, isTaskUrgent } from "@/lib/date-utils"
 import { Calendar, Link2, ChevronRight } from "lucide-react"
 
 interface TaskCardProps {
@@ -16,9 +16,8 @@ export function TaskCard({ task }: TaskCardProps) {
   const { now, mounted } = useCurrentTime()
 
   const dueDate = new Date(task.due_date)
-  const isPast = mounted && now > 0 ? dueDate.getTime() < now : false
-  const diffHours = mounted && now > 0 ? Math.round((dueDate.getTime() - now) / (1000 * 3600)) : 48
-  const isUrgent = !isPast && diffHours <= 24
+  const isPast = mounted && now > 0 ? isTaskPast(dueDate, now) : false
+  const isUrgent = mounted && now > 0 ? isTaskUrgent(dueDate, now) : false
 
   // Status Badge Logic
   let statusBadge = (

@@ -1,8 +1,10 @@
 "use client"
 
-import React, { useState } from "react"
+import React, { useMemo, useState } from "react"
 import { useMockStore } from "@/lib/mock-store"
 import { useCurrentTime } from "@/lib/use-current-time"
+import { isTaskPast, isTaskUrgent } from "@/lib/date-utils"
+import { TaskStatusFilter } from "@/types"
 import { BentoSummaryGrid } from "@/components/tasks/BentoSummaryGrid"
 import { UrgentTaskCard } from "@/components/tasks/UrgentTaskCard"
 import { TaskFilterBar } from "@/components/tasks/TaskFilterBar"
@@ -13,46 +15,46 @@ import { CheckCircle2, Sparkles } from "lucide-react"
 export function TaskList() {
   const { tasks, searchQuery, selectedCourseFilter } = useMockStore()
   const { now, mounted } = useCurrentTime()
-  const [statusFilter, setStatusFilter] = useState<"ALL" | "UPCOMING" | "PAST">("ALL")
+  const [statusFilter, setStatusFilter] = useState<TaskStatusFilter>("ALL")
 
-  // Only show published tasks for public view
-  const publishedTasks = tasks.filter((t) => t.status === "PUBLISHED")
+  // Sorted published tasks (earliest deadline first) so urgent selection is deterministic
+  const publishedSorted = useMemo(() => {
+    return tasks
+      .filter((t) => t.status === "PUBLISHED")
+      .sort((a, b) => new Date(a.due_date).getTime() - new Date(b.due_date).getTime())
+  }, [tasks])
 
-  // Filter by search query
-  let filtered = publishedTasks.filter((t) => {
-    const matchQuery =
-      t.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      t.instructions.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      t.course?.code.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      t.course?.name.toLowerCase().includes(searchQuery.toLowerCase())
+  const filtered = useMemo(() => {
+    const query = searchQuery.toLowerCase()
+    return publishedSorted.filter((t) => {
+      const matchQuery =
+        !query ||
+        t.title.toLowerCase().includes(query) ||
+        t.instructions.toLowerCase().includes(query) ||
+        t.course?.code.toLowerCase().includes(query) ||
+        t.course?.name.toLowerCase().includes(query)
 
-    const matchCourse =
-      selectedCourseFilter === "ALL" || t.course_id === selectedCourseFilter
+      const matchCourse =
+        selectedCourseFilter === "ALL" || t.course_id === selectedCourseFilter
 
-    return matchQuery && matchCourse
-  })
+      if (!matchQuery || !matchCourse) return false
 
-  // Filter by status (Upcoming vs Past) when mounted
-  if (mounted && now > 0) {
-    if (statusFilter === "UPCOMING") {
-      filtered = filtered.filter((t) => new Date(t.due_date).getTime() >= now)
-    } else if (statusFilter === "PAST") {
-      filtered = filtered.filter((t) => new Date(t.due_date).getTime() < now)
+      if (mounted && now > 0) {
+        if (statusFilter === "URGENT") return isTaskUrgent(t.due_date, now)
+        if (statusFilter === "UPCOMING") return !isTaskPast(t.due_date, now)
+        if (statusFilter === "PAST") return isTaskPast(t.due_date, now)
+      }
+      return true
+    })
+  }, [publishedSorted, searchQuery, selectedCourseFilter, mounted, now, statusFilter])
+
+  // Earliest upcoming task within 24 hours
+  const urgentTask = useMemo(() => {
+    if (mounted && now > 0) {
+      return publishedSorted.find((t) => isTaskUrgent(t.due_date, now))
     }
-  }
-
-  // Sort: upcoming tasks earliest due first
-  filtered.sort((a, b) => {
-    return new Date(a.due_date).getTime() - new Date(b.due_date).getTime()
-  })
-
-  // Urgent Task Anchor (first upcoming task with due date within 24 hours)
-  const urgentTask = mounted && now > 0
-    ? publishedTasks.find((t) => {
-        const diff = new Date(t.due_date).getTime() - now
-        return diff > 0 && diff <= 24 * 3600 * 1000
-      })
-    : publishedTasks[0]
+    return publishedSorted[0]
+  }, [publishedSorted, mounted, now])
 
   return (
     <div className="space-y-4">
@@ -66,7 +68,7 @@ export function TaskList() {
         </p>
       </div>
 
-      {/* 2x2 Bento Summary Grid */}
+      {/* Bento Summary Grid */}
       <BentoSummaryGrid currentStatusFilter={statusFilter} onSelectStatusFilter={setStatusFilter} />
 
       {/* Urgent Dark Anchor Card */}

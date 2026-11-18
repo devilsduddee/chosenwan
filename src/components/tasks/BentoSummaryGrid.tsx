@@ -3,11 +3,13 @@
 import React from "react"
 import { useMockStore } from "@/lib/mock-store"
 import { useCurrentTime } from "@/lib/use-current-time"
+import { isTaskUrgent } from "@/lib/date-utils"
+import { TaskStatusFilter } from "@/types"
 import { CheckSquare, AlertCircle, Megaphone, Trophy, ArrowUpRight } from "lucide-react"
 
 interface BentoSummaryGridProps {
-  currentStatusFilter?: "ALL" | "UPCOMING" | "PAST"
-  onSelectStatusFilter?: (status: "ALL" | "UPCOMING" | "PAST") => void
+  currentStatusFilter?: TaskStatusFilter
+  onSelectStatusFilter?: (status: TaskStatusFilter) => void
 }
 
 export function BentoSummaryGrid({ currentStatusFilter = "ALL", onSelectStatusFilter }: BentoSummaryGridProps) {
@@ -17,10 +19,7 @@ export function BentoSummaryGrid({ currentStatusFilter = "ALL", onSelectStatusFi
   // Calculate statistics from published items
   const publishedTasks = tasks.filter((t) => t.status === "PUBLISHED")
   const urgentTasksCount = mounted && now > 0
-    ? publishedTasks.filter((t) => {
-        const diff = new Date(t.due_date).getTime() - now
-        return diff > 0 && diff <= 24 * 3600 * 1000
-      }).length
+    ? publishedTasks.filter((t) => isTaskUrgent(t.due_date, now)).length
     : 1
 
   const campusNewsCount = announcements.filter(
@@ -32,7 +31,7 @@ export function BentoSummaryGrid({ currentStatusFilter = "ALL", onSelectStatusFi
   ).length
 
   const isAllActive = currentStatusFilter === "ALL"
-  const isUrgentActive = currentStatusFilter === "UPCOMING"
+  const isUrgentActive = currentStatusFilter === "URGENT"
 
   return (
     <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5 sm:gap-3.5">
@@ -65,7 +64,7 @@ export function BentoSummaryGrid({ currentStatusFilter = "ALL", onSelectStatusFi
       {/* Tile 2: Tugas Mendesak (Hari Ini) */}
       <button
         type="button"
-        onClick={() => onSelectStatusFilter?.("UPCOMING")}
+        onClick={() => onSelectStatusFilter?.("URGENT")}
         className={`bg-[#F6C866] p-4 rounded-[22px] flex flex-col justify-between text-left transition-all active:scale-[0.98] cursor-pointer group min-h-[114px] text-[#111318] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#111318] ${
           isUrgentActive
             ? "border-2 border-[#111318] shadow-sm"

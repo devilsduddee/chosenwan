@@ -22,7 +22,6 @@ interface MockStoreContextType {
   activeTab: ActiveTab
   setActiveTab: (tab: ActiveTab) => void
   userRole: UserRole
-  setUserRole: (role: UserRole) => void
   currentUser: UserProfile
   loginPublisher: (email: string, password: string) => LoginResult
   logoutPublisher: () => void
@@ -181,11 +180,13 @@ export function MockStoreProvider({ children }: { children: React.ReactNode }) {
     return false
   }
 
-  // Task Mutations
+  // Task Mutations (guarded by publisher session & ownership)
   const addTask = (newTaskData: Omit<Task, "id" | "created_at">) => {
+    if (userRole === "guest") return
     const courseObj = courses.find((c) => c.id === newTaskData.course_id)
     const newTask: Task = {
       ...newTaskData,
+      created_by: currentUser.id,
       id: `task_${Date.now()}`,
       created_at: new Date().toISOString(),
       course: courseObj,
@@ -196,13 +197,14 @@ export function MockStoreProvider({ children }: { children: React.ReactNode }) {
   const updateTask = (id: string, updatedFields: Partial<Task>) => {
     setTasks((prev) =>
       prev.map((t) => {
-        if (t.id === id) {
+        if (t.id === id && canManageContent(t.created_by)) {
           const courseObj = updatedFields.course_id
             ? courses.find((c) => c.id === updatedFields.course_id)
             : t.course
           return {
             ...t,
             ...updatedFields,
+            created_by: t.created_by, // Preserve original author on moderation edits
             updated_at: new Date().toISOString(),
             course: courseObj,
           }
@@ -213,19 +215,23 @@ export function MockStoreProvider({ children }: { children: React.ReactNode }) {
   }
 
   const deleteTask = (id: string) => {
+    const target = tasks.find((t) => t.id === id)
+    if (!target || !canManageContent(target.created_by)) return
     setTasks((prev) => prev.filter((t) => t.id !== id))
     if (selectedTaskForDetail?.id === id) {
       setSelectedTaskForDetail(null)
     }
   }
 
-  // Announcement Mutations
+  // Announcement Mutations (guarded by publisher session & ownership)
   const addAnnouncement = (newAnnData: Omit<Announcement, "id" | "created_at">) => {
+    if (userRole === "guest") return
     const courseObj = newAnnData.course_id
       ? courses.find((c) => c.id === newAnnData.course_id)
       : undefined
     const newAnn: Announcement = {
       ...newAnnData,
+      created_by: currentUser.id,
       id: `ann_${Date.now()}`,
       created_at: new Date().toISOString(),
       course: courseObj,
@@ -236,13 +242,14 @@ export function MockStoreProvider({ children }: { children: React.ReactNode }) {
   const updateAnnouncement = (id: string, updatedFields: Partial<Announcement>) => {
     setAnnouncements((prev) =>
       prev.map((a) => {
-        if (a.id === id) {
+        if (a.id === id && canManageContent(a.created_by)) {
           const courseObj = updatedFields.course_id
             ? courses.find((c) => c.id === updatedFields.course_id)
             : a.course
           return {
             ...a,
             ...updatedFields,
+            created_by: a.created_by, // Preserve original author on moderation edits
             updated_at: new Date().toISOString(),
             course: courseObj,
           }
@@ -253,14 +260,18 @@ export function MockStoreProvider({ children }: { children: React.ReactNode }) {
   }
 
   const deleteAnnouncement = (id: string) => {
+    const target = announcements.find((a) => a.id === id)
+    if (!target || !canManageContent(target.created_by)) return
     setAnnouncements((prev) => prev.filter((a) => a.id !== id))
   }
 
-  // Schedule Mutations
+  // Schedule Mutations (guarded by publisher session)
   const addSchedule = (newScheduleData: Omit<Schedule, "id">) => {
+    if (userRole === "guest") return
     const courseObj = courses.find((c) => c.id === newScheduleData.course_id)
     const newSchedule: Schedule = {
       ...newScheduleData,
+      updated_by: currentUser.id,
       id: `sched_${Date.now()}`,
       course: courseObj,
       lecturer_name: newScheduleData.lecturer_name || courseObj?.lecturer_name,
@@ -269,6 +280,7 @@ export function MockStoreProvider({ children }: { children: React.ReactNode }) {
   }
 
   const updateSchedule = (id: string, updatedFields: Partial<Schedule>) => {
+    if (userRole === "guest") return
     setSchedules((prev) =>
       prev.map((s) => {
         if (s.id === id) {
@@ -278,6 +290,7 @@ export function MockStoreProvider({ children }: { children: React.ReactNode }) {
           return {
             ...s,
             ...updatedFields,
+            updated_by: currentUser.id,
             course: courseObj,
           }
         }
@@ -287,6 +300,7 @@ export function MockStoreProvider({ children }: { children: React.ReactNode }) {
   }
 
   const deleteSchedule = (id: string) => {
+    if (userRole === "guest") return
     setSchedules((prev) => prev.filter((s) => s.id !== id))
   }
 
@@ -307,7 +321,6 @@ export function MockStoreProvider({ children }: { children: React.ReactNode }) {
         activeTab,
         setActiveTab,
         userRole,
-        setUserRole: handleSetUserRole,
         currentUser,
         loginPublisher,
         logoutPublisher,

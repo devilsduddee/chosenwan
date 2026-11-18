@@ -2,12 +2,20 @@
 
 import React from "react"
 import { useMockStore } from "@/lib/mock-store"
+import { TaskStatusFilter } from "@/types"
 import { Search, X } from "lucide-react"
 
 interface TaskFilterBarProps {
-  statusFilter: "ALL" | "UPCOMING" | "PAST"
-  setStatusFilter: (filter: "ALL" | "UPCOMING" | "PAST") => void
+  statusFilter: TaskStatusFilter
+  setStatusFilter: (filter: TaskStatusFilter) => void
 }
+
+const STATUS_PILLS: { id: TaskStatusFilter; label: string }[] = [
+  { id: "ALL", label: "Semua" },
+  { id: "URGENT", label: "Mendesak" },
+  { id: "UPCOMING", label: "Aktif & Mendatang" },
+  { id: "PAST", label: "Tenggat Terlewat" },
+]
 
 export function TaskFilterBar({ statusFilter, setStatusFilter }: TaskFilterBarProps) {
   const {
@@ -22,7 +30,6 @@ export function TaskFilterBar({ statusFilter, setStatusFilter }: TaskFilterBarPr
     <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2.5 sm:gap-3">
       {/* Search Input & Course Selector */}
       <div className="flex items-center gap-2 md:flex-1 md:max-w-md">
-        {/* Search Field */}
         <div className="relative flex-1 min-w-0">
           <Search className="w-4 h-4 text-[#6E7485] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
           <input
@@ -46,7 +53,6 @@ export function TaskFilterBar({ statusFilter, setStatusFilter }: TaskFilterBarPr
           )}
         </div>
 
-        {/* Course Filter Dropdown */}
         <div className="shrink-0">
           <select
             value={selectedCourseFilter}
@@ -64,41 +70,22 @@ export function TaskFilterBar({ statusFilter, setStatusFilter }: TaskFilterBarPr
         </div>
       </div>
 
-      {/* Quick Status Pills: Semua | Mendatang | Tenggat Lewat */}
+      {/* Quick Status Pills */}
       <div className="flex items-center gap-2 overflow-x-auto overscroll-x-contain no-scrollbar py-0.5 md:shrink-0">
-        <button
-          type="button"
-          onClick={() => setStatusFilter("ALL")}
-          className={`min-h-[38px] px-4 py-2 rounded-full text-xs font-semibold transition-all shrink-0 cursor-pointer ${
-            statusFilter === "ALL"
-              ? "bg-[#111318] text-white shadow-xs font-bold"
-              : "bg-white text-[#6E7485] border border-[#E4E7F0] hover:text-[#111318] hover:bg-[#EEF1F6] active:scale-95"
-          }`}
-        >
-          Semua
-        </button>
-        <button
-          type="button"
-          onClick={() => setStatusFilter("UPCOMING")}
-          className={`min-h-[38px] px-4 py-2 rounded-full text-xs font-semibold transition-all shrink-0 cursor-pointer ${
-            statusFilter === "UPCOMING"
-              ? "bg-[#111318] text-white shadow-xs font-bold"
-              : "bg-white text-[#6E7485] border border-[#E4E7F0] hover:text-[#111318] hover:bg-[#EEF1F6] active:scale-95"
-          }`}
-        >
-          Aktif & Mendatang
-        </button>
-        <button
-          type="button"
-          onClick={() => setStatusFilter("PAST")}
-          className={`min-h-[38px] px-4 py-2 rounded-full text-xs font-semibold transition-all shrink-0 cursor-pointer ${
-            statusFilter === "PAST"
-              ? "bg-[#111318] text-white shadow-xs font-bold"
-              : "bg-white text-[#6E7485] border border-[#E4E7F0] hover:text-[#111318] hover:bg-[#EEF1F6] active:scale-95"
-          }`}
-        >
-          Tenggat Terlewat
-        </button>
+        {STATUS_PILLS.map((pill) => (
+          <button
+            key={pill.id}
+            type="button"
+            onClick={() => setStatusFilter(pill.id)}
+            className={`min-h-[38px] px-4 py-2 rounded-full text-xs font-semibold transition-all shrink-0 cursor-pointer ${
+              statusFilter === pill.id
+                ? "bg-[#111318] text-white shadow-xs font-bold"
+                : "bg-white text-[#6E7485] border border-[#E4E7F0] hover:text-[#111318] hover:bg-[#EEF1F6] active:scale-95"
+            }`}
+          >
+            {pill.label}
+          </button>
+        ))}
       </div>
     </div>
   )

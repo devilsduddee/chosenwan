@@ -60,3 +60,5 @@ export interface Schedule {
 }
 
 export type ActiveTab = "tasks" | "info" | "schedule" | "publisher"
+
+export type TaskStatusFilter = "ALL" | "URGENT" | "UPCOMING" | "PAST"
