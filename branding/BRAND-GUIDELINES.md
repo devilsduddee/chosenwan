@@ -49,21 +49,20 @@ Pertemuan di antara keempat modul tersebut membentuk ruang negatif siluet **Bint
 
 ```text
 branding/
-├── chosenwan-symbol.svg                 # Simbol monokrom hitam (#111318)
-├── chosenwan-symbol-color.svg           # Simbol varian multi-color brand
-├── chosenwan-lockup-horizontal.svg      # Horizontal lockup monokrom
-├── chosenwan-lockup-horizontal-color.svg# Horizontal lockup dengan simbol warna
-├── chosenwan-lockup-stacked.svg         # Stacked/vertical lockup
-├── export/
-│   ├── chosenwan-symbol-app-icon.svg    # App icon master
-│   ├── chosenwan-symbol-favicon.svg     # Favicon SVG
-│   ├── chosenwan-symbol-black-*.png     # Raster PNG 32, 64, 128, 256, 512px
-│   ├── chosenwan-symbol-white-*.png     # Raster PNG putih (reversed)
-│   ├── apple-touch-icon.png             # iOS home screen icon (180x180)
-│   ├── icon-192.png & icon-512.png      # Android & PWA icons
-│   ├── favicon.ico                      # Multi-size browser favicon (16, 32, 48px)
-│   └── site.webmanifest                 # Web app manifest standar
-└── BRAND-GUIDELINES.md                  # Dokumen panduan ini
+├── chosenwan-symbol.svg                  # Simbol monokrom hitam (#111318)
+├── chosenwan-symbol-color.svg            # Simbol varian multi-color brand
+├── chosenwan-lockup-horizontal.svg       # Horizontal lockup monokrom
+├── chosenwan-lockup-horizontal-color.svg # Horizontal lockup dengan simbol warna
+├── chosenwan-lockup-stacked.svg          # Stacked/vertical lockup
+├── preview.html                          # Lembar uji visual SVG
+└── BRAND-GUIDELINES.md                   # Dokumen panduan ini
+
+public/
+├── apple-touch-icon.png                  # iOS home screen icon (180x180)
+├── icon-192.png & icon-512.png           # Android & PWA icons
+├── maskable-512.png                      # Adaptive maskable PWA icon
+├── favicon.ico & favicon.svg             # Browser favicon multi-size & vektor
+└── site.webmanifest                      # Web app manifest standar
 ```
 
 ---

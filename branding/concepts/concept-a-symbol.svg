@@ -1,5 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
-  <title>Chosenwan Bento Monogram</title>
-  <path fill="#111318" fill-rule="evenodd" d="M36 80C36 55.7 55.7 36 80 36H200C211 36 220 45 220 56C220 67 211 76 200 76H96C85 76 76 85 76 96V160C76 171 85 180 96 180H200C211 180 220 189 220 200C220 211 211 220 200 220H80C55.7 220 36 200.3 36 176V80Z" />
-  <rect x="156" y="98" width="64" height="60" rx="20" fill="#111318" />
-</svg>
