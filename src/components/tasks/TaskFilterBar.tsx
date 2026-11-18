@@ -26,11 +26,13 @@ export function TaskFilterBar({ statusFilter, setStatusFilter }: TaskFilterBarPr
         <div className="relative flex-1 min-w-0">
           <Search className="w-4 h-4 text-[#6E7485] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
           <input
-            type="text"
+            type="search"
+            enterKeyHint="search"
+            autoComplete="off"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Cari tugas atau MK..."
-            className="w-full h-11 pl-10 pr-8 rounded-[14px] bg-white border border-[#E4E7F0] text-sm sm:text-xs text-[#111318] placeholder:text-[#6E7485] focus:outline-none focus:border-[#111318] transition-colors shadow-2xs"
+            className="w-full h-11 pl-10 pr-8 rounded-[14px] bg-white border border-[#E4E7F0] text-sm sm:text-xs text-[#111318] placeholder:text-[#6E7485] focus:outline-none focus:border-[#111318] transition-colors shadow-2xs [&::-webkit-search-cancel-button]:hidden"
           />
           {searchQuery && (
             <button
@@ -63,7 +65,7 @@ export function TaskFilterBar({ statusFilter, setStatusFilter }: TaskFilterBarPr
       </div>
 
       {/* Quick Status Pills: Semua | Mendatang | Tenggat Lewat */}
-      <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-0.5">
+      <div className="flex items-center gap-2 overflow-x-auto overscroll-x-contain no-scrollbar py-0.5 md:shrink-0">
         <button
           type="button"
           onClick={() => setStatusFilter("ALL")}

@@ -120,26 +120,31 @@
 @layer base {
   * {
     @apply border-border outline-ring/50;
+  }
+  html {
+    @apply font-sans;
+    scroll-behavior: smooth;
     -webkit-tap-highlight-color: transparent;
+    -webkit-text-size-adjust: 100%;
+    overscroll-behavior: none;
   }
   body {
     @apply bg-background text-foreground;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    overscroll-behavior: none;
   }
-  html {
-    @apply font-sans;
-    scroll-behavior: smooth;
-  }
-  /* Mobile-native: fast responsive touch and tap targets */
-  button, a, input, select, textarea {
+  /* Mobile-native: eliminate 300ms click delay & protect control labels from selection */
+  button, a, [role="button"], input, select, textarea, label {
     touch-action: manipulation;
   }
-  button {
+  button, [role="button"] {
     user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
   }
-  /* Mobile-native: prevent unwanted auto-zoom on iOS inputs */
-  @media screen and (max-width: 640px) {
+  /* Mobile-native: prevent unwanted auto-zoom on coarse-pointer (touch) inputs */
+  @media (pointer: coarse) {
     input, select, textarea {
       font-size: 16px !important;
     }
@@ -147,6 +152,13 @@
 }
 
 @layer utilities {
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
   .badge-pastel-blue {
     background-color: var(--color-pastel-blue);
     color: var(--color-bento-dark);

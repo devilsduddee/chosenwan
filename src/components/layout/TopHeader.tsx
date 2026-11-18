@@ -56,7 +56,7 @@ export function TopHeader() {
       : "Mahasiswa"
 
   return (
-    <header className="sticky top-0 z-40 bg-[#F6F7FB]/95 backdrop-blur-md border-b border-[#E4E7F0]/70">
+    <header className="sticky top-0 z-40 bg-[#F6F7FB]/95 backdrop-blur-md border-b border-[#E4E7F0]/70 pt-[env(safe-area-inset-top,0px)]">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-2 sm:gap-3">
         {/* Left: Brand Identity linking back to Landing Page */}
         <Link
@@ -106,10 +106,11 @@ export function TopHeader() {
           {userRole === "guest" ? (
             <Link
               href="/login"
-              className="flex items-center gap-1.5 min-h-[36px] h-[36px] px-3 rounded-full bg-[#EEF1F6] hover:bg-[#E4E7F0] border border-[#E4E7F0] text-[11px] sm:text-xs font-bold text-[#111318] transition-all active:scale-95 shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#111318]"
+              aria-label="Masuk Publisher"
+              title="Masuk Publisher"
+              className="flex items-center justify-center w-9 h-9 rounded-full bg-white hover:bg-[#EEF1F6] border border-[#E4E7F0]/80 text-[#6E7485] hover:text-[#111318] transition-all active:scale-95 shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#111318]"
             >
-              <LogIn className="w-3.5 h-3.5 text-[#111318] shrink-0" strokeWidth={2} />
-              <span>Masuk Publisher</span>
+              <LogIn className="w-4 h-4" strokeWidth={1.75} />
             </Link>
           ) : (
             <>

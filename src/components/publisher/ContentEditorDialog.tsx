@@ -167,7 +167,7 @@ export function ContentEditorDialog() {
     <Sheet open={isEditorOpen} onOpenChange={(open) => !open && handleClose()}>
       <SheetContent
         side="bottom"
-        className="w-full sm:max-w-lg mx-auto rounded-t-[24px] sm:rounded-[24px] sm:mb-4 p-6 max-h-[92vh] overflow-y-auto bg-white border border-[#E4E7F0] shadow-2xl flex flex-col"
+        className="w-full sm:max-w-lg mx-auto rounded-t-[24px] sm:rounded-[24px] sm:mb-4 p-6 pb-[calc(1.5rem+env(safe-area-inset-bottom,0px))] max-h-[92dvh] overflow-y-auto overscroll-contain bg-white border border-[#E4E7F0] shadow-2xl flex flex-col"
       >
         <SheetHeader className="text-left space-y-2">
           <SheetTitle className="text-lg font-extrabold text-[#111318]">

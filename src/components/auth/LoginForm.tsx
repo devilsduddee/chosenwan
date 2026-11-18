@@ -170,7 +170,11 @@ export function LoginForm() {
             <Input
               id="email"
               type="email"
+              inputMode="email"
               autoComplete="email"
+              autoCapitalize="none"
+              autoCorrect="off"
+              enterKeyHint="next"
               placeholder="nama@chosenwan.ac.id"
               {...form.register("email")}
               className="h-11 rounded-[14px] bg-[#F6F7FB] border-[#E4E7F0] text-sm text-[#111318] focus-visible:border-[#111318] focus-visible:ring-0"
@@ -191,6 +195,9 @@ export function LoginForm() {
                 id="password"
                 type={showPassword ? "text" : "password"}
                 autoComplete="current-password"
+                autoCapitalize="none"
+                autoCorrect="off"
+                enterKeyHint="go"
                 placeholder="Minimal 6 karakter"
                 {...form.register("password")}
                 className="h-11 pr-10 rounded-[14px] bg-[#F6F7FB] border-[#E4E7F0] text-sm text-[#111318] focus-visible:border-[#111318] focus-visible:ring-0"

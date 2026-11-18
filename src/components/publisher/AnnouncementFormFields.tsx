@@ -116,6 +116,10 @@ export function AnnouncementFormFields({ form, courses }: AnnouncementFormFields
           Tautan Sumber Resmi (Opsional)
         </label>
         <Input
+          type="url"
+          inputMode="url"
+          autoCapitalize="none"
+          autoCorrect="off"
           placeholder="https://instagram.com/p/... atau website lomba"
           {...register("source_url")}
           className="h-10 rounded-xl bg-[#EEF1F6] border-[#E4E7F0] text-xs"

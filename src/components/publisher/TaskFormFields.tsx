@@ -48,6 +48,7 @@ export function TaskFormFields({ form, courses }: TaskFormFieldsProps) {
           </label>
           <Input
             type="number"
+            inputMode="numeric"
             min={1}
             max={16}
             placeholder="Contoh: 7"
@@ -109,6 +110,10 @@ export function TaskFormFields({ form, courses }: TaskFormFieldsProps) {
           Link Pengumpulan (Opsional)
         </label>
         <Input
+          type="url"
+          inputMode="url"
+          autoCapitalize="none"
+          autoCorrect="off"
           placeholder="https://classroom.google.com/..."
           {...register("submission_url")}
           className="h-10 rounded-xl bg-[#EEF1F6] border-[#E4E7F0] text-xs"

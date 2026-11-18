@@ -22,17 +22,28 @@ export const metadata: Metadata = {
     apple: "/apple-touch-icon.png",
   },
   manifest: "/site.webmanifest",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "Chosenwan",
+  },
 }
 
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
+  viewportFit: "cover",
+  interactiveWidget: "resizes-content",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#F6F7FB" },
+    { media: "(prefers-color-scheme: dark)", color: "#F6F7FB" },
+  ],
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="id" className={cn("font-sans antialiased", plusJakartaSans.variable)}>
-      <body className="bg-[#F6F7FB] min-h-screen text-[#111318]">
+      <body className="bg-[#F6F7FB] min-h-dvh text-[#111318]">
         <MockStoreProvider>
           {children}
           <Toaster position="top-center" richColors />

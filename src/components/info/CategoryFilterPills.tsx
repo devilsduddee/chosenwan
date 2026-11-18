@@ -15,7 +15,7 @@ export function CategoryFilterPills() {
   ]
 
   return (
-    <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
+    <div className="flex items-center gap-2 overflow-x-auto overscroll-x-contain no-scrollbar py-1">
       {categories.map((cat) => {
         const Icon = cat.icon
         const isActive = selectedCategoryFilter === cat.id
