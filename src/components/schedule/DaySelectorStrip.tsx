@@ -5,9 +5,14 @@ import React from "react"
 interface DaySelectorStripProps {
   selectedDay: number // 1 (Senin) - 6 (Sabtu)
   onSelectDay: (day: number) => void
+  classCounts?: Record<number, number>
 }
 
-export function DaySelectorStrip({ selectedDay, onSelectDay }: DaySelectorStripProps) {
+export function DaySelectorStrip({
+  selectedDay,
+  onSelectDay,
+  classCounts,
+}: DaySelectorStripProps) {
   const days = [
     { dayNumber: 1, label: "Sen", full: "Senin" },
     { dayNumber: 2, label: "Sel", full: "Selasa" },
@@ -50,7 +55,11 @@ export function DaySelectorStrip({ selectedDay, onSelectDay }: DaySelectorStripP
             </span>
             <span
               className={`w-1.5 h-1.5 rounded-full mt-1 transition-colors ${
-                isActive ? "bg-[#F6C866]" : "bg-transparent"
+                isActive
+                  ? "bg-[#F6C866]"
+                  : (classCounts?.[d.dayNumber] ?? 0) > 0
+                  ? "bg-[#A8C0FF]"
+                  : "bg-transparent"
               }`}
             />
           </button>

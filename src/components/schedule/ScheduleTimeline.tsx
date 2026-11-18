@@ -27,6 +27,12 @@ export function ScheduleTimeline() {
 
   const dayNames = ["", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"]
 
+  // Count scheduled classes per day for DaySelectorStrip indicators
+  const classCounts = schedules.reduce<Record<number, number>>((acc, s) => {
+    acc[s.day_of_week] = (acc[s.day_of_week] ?? 0) + 1
+    return acc
+  }, {})
+
   // Filter schedules for the selected day and sort by start_time
   const daySchedules = schedules
     .filter((s) => s.day_of_week === selectedDay)
@@ -58,7 +64,7 @@ export function ScheduleTimeline() {
             Jadwal Kuliah
           </h2>
           <p className="text-xs text-[#6E7485] leading-relaxed">
-            Jadwal tetap perkuliahan per semester. Perubahan ruangan atau jam tampil di tab Info.
+            Jadwal Perkuliahan Ganjil (PTA) 2026/2027 · Kelas 3IA01. Perubahan ruang tampil di tab Info.
           </p>
         </div>
 
@@ -75,7 +81,11 @@ export function ScheduleTimeline() {
       </div>
 
       {/* Horizontal Day Selector */}
-      <DaySelectorStrip selectedDay={selectedDay} onSelectDay={setUserSelectedDay} />
+      <DaySelectorStrip
+        selectedDay={selectedDay}
+        onSelectDay={setUserSelectedDay}
+        classCounts={classCounts}
+      />
 
       {/* Active Day Title & Count */}
       <div className="flex items-center justify-between px-1">

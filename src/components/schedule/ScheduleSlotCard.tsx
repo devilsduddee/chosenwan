@@ -50,9 +50,11 @@ export function ScheduleSlotCard({
       {(schedule.lecturer_name || canManage) && (
         <div className="pt-2.5 border-t border-[#E4E7F0]/60 flex items-center justify-between gap-2 text-xs text-[#6E7485]">
           {schedule.lecturer_name ? (
-            <div className="flex items-center gap-1.5 min-w-0">
-              <User className="w-3.5 h-3.5 shrink-0" strokeWidth={1.75} />
-              <span className="text-[11px] font-medium truncate">{schedule.lecturer_name}</span>
+            <div className="flex items-start gap-1.5 min-w-0">
+              <User className="w-3.5 h-3.5 shrink-0 mt-0.5" strokeWidth={1.75} />
+              <span className="text-[11px] font-medium leading-snug break-words">
+                {schedule.lecturer_name}
+              </span>
             </div>
           ) : (
             <span />

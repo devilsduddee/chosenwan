@@ -3,33 +3,51 @@ import { Course, Task, Announcement, Schedule, UserProfile } from "@/types"
 export const MOCK_COURSES: Course[] = [
   {
     id: "c1",
-    code: "IF2140",
-    name: "Interaksi Manusia dan Komputer",
-    lecturer_name: "Siti Rahma, M.T.",
+    code: "IMK",
+    name: "Interaksi Manusia & Komputer */**",
+    lecturer_name: "Tavipia Rumambi",
   },
   {
     id: "c2",
-    code: "IF2150",
-    name: "Pemrograman Web",
-    lecturer_name: "Rahmat Hidayat, M.Kom.",
+    code: "PWEB",
+    name: "Pemrograman WEB **",
+    lecturer_name: "Ega Hegarini",
   },
   {
     id: "c3",
-    code: "IF2160",
-    name: "Basis Data Lanjut",
-    lecturer_name: "Dr. Ir. Budi Santoso",
+    code: "SBD1",
+    name: "Sistem Basis Data 1 **",
+    lecturer_name: "Jalinas / Elly Agustina Julisawati",
   },
   {
     id: "c4",
-    code: "IF2170",
-    name: "Rekayasa Perangkat Lunak",
-    lecturer_name: "Hendra Wijaya, Ph.D.",
+    code: "SKK",
+    name: "Sistem Keamanan Komputer",
+    lecturer_name: "Bintang Eka Putera",
   },
   {
     id: "c5",
-    code: "IF2180",
-    name: "Jaringan Komputer",
-    lecturer_name: "Doni Prasetyo, M.Cs.",
+    code: "JARKOM",
+    name: "Jaringan Komputer */**",
+    lecturer_name: "Mochammad Akbar Marwan / Dede Herman S",
+  },
+  {
+    id: "c6",
+    code: "KA",
+    name: "Kecerdasan Artificial **",
+    lecturer_name: "Octaviani Hutapea",
+  },
+  {
+    id: "c7",
+    code: "GK",
+    name: "Grafik Komputer **",
+    lecturer_name: "Aries Muslim",
+  },
+  {
+    id: "c8",
+    code: "PAA",
+    name: "Peranc. & Analisis Algoritma */**",
+    lecturer_name: "Risma Rahmalia Fitriani",
   },
 ]
 
@@ -38,7 +56,7 @@ const getBaseDate = () => {
   if (typeof window !== "undefined") {
     return new Date()
   }
-  return new Date("2026-11-18T08:00:00+07:00")
+  return new Date("2026-11-18T10:00:00+07:00")
 }
 
 const daysFromNow = (d: number, hour = 23, minute = 59) => {
@@ -79,8 +97,8 @@ export const MOCK_TASKS: Task[] = [
     id: "t3",
     course_id: "c3",
     created_by: "u1",
-    title: "Praktikum 4: Optimasi Query & Composite Index",
-    instructions: "Selesaikan 5 soal studi kasus query tuning pada schema database rental mobil. Tuliskan query SQL beserta hasil EXPLAIN ANALYZE dalam file PDF.",
+    title: "Praktikum 4: Normalisasi & Perancangan ERD",
+    instructions: "Selesaikan studi kasus perancangan skema database Sistem Basis Data 1 hingga bentuk 3NF beserta diagram ERD dalam file PDF.",
     week_number: 7,
     due_date: daysFromNow(5, 17, 0), // Aman (> 3 hari)
     submission_url: "https://classroom.google.com/c/example-basdat",
@@ -103,16 +121,16 @@ export const MOCK_TASKS: Task[] = [
   },
   {
     id: "t5",
-    course_id: "c4",
+    course_id: "c8",
     created_by: "u1",
-    title: "Draft Tugas: SRS Dokumen Perancangan Sistem",
-    instructions: "Menyusun Software Requirements Specification bab 1 sampai 3 sesuai format IEEE 830.",
+    title: "Draft Tugas: Analisis Kompleksitas Divide & Conquer",
+    instructions: "Bandingkan kompleksitas waktu Merge Sort dan Quick Sort pada kasus rata-rata serta terburuk menggunakan notasi Big-O.",
     week_number: 8,
     due_date: daysFromNow(10, 23, 59),
     submission_url: "",
     status: "DRAFT", // Khusus publisher view
     created_at: daysFromNow(0),
-    course: MOCK_COURSES[3],
+    course: MOCK_COURSES[7],
   },
 ]
 
@@ -121,9 +139,9 @@ export const MOCK_ANNOUNCEMENTS: Announcement[] = [
     id: "a1",
     course_id: "c1",
     created_by: "u2",
-    title: "Perubahan Ruangan: Kuliah IMK Kamis Pindah ke Lab Komputer 2",
+    title: "Perubahan Ruangan: Kuliah IMK Selasa Pindah ke D221",
     category_type: "ACADEMIC",
-    content: "Diberitahukan kepada rekan-rekan kelas bahwa perkuliahan IMK hari Kamis minggu ini dipindahkan ke Lab Komputer 2 Lantai 3 karena ruang 302 sedang dipakai ujian sertifikasi.",
+    content: "Diberitahukan kepada rekan-rekan kelas 3IA01 bahwa perkuliahan Interaksi Manusia & Komputer sesi 8/9/10 minggu ini dipindahkan sementara dari D132 ke ruang D221.",
     source_url: null,
     status: "PUBLISHED",
     created_at: daysFromNow(-1),
@@ -164,63 +182,99 @@ export const MOCK_ANNOUNCEMENTS: Announcement[] = [
   },
 ]
 
+// Jadwal Perkuliahan Ganjil (PTA) 2026/2027 - Kelas 3IA01
 export const MOCK_SCHEDULES: Schedule[] = [
+  // Senin (day_of_week: 1)
   {
     id: "s1",
-    course_id: "c3",
-    updated_by: "u1",
-    day_of_week: 1, // Senin
-    start_time: "08:00",
-    end_time: "10:30",
-    room: "Lab Komputer 1",
-    lecturer_name: "Dr. Ir. Budi Santoso",
-    course: MOCK_COURSES[2],
-  },
-  {
-    id: "s2",
     course_id: "c2",
     updated_by: "u1",
-    day_of_week: 2, // Selasa
-    start_time: "10:00",
-    end_time: "12:30",
-    room: "Lab Komputer 3",
-    lecturer_name: "Rahmat Hidayat, M.Kom.",
+    day_of_week: 1,
+    start_time: "09:30", // Jam 3/4
+    end_time: "11:30",
+    room: "G222",
+    lecturer_name: "Ega Hegarini",
     course: MOCK_COURSES[1],
   },
   {
-    id: "s3",
-    course_id: "c1",
-    updated_by: "u1",
-    day_of_week: 3, // Rabu
-    start_time: "13:00",
-    end_time: "15:30",
-    room: "Ruang Kuliah 302",
-    lecturer_name: "Siti Rahma, M.T.",
-    course: MOCK_COURSES[0],
-  },
-  {
-    id: "s4",
+    id: "s2",
     course_id: "c4",
     updated_by: "u1",
-    day_of_week: 4, // Kamis
-    start_time: "08:00",
-    end_time: "10:30",
-    room: "Ruang Kuliah 401",
-    lecturer_name: "Hendra Wijaya, Ph.D.",
+    day_of_week: 1,
+    start_time: "11:30", // Jam 5/6
+    end_time: "13:30",
+    room: "G2410",
+    lecturer_name: "Bintang Eka Putera",
     course: MOCK_COURSES[3],
   },
   {
+    id: "s3",
+    course_id: "c6",
+    updated_by: "u1",
+    day_of_week: 1,
+    start_time: "13:30", // Jam 7/8
+    end_time: "15:30",
+    room: "G2410",
+    lecturer_name: "Octaviani Hutapea",
+    course: MOCK_COURSES[5],
+  },
+  // Selasa (day_of_week: 2)
+  {
+    id: "s4",
+    course_id: "c7",
+    updated_by: "u1",
+    day_of_week: 2,
+    start_time: "07:30", // Jam 1/2/3
+    end_time: "10:30",
+    room: "D655",
+    lecturer_name: "Aries Muslim",
+    course: MOCK_COURSES[6],
+  },
+  {
     id: "s5",
+    course_id: "c3",
+    updated_by: "u1",
+    day_of_week: 2,
+    start_time: "10:30", // Jam 4/5/6
+    end_time: "13:30",
+    room: "D655",
+    lecturer_name: "Jalinas / Elly Agustina Julisawati",
+    course: MOCK_COURSES[2],
+  },
+  {
+    id: "s6",
+    course_id: "c1",
+    updated_by: "u1",
+    day_of_week: 2,
+    start_time: "14:30", // Jam 8/9/10
+    end_time: "17:30",
+    room: "D132",
+    lecturer_name: "Tavipia Rumambi",
+    course: MOCK_COURSES[0],
+  },
+  // Kamis (day_of_week: 4)
+  {
+    id: "s7",
+    course_id: "c8",
+    updated_by: "u1",
+    day_of_week: 4,
+    start_time: "11:30", // Jam 5/6/7
+    end_time: "14:30",
+    room: "G132",
+    lecturer_name: "Risma Rahmalia Fitriani",
+    course: MOCK_COURSES[7],
+  },
+  {
+    id: "s8",
     course_id: "c5",
     updated_by: "u1",
-    day_of_week: 5, // Jumat
-    start_time: "08:30",
-    end_time: "11:00",
-    room: "Lab Jaringan Lt. 2",
-    lecturer_name: "Doni Prasetyo, M.Cs.",
+    day_of_week: 4,
+    start_time: "14:30", // Jam 8/9/10
+    end_time: "17:30",
+    room: "G132",
+    lecturer_name: "Mochammad Akbar Marwan / Dede Herman S",
     course: MOCK_COURSES[4],
   },
-  // Sabtu (day_of_week 6) sengaja dikosongkan untuk empty state testing!
 ]
 
 export const MOCK_USERS: Record<string, UserProfile> = {

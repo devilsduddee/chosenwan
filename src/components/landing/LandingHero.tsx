@@ -139,7 +139,7 @@ export function LandingHero() {
             <div className="bg-[#111318] text-white rounded-[18px] p-3.5 space-y-2">
               <div className="flex items-center justify-between gap-2">
                 <span className="text-[10px] font-bold bg-[#A8C0FF] text-[#111318] px-2 py-0.5 rounded-full">
-                  IF2140
+                  IMK
                 </span>
                 <span className="inline-flex items-center gap-1 bg-[#F05252] text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
                   <Clock className="w-2.5 h-2.5" strokeWidth={2.5} />

@@ -70,9 +70,9 @@ interface MockStoreContextType {
 
 const MockStoreContext = createContext<MockStoreContextType | undefined>(undefined)
 
-const STORAGE_KEY_TASKS = "chosenwan_mock_tasks"
-const STORAGE_KEY_ANNOUNCEMENTS = "chosenwan_mock_announcements"
-const STORAGE_KEY_SCHEDULES = "chosenwan_mock_schedules"
+const STORAGE_KEY_TASKS = "chosenwan_mock_tasks_v2"
+const STORAGE_KEY_ANNOUNCEMENTS = "chosenwan_mock_announcements_v2"
+const STORAGE_KEY_SCHEDULES = "chosenwan_mock_schedules_v2"
 const STORAGE_KEY_ROLE = "chosenwan_mock_role"
 
 export function MockStoreProvider({ children }: { children: React.ReactNode }) {
