@@ -3,11 +3,12 @@
 import React from "react"
 import { Task, Announcement } from "@/types"
 import { formatIndonesianDate } from "@/lib/date-utils"
-import { Edit3, Trash2, BookOpen, Megaphone } from "lucide-react"
+import { Edit3, Trash2, BookOpen, Megaphone, Lock } from "lucide-react"
 
 interface PublisherContentItemProps {
   type: "task" | "announcement"
   item: Task | Announcement
+  canManage?: boolean
   onEdit: () => void
   onDelete: () => void
 }
@@ -15,6 +16,7 @@ interface PublisherContentItemProps {
 export function PublisherContentItem({
   type,
   item,
+  canManage = true,
   onEdit,
   onDelete,
 }: PublisherContentItemProps) {
@@ -29,57 +31,59 @@ export function PublisherContentItem({
   })
 
   return (
-    <div className="bg-white rounded-3xl p-4 border border-[#E4E7F0] shadow-xs hover:border-[#111318]/30 transition-all space-y-2.5">
-      {/* Top Header */}
-      <div className="flex items-center justify-between gap-2">
-        <div className="flex items-center gap-1.5 flex-wrap">
-          <span className="text-[10px] font-bold uppercase tracking-wider bg-[#EEF1F6] text-[#111318] px-2 py-0.5 rounded-full flex items-center gap-1">
-            {isTask ? (
-              <BookOpen className="w-2.5 h-2.5" />
-            ) : (
-              <Megaphone className="w-2.5 h-2.5" />
-            )}
-            <span>{isTask ? "Tugas" : "Info"}</span>
-          </span>
-
-          {item.course && (
-            <span className="text-[10px] font-bold bg-[#A8C0FF] text-[#111318] px-2 py-0.5 rounded-full">
-              {item.course.code}
+    <div className="bg-white rounded-[22px] p-4 sm:p-5 border border-[#E4E7F0] shadow-2xs hover:border-[#111318]/30 transition-all h-full flex flex-col justify-between gap-3">
+      <div className="space-y-2.5">
+        {/* Top Header */}
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center gap-1.5 flex-wrap">
+            <span className="text-[10px] font-bold uppercase tracking-wider bg-[#EEF1F6] text-[#111318] px-2 py-0.5 rounded-full flex items-center gap-1">
+              {isTask ? (
+                <BookOpen className="w-2.5 h-2.5" />
+              ) : (
+                <Megaphone className="w-2.5 h-2.5" />
+              )}
+              <span>{isTask ? "Tugas" : "Info"}</span>
             </span>
-          )}
 
-          {announcement && !announcement.course && (
+            {item.course && (
+              <span className="text-[10px] font-bold bg-[#A8C0FF] text-[#111318] px-2 py-0.5 rounded-full">
+                {item.course.code}
+              </span>
+            )}
+
+            {announcement && !announcement.course && (
+              <span className="text-[10px] font-bold bg-[#F6C866] text-[#111318] px-2 py-0.5 rounded-full">
+                {announcement.category_type === "CAMPUS_NEWS"
+                  ? "Berita"
+                  : announcement.category_type === "COMPETITION"
+                  ? "Lomba"
+                  : "Akademik"}
+              </span>
+            )}
+          </div>
+
+          {/* Status Pill */}
+          {isDraft ? (
             <span className="text-[10px] font-bold bg-[#F6C866] text-[#111318] px-2 py-0.5 rounded-full">
-              {announcement.category_type === "CAMPUS_NEWS"
-                ? "Berita"
-                : announcement.category_type === "COMPETITION"
-                ? "Lomba"
-                : "Akademik"}
+              Draft
+            </span>
+          ) : (
+            <span className="text-[10px] font-bold bg-[#4CD98B] text-[#111318] px-2 py-0.5 rounded-full">
+              Tayang
             </span>
           )}
         </div>
 
-        {/* Status Pill */}
-        {isDraft ? (
-          <span className="text-[10px] font-bold bg-[#F6C866] text-[#111318] px-2 py-0.5 rounded-full">
-            Draft
-          </span>
-        ) : (
-          <span className="text-[10px] font-bold bg-[#4CD98B] text-[#111318] px-2 py-0.5 rounded-full">
-            Tayang
-          </span>
-        )}
+        {/* Title */}
+        <h4 className="text-sm font-bold text-[#111318] leading-tight line-clamp-1">
+          {item.title}
+        </h4>
+
+        {/* Snippet */}
+        <p className="text-xs text-[#6E7485] line-clamp-2 leading-relaxed">
+          {isTask ? task?.instructions : announcement?.content}
+        </p>
       </div>
-
-      {/* Title */}
-      <h4 className="text-sm font-bold text-[#111318] leading-tight line-clamp-1">
-        {item.title}
-      </h4>
-
-      {/* Snippet */}
-      <p className="text-xs text-[#6E7485] line-clamp-2 leading-relaxed">
-        {isTask ? task?.instructions : announcement?.content}
-      </p>
 
       {/* Footer: Date & Actions */}
       <div className="pt-2 border-t border-[#E4E7F0]/60 flex items-center justify-between">
@@ -87,24 +91,31 @@ export function PublisherContentItem({
           Dibuat: {createdDate}
         </span>
 
-        <div className="flex items-center gap-1">
-          <button
-            type="button"
-            onClick={onEdit}
-            className="p-1.5 rounded-lg text-[#6E7485] hover:text-[#111318] hover:bg-[#EEF1F6] transition-colors cursor-pointer"
-            title="Edit Konten"
-          >
-            <Edit3 className="w-4 h-4" />
-          </button>
-          <button
-            type="button"
-            onClick={onDelete}
-            className="p-1.5 rounded-lg text-[#6E7485] hover:text-[#F05252] hover:bg-[#F05252]/10 transition-colors cursor-pointer"
-            title="Hapus Konten"
-          >
-            <Trash2 className="w-4 h-4" />
-          </button>
-        </div>
+        {canManage ? (
+          <div className="flex items-center gap-1">
+            <button
+              type="button"
+              onClick={onEdit}
+              className="p-1.5 rounded-lg text-[#6E7485] hover:text-[#111318] hover:bg-[#EEF1F6] transition-colors cursor-pointer"
+              title="Edit Konten"
+            >
+              <Edit3 className="w-4 h-4" />
+            </button>
+            <button
+              type="button"
+              onClick={onDelete}
+              className="p-1.5 rounded-lg text-[#6E7485] hover:text-[#F05252] hover:bg-[#F05252]/10 transition-colors cursor-pointer"
+              title="Hapus Konten"
+            >
+              <Trash2 className="w-4 h-4" />
+            </button>
+          </div>
+        ) : (
+          <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-[#6E7485] bg-[#EEF1F6] px-2.5 py-1 rounded-full">
+            <Lock className="w-3 h-3" />
+            <span>Publisher Lain</span>
+          </span>
+        )}
       </div>
     </div>
   )

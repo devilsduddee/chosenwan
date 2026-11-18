@@ -38,10 +38,9 @@ const getBaseDate = () => {
   if (typeof window !== "undefined") {
     return new Date()
   }
-  return new Date("2026-11-17T12:00:00+07:00")
+  return new Date("2026-11-18T08:00:00+07:00")
 }
 
-const hoursFromNow = (h: number) => new Date(getBaseDate().getTime() + h * 3600 * 1000).toISOString()
 const daysFromNow = (d: number, hour = 23, minute = 59) => {
   const date = new Date(getBaseDate())
   date.setDate(date.getDate() + d)
@@ -244,3 +243,31 @@ export const MOCK_USERS: Record<string, UserProfile> = {
     role: "guest",
   },
 }
+
+export interface MockCredential {
+  role: "ketua_kelas" | "pj_matkul"
+  email: string
+  password: string
+  label: string
+  description: string
+  user: UserProfile
+}
+
+export const MOCK_CREDENTIALS: MockCredential[] = [
+  {
+    role: "ketua_kelas",
+    email: "ketua@chosenwan.ac.id",
+    password: "ketua123",
+    label: "Ketua Kelas",
+    description: "Bisa edit dan hapus semua postingan kelas serta jadwal.",
+    user: MOCK_USERS.ketua_kelas,
+  },
+  {
+    role: "pj_matkul",
+    email: "pj.web@chosenwan.ac.id",
+    password: "pjweb123",
+    label: "PJ Mata Kuliah",
+    description: "Bisa buat konten dan kelola postingan sendiri tanpa persetujuan.",
+    user: MOCK_USERS.pj_matkul,
+  },
+]

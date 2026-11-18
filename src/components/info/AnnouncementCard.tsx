@@ -66,40 +66,42 @@ export function AnnouncementCard({ announcement }: AnnouncementCardProps) {
   }
 
   return (
-    <div className="bg-white rounded-3xl p-5 border border-[#E4E7F0] shadow-xs space-y-3">
-      {/* Header Row: Category Badge & Date */}
-      <div className="flex items-center justify-between gap-2">
-        <div className="flex items-center gap-1.5 flex-wrap">
-          <span
-            className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full ${categoryMeta.bgClass} ${categoryMeta.textColor}`}
-          >
-            {categoryMeta.label}
-          </span>
-          {announcement.course && (
-            <span className="text-[11px] font-semibold text-[#6E7485] bg-[#EEF1F6] px-2 py-0.5 rounded-full">
-              {announcement.course.code}
+    <div className="bg-white rounded-[22px] p-5 border border-[#E4E7F0] shadow-2xs h-full flex flex-col justify-between gap-3">
+      <div className="space-y-3">
+        {/* Header Row: Category Badge & Date */}
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center gap-1.5 flex-wrap">
+            <span
+              className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full ${categoryMeta.bgClass} ${categoryMeta.textColor}`}
+            >
+              {categoryMeta.label}
             </span>
-          )}
+            {announcement.course && (
+              <span className="text-[11px] font-semibold text-[#6E7485] bg-[#EEF1F6] px-2 py-0.5 rounded-full">
+                {announcement.course.code}
+              </span>
+            )}
+          </div>
+
+          <div className="flex items-center gap-1 text-[11px] text-[#6E7485]">
+            <Calendar className="w-3 h-3" />
+            <span suppressHydrationWarning>{formattedDate}</span>
+          </div>
         </div>
 
-        <div className="flex items-center gap-1 text-[11px] text-[#6E7485]">
-          <Calendar className="w-3 h-3" />
-          <span suppressHydrationWarning>{formattedDate}</span>
-        </div>
+        {/* Title */}
+        <h3 className="text-base font-bold text-[#111318] leading-snug">
+          {announcement.title}
+        </h3>
+
+        {/* Content */}
+        <p className="text-xs text-[#111318]/90 leading-relaxed whitespace-pre-line bg-[#F6F7FB] p-3.5 rounded-2xl border border-[#E4E7F0]/60">
+          {announcement.content}
+        </p>
       </div>
 
-      {/* Title */}
-      <h3 className="text-base font-bold text-[#111318] leading-snug">
-        {announcement.title}
-      </h3>
-
-      {/* Content */}
-      <p className="text-xs text-[#111318]/90 leading-relaxed whitespace-pre-line bg-[#F6F7FB] p-3.5 rounded-2xl border border-[#E4E7F0]/60">
-        {announcement.content}
-      </p>
-
       {/* Footer Actions */}
-      <div className="pt-2 flex items-center justify-between gap-2 border-t border-[#E4E7F0]/60">
+      <div className="pt-2.5 flex items-center justify-between gap-2 border-t border-[#E4E7F0]/60">
         {announcement.source_url ? (
           <a
             href={announcement.source_url}

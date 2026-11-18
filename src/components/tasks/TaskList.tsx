@@ -62,7 +62,7 @@ export function TaskList() {
           Tugas Kelas
         </h2>
         <p className="text-xs text-[#6E7485] leading-relaxed">
-          Pantau batas waktu tugas kuliah, rincian instruksi, dan link pengumpulan.
+          Cek deadline tugas, instruksi dosen, dan link pengumpulan.
         </p>
       </div>
 
@@ -88,11 +88,11 @@ export function TaskList() {
       </div>
 
       {/* Task List Items */}
-      <div className="space-y-2.5 pt-1">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-3.5 pt-1">
         {filtered.length > 0 ? (
           filtered.map((task) => <TaskCard key={task.id} task={task} />)
         ) : (
-          <div className="bg-white rounded-3xl p-8 border border-[#E4E7F0] text-center space-y-2.5 shadow-xs">
+          <div className="md:col-span-2 bg-white rounded-[22px] p-8 border border-[#E4E7F0] text-center space-y-2.5 shadow-2xs">
             <div className="w-12 h-12 rounded-2xl bg-[#EEF1F6] text-[#6E7485] flex items-center justify-center mx-auto">
               <CheckCircle2 className="w-6 h-6 text-[#4CD98B]" strokeWidth={2} />
             </div>
@@ -100,7 +100,8 @@ export function TaskList() {
               Tidak Ada Tugas Ditemukan
             </h4>
             <p className="text-xs text-[#6E7485] max-w-xs mx-auto leading-relaxed">
-              Tidak ada tugas yang cocok dengan filter yang dipilih. Santai sejenak atau ubah kata kunci pencarian.
+              Tidak ada tugas yang cocok dengan filter atau kata kunci ini. Coba ganti pilihan
+              filter.
             </p>
           </div>
         )}

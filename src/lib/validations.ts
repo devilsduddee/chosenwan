@@ -30,3 +30,21 @@ export const announcementFormSchema = z.object({
 })
 
 export type AnnouncementFormValues = z.infer<typeof announcementFormSchema>
+
+export const loginFormSchema = z.object({
+  email: z.string().trim().min(1, "Email wajib diisi").email("Format email tidak valid"),
+  password: z.string().min(6, "Kata sandi minimal 6 karakter"),
+})
+
+export type LoginFormValues = z.infer<typeof loginFormSchema>
+
+export const scheduleFormSchema = z.object({
+  course_id: z.string().min(1, "Mata kuliah wajib dipilih"),
+  day_of_week: z.string().min(1, "Hari wajib dipilih"),
+  start_time: z.string().regex(/^\d{2}:\d{2}$/, "Format jam mulai HH:MM (contoh: 08:00)"),
+  end_time: z.string().regex(/^\d{2}:\d{2}$/, "Format jam selesai HH:MM (contoh: 10:30)"),
+  room: z.string().trim().min(2, "Nama ruangan minimal 2 karakter"),
+  lecturer_name: z.string().optional(),
+})
+
+export type ScheduleFormValues = z.infer<typeof scheduleFormSchema>

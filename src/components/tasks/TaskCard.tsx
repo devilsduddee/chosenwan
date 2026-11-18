@@ -53,35 +53,37 @@ export function TaskCard({ task }: TaskCardProps) {
     <button
       type="button"
       onClick={() => setSelectedTaskForDetail(task)}
-      className="w-full text-left bg-white rounded-3xl p-4 border border-[#E4E7F0] shadow-xs hover:border-[#111318]/30 transition-all cursor-pointer active:scale-[0.98] group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#111318]"
+      className="w-full h-full flex flex-col justify-between text-left bg-white rounded-[22px] p-4 sm:p-5 border border-[#E4E7F0] shadow-2xs hover:border-[#111318]/30 transition-all cursor-pointer active:scale-[0.98] group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#111318]"
     >
-      {/* Top Header Row */}
-      <div className="flex items-center justify-between gap-2 mb-2">
-        <div className="flex items-center gap-1.5 flex-wrap">
-          <span className="text-[11px] font-bold bg-[#A8C0FF] text-[#111318] px-2 py-0.5 rounded-full">
-            {task.course?.code || "MK"}
-          </span>
-          {task.week_number && (
-            <span className="text-[11px] font-medium text-[#6E7485]">
-              Mgg {task.week_number}
+      <div>
+        {/* Top Header Row */}
+        <div className="flex items-center justify-between gap-2 mb-2">
+          <div className="flex items-center gap-1.5 flex-wrap">
+            <span className="text-[11px] font-bold bg-[#A8C0FF] text-[#111318] px-2 py-0.5 rounded-full">
+              {task.course?.code || "MK"}
             </span>
-          )}
+            {task.week_number && (
+              <span className="text-[11px] font-medium text-[#6E7485]">
+                Mgg {task.week_number}
+              </span>
+            )}
+          </div>
+          {statusBadge}
         </div>
-        {statusBadge}
+
+        {/* Task Title */}
+        <h4 className="text-sm font-bold text-[#111318] leading-snug line-clamp-2">
+          {task.title}
+        </h4>
+
+        {/* Instructions snippet */}
+        <p className="text-xs text-[#6E7485] mt-1 line-clamp-2 leading-relaxed">
+          {task.instructions}
+        </p>
       </div>
 
-      {/* Task Title */}
-      <h4 className="text-sm font-bold text-[#111318] leading-snug line-clamp-2">
-        {task.title}
-      </h4>
-
-      {/* Instructions snippet */}
-      <p className="text-xs text-[#6E7485] mt-1 line-clamp-2 leading-relaxed">
-        {task.instructions}
-      </p>
-
       {/* Card Footer: Deadline & Link Indicator */}
-      <div className="mt-3 pt-2.5 border-t border-[#E4E7F0]/70 flex items-center justify-between text-xs">
+      <div className="w-full mt-3 pt-2.5 border-t border-[#E4E7F0]/70 flex items-center justify-between text-xs">
         <div className="flex items-center gap-1.5 text-[#6E7485]">
           <Calendar className="w-3.5 h-3.5" strokeWidth={1.75} />
           <span className="font-medium text-[11px]" suppressHydrationWarning>

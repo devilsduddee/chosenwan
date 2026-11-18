@@ -33,7 +33,7 @@ export function TaskFormFields({ form, courses }: TaskFormFieldsProps) {
             <option value="">Pilih Mata Kuliah</option>
             {courses.map((c) => (
               <option key={c.id} value={c.id}>
-                {c.code} — {c.name}
+                {c.code}: {c.name}
               </option>
             ))}
           </select>

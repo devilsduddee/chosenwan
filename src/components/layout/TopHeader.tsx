@@ -1,26 +1,51 @@
 "use client"
 
 import React from "react"
+import Link from "next/link"
 import { useMockStore } from "@/lib/mock-store"
+import { BrandLogo } from "@/components/layout/BrandLogo"
 import { Button } from "@/components/ui/button"
-import { ShieldCheck, User, Plus } from "lucide-react"
+import { toast } from "sonner"
+import {
+  ShieldCheck,
+  LogIn,
+  LogOut,
+  Plus,
+  CheckSquare,
+  Megaphone,
+  Calendar,
+  SlidersHorizontal,
+} from "lucide-react"
+import { ActiveTab } from "@/types"
 
 export function TopHeader() {
-  const { userRole, setUserRole, setIsEditorOpen, setEditingContent } = useMockStore()
+  const {
+    activeTab,
+    setActiveTab,
+    userRole,
+    logoutPublisher,
+    setIsEditorOpen,
+    setEditingContent,
+  } = useMockStore()
 
-  const toggleRole = () => {
-    if (userRole === "guest") {
-      setUserRole("ketua_kelas")
-    } else if (userRole === "ketua_kelas") {
-      setUserRole("pj_matkul")
-    } else {
-      setUserRole("guest")
-    }
+  const desktopNavItems: { id: ActiveTab; label: string; icon: React.ElementType }[] = [
+    { id: "tasks", label: "Tugas", icon: CheckSquare },
+    { id: "info", label: "Info", icon: Megaphone },
+    { id: "schedule", label: "Jadwal", icon: Calendar },
+  ]
+
+  if (userRole !== "guest") {
+    desktopNavItems.push({ id: "publisher", label: "Kelola", icon: SlidersHorizontal })
   }
 
   const handleCreateNew = () => {
     setEditingContent(null)
     setIsEditorOpen(true)
+  }
+
+  const handleLogout = () => {
+    logoutPublisher()
+    toast.info("Keluar ke mode baca Mahasiswa")
   }
 
   const roleLabel =
@@ -31,19 +56,15 @@ export function TopHeader() {
       : "Mahasiswa"
 
   return (
-    <header className="sticky top-0 z-40 bg-[#F6F7FB]/95 backdrop-blur-md px-4 pt-3.5 pb-2.5 border-b border-[#E4E7F0]/60">
-      <div className="flex items-center justify-between gap-2">
-        {/* Left: Class Identity */}
-        <div className="flex items-center gap-2.5 min-w-0">
-          <div className="w-9 h-9 rounded-2xl bg-[#111318] p-1.5 flex items-center justify-center text-white shadow-xs shrink-0">
-            {/* Chosenwan Bento Spark Logo Mark */}
-            <svg viewBox="0 0 256 256" className="w-full h-full" fill="none">
-              <rect x="32" y="32" width="88" height="88" rx="28" fill="#FFFFFF" />
-              <rect x="136" y="32" width="88" height="88" rx="44" fill="#F6C866" />
-              <rect x="32" y="136" width="88" height="88" rx="44" fill="#A8C0FF" />
-              <rect x="136" y="136" width="88" height="88" rx="28" fill="#EA9DFB" />
-            </svg>
-          </div>
+    <header className="sticky top-0 z-40 bg-[#F6F7FB]/95 backdrop-blur-md border-b border-[#E4E7F0]/70">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-2 sm:gap-3">
+        {/* Left: Brand Identity linking back to Landing Page */}
+        <Link
+          href="/"
+          title="Kembali ke Beranda Chosenwan"
+          className="flex items-center gap-2.5 min-w-0 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#111318] rounded-xl"
+        >
+          <BrandLogo className="w-9 h-9 group-hover:scale-[0.97] transition-transform" />
           <div className="min-w-0">
             <h1 className="text-sm sm:text-base font-extrabold text-[#111318] tracking-tight leading-tight truncate">
               Chosenwan
@@ -52,36 +73,77 @@ export function TopHeader() {
               Portal Informasi Kelas
             </p>
           </div>
-        </div>
+        </Link>
 
-        {/* Right: Role Switcher & Action */}
+        {/* Center: Desktop / Tablet Inline Navigation */}
+        <nav
+          aria-label="Navigasi Desktop"
+          className="hidden md:flex items-center gap-1 bg-white p-1 rounded-full border border-[#E4E7F0] shadow-2xs"
+        >
+          {desktopNavItems.map((item) => {
+            const Icon = item.icon
+            const isActive = activeTab === item.id
+            return (
+              <button
+                key={item.id}
+                type="button"
+                onClick={() => setActiveTab(item.id)}
+                className={`min-h-[34px] px-3.5 rounded-full text-xs font-bold inline-flex items-center gap-1.5 transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#111318] ${
+                  isActive
+                    ? "bg-[#111318] text-white shadow-2xs"
+                    : "text-[#6E7485] hover:text-[#111318] hover:bg-[#EEF1F6]"
+                }`}
+              >
+                <Icon className="w-3.5 h-3.5 shrink-0" strokeWidth={1.75} />
+                <span>{item.label}</span>
+              </button>
+            )
+          })}
+        </nav>
+
+        {/* Right: Publisher Auth / Actions */}
         <div className="flex items-center gap-1.5 shrink-0">
-          {userRole !== "guest" && (
-            <Button
-              size="sm"
-              onClick={handleCreateNew}
-              className="h-[34px] rounded-full bg-[#111318] hover:bg-[#111318]/90 text-white text-xs font-semibold px-2.5 shadow-xs shrink-0"
-              title="Buat Konten Baru"
+          {userRole === "guest" ? (
+            <Link
+              href="/login"
+              className="flex items-center gap-1.5 min-h-[36px] h-[36px] px-3 rounded-full bg-[#EEF1F6] hover:bg-[#E4E7F0] border border-[#E4E7F0] text-[11px] sm:text-xs font-bold text-[#111318] transition-all active:scale-95 shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#111318]"
             >
-              <Plus className="w-3.5 h-3.5 mr-1" strokeWidth={2} />
-              <span>Posting</span>
-            </Button>
-          )}
+              <LogIn className="w-3.5 h-3.5 text-[#111318] shrink-0" strokeWidth={2} />
+              <span>Masuk Publisher</span>
+            </Link>
+          ) : (
+            <>
+              <Button
+                size="sm"
+                onClick={handleCreateNew}
+                className="h-[34px] rounded-full bg-[#111318] hover:bg-[#111318]/90 text-white text-xs font-semibold px-2.5 sm:px-3 shadow-2xs shrink-0 cursor-pointer"
+                title="Buat Konten Baru"
+              >
+                <Plus className="w-3.5 h-3.5 sm:mr-1" strokeWidth={2} />
+                <span className="hidden sm:inline">Posting</span>
+              </Button>
 
-          <button
-            type="button"
-            onClick={toggleRole}
-            aria-label="Beralih peran pengguna"
-            className="group flex items-center gap-1.5 min-h-[34px] h-[34px] px-2.5 rounded-full bg-[#EEF1F6] hover:bg-[#E4E7F0] border border-[#E4E7F0] text-xs font-semibold text-[#111318] transition-all cursor-pointer active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#111318] shrink-0"
-            title="Klik untuk beralih peran"
-          >
-            {userRole === "guest" ? (
-              <User className="w-3.5 h-3.5 text-[#6E7485] shrink-0" strokeWidth={1.75} />
-            ) : (
-              <ShieldCheck className="w-3.5 h-3.5 text-[#4CD98B] shrink-0" strokeWidth={2} />
-            )}
-            <span className="text-[11px] font-bold" suppressHydrationWarning>{roleLabel}</span>
-          </button>
+              <button
+                type="button"
+                onClick={() => setActiveTab("publisher")}
+                className="flex items-center gap-1.5 h-[34px] px-2.5 rounded-full bg-[#EEF1F6] hover:bg-[#E4E7F0] border border-[#E4E7F0] text-[11px] font-bold text-[#111318] transition-colors shrink-0 cursor-pointer"
+                title="Buka Dashboard Kelola"
+              >
+                <ShieldCheck className="w-3.5 h-3.5 text-[#4CD98B] shrink-0" strokeWidth={2} />
+                <span className="truncate max-w-[90px]">{roleLabel}</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={handleLogout}
+                aria-label="Keluar dari sesi publisher"
+                title="Keluar sesi publisher"
+                className="flex items-center justify-center w-[34px] h-[34px] rounded-full bg-white hover:bg-[#F05252]/10 border border-[#E4E7F0] text-[#6E7485] hover:text-[#F05252] transition-colors shrink-0 cursor-pointer"
+              >
+                <LogOut className="w-3.5 h-3.5" strokeWidth={2} />
+              </button>
+            </>
+          )}
         </div>
       </div>
     </header>

@@ -17,8 +17,14 @@ interface DeleteConfirmDialogProps {
   onClose: () => void
   onConfirm: () => void
   title: string
-  itemType: "tugas" | "pengumuman"
+  itemType: "tugas" | "pengumuman" | "jadwal"
 }
+
+const ITEM_TYPE_LABEL = {
+  tugas: "Tugas",
+  pengumuman: "Pengumuman",
+  jadwal: "Slot Jadwal",
+} as const
 
 export function DeleteConfirmDialog({
   isOpen,
@@ -29,13 +35,13 @@ export function DeleteConfirmDialog({
 }: DeleteConfirmDialogProps) {
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-w-sm mx-auto rounded-3xl p-6 bg-white border border-[#E4E7F0] shadow-xl">
+      <DialogContent className="max-w-sm mx-auto rounded-[24px] p-6 bg-white border border-[#E4E7F0] shadow-xl">
         <DialogHeader className="text-left space-y-2.5">
           <div className="w-11 h-11 rounded-2xl bg-[#F05252]/10 text-[#F05252] flex items-center justify-center">
             <AlertTriangle className="w-5 h-5" strokeWidth={2} />
           </div>
           <DialogTitle className="text-base font-bold text-[#111318]">
-            Hapus {itemType === "tugas" ? "Tugas" : "Pengumuman"}?
+            Hapus {ITEM_TYPE_LABEL[itemType]}?
           </DialogTitle>
           <DialogDescription className="text-xs text-[#6E7485] leading-relaxed">
             Apakah kamu yakin ingin menghapus{" "}

@@ -60,13 +60,13 @@ export function TaskDetailSheet() {
     >
       <SheetContent
         side="bottom"
-        className="max-w-md mx-auto rounded-t-[32px] p-6 max-h-[90vh] overflow-y-auto bg-white border-t border-[#E4E7F0] shadow-2xl"
+        className="w-full sm:max-w-lg mx-auto rounded-t-[24px] sm:rounded-[24px] sm:mb-4 p-6 max-h-[90vh] overflow-y-auto bg-white border border-[#E4E7F0] shadow-2xl"
       >
         <SheetHeader className="text-left space-y-2">
           {/* Top badges */}
           <div className="flex items-center gap-2 flex-wrap">
             <span className="text-xs font-bold bg-[#A8C0FF] text-[#111318] px-3 py-1 rounded-full">
-              {task.course?.code} — {task.course?.name}
+              {task.course?.code} · {task.course?.name}
             </span>
             {task.week_number && (
               <span className="text-xs font-semibold bg-[#EEF1F6] text-[#6E7485] px-2.5 py-1 rounded-full">

@@ -2,15 +2,31 @@
 
 import React, { createContext, useContext, useState, useEffect } from "react"
 import { Task, Announcement, Course, Schedule, UserRole, UserProfile, ActiveTab } from "@/types"
-import { MOCK_COURSES, MOCK_TASKS, MOCK_ANNOUNCEMENTS, MOCK_SCHEDULES, MOCK_USERS } from "@/lib/mock-data"
+import {
+  MOCK_COURSES,
+  MOCK_TASKS,
+  MOCK_ANNOUNCEMENTS,
+  MOCK_SCHEDULES,
+  MOCK_USERS,
+  MOCK_CREDENTIALS,
+} from "@/lib/mock-data"
+
+interface LoginResult {
+  ok: boolean
+  error?: string
+  user?: UserProfile
+}
 
 interface MockStoreContextType {
-  // Navigation & Role
+  // Navigation & Role / Auth
   activeTab: ActiveTab
   setActiveTab: (tab: ActiveTab) => void
   userRole: UserRole
   setUserRole: (role: UserRole) => void
   currentUser: UserProfile
+  loginPublisher: (email: string, password: string) => LoginResult
+  logoutPublisher: () => void
+  canManageContent: (createdBy: string) => boolean
 
   // Data
   courses: Course[]
@@ -45,6 +61,10 @@ interface MockStoreContextType {
   updateAnnouncement: (id: string, announcement: Partial<Announcement>) => void
   deleteAnnouncement: (id: string) => void
 
+  addSchedule: (schedule: Omit<Schedule, "id">) => void
+  updateSchedule: (id: string, schedule: Partial<Schedule>) => void
+  deleteSchedule: (id: string) => void
+
   resetToDefaults: () => void
 }
 
@@ -52,6 +72,7 @@ const MockStoreContext = createContext<MockStoreContextType | undefined>(undefin
 
 const STORAGE_KEY_TASKS = "chosenwan_mock_tasks"
 const STORAGE_KEY_ANNOUNCEMENTS = "chosenwan_mock_announcements"
+const STORAGE_KEY_SCHEDULES = "chosenwan_mock_schedules"
 const STORAGE_KEY_ROLE = "chosenwan_mock_role"
 
 export function MockStoreProvider({ children }: { children: React.ReactNode }) {
@@ -60,7 +81,7 @@ export function MockStoreProvider({ children }: { children: React.ReactNode }) {
   const [courses] = useState<Course[]>(MOCK_COURSES)
   const [tasks, setTasks] = useState<Task[]>(MOCK_TASKS)
   const [announcements, setAnnouncements] = useState<Announcement[]>(MOCK_ANNOUNCEMENTS)
-  const [schedules] = useState<Schedule[]>(MOCK_SCHEDULES)
+  const [schedules, setSchedules] = useState<Schedule[]>(MOCK_SCHEDULES)
 
   const isLoadedRef = React.useRef(false)
 
@@ -72,6 +93,9 @@ export function MockStoreProvider({ children }: { children: React.ReactNode }) {
 
       const savedAnnouncements = localStorage.getItem(STORAGE_KEY_ANNOUNCEMENTS)
       if (savedAnnouncements) setAnnouncements(JSON.parse(savedAnnouncements))
+
+      const savedSchedules = localStorage.getItem(STORAGE_KEY_SCHEDULES)
+      if (savedSchedules) setSchedules(JSON.parse(savedSchedules))
 
       const savedRole = localStorage.getItem(STORAGE_KEY_ROLE)
       if (savedRole === "guest" || savedRole === "ketua_kelas" || savedRole === "pj_matkul") {
@@ -107,6 +131,13 @@ export function MockStoreProvider({ children }: { children: React.ReactNode }) {
     } catch {}
   }, [announcements])
 
+  useEffect(() => {
+    if (!isLoadedRef.current) return
+    try {
+      localStorage.setItem(STORAGE_KEY_SCHEDULES, JSON.stringify(schedules))
+    } catch {}
+  }, [schedules])
+
   const handleSetUserRole = (role: UserRole) => {
     setUserRole(role)
     try {
@@ -117,7 +148,38 @@ export function MockStoreProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
+  const loginPublisher = (email: string, password: string): LoginResult => {
+    const normalizedEmail = email.trim().toLowerCase()
+    const match = MOCK_CREDENTIALS.find(
+      (cred) => cred.email.toLowerCase() === normalizedEmail && cred.password === password
+    )
+
+    if (!match) {
+      return {
+        ok: false,
+        error: "Email atau kata sandi salah. Periksa kembali atau gunakan akun uji coba di bawah.",
+      }
+    }
+
+    handleSetUserRole(match.role)
+    setActiveTab("publisher")
+    return { ok: true, user: match.user }
+  }
+
+  const logoutPublisher = () => {
+    handleSetUserRole("guest")
+    setIsEditorOpen(false)
+    setEditingContent(null)
+    setActiveTab("tasks")
+  }
+
   const currentUser: UserProfile = MOCK_USERS[userRole] || MOCK_USERS.guest
+
+  const canManageContent = (createdBy: string) => {
+    if (userRole === "ketua_kelas") return true
+    if (userRole === "pj_matkul") return createdBy === currentUser.id
+    return false
+  }
 
   // Task Mutations
   const addTask = (newTaskData: Omit<Task, "id" | "created_at">) => {
@@ -194,14 +256,48 @@ export function MockStoreProvider({ children }: { children: React.ReactNode }) {
     setAnnouncements((prev) => prev.filter((a) => a.id !== id))
   }
 
+  // Schedule Mutations
+  const addSchedule = (newScheduleData: Omit<Schedule, "id">) => {
+    const courseObj = courses.find((c) => c.id === newScheduleData.course_id)
+    const newSchedule: Schedule = {
+      ...newScheduleData,
+      id: `sched_${Date.now()}`,
+      course: courseObj,
+      lecturer_name: newScheduleData.lecturer_name || courseObj?.lecturer_name,
+    }
+    setSchedules((prev) => [...prev, newSchedule])
+  }
+
+  const updateSchedule = (id: string, updatedFields: Partial<Schedule>) => {
+    setSchedules((prev) =>
+      prev.map((s) => {
+        if (s.id === id) {
+          const courseObj = updatedFields.course_id
+            ? courses.find((c) => c.id === updatedFields.course_id)
+            : s.course
+          return {
+            ...s,
+            ...updatedFields,
+            course: courseObj,
+          }
+        }
+        return s
+      })
+    )
+  }
+
+  const deleteSchedule = (id: string) => {
+    setSchedules((prev) => prev.filter((s) => s.id !== id))
+  }
+
   const resetToDefaults = () => {
     setTasks(MOCK_TASKS)
     setAnnouncements(MOCK_ANNOUNCEMENTS)
-    setUserRole("guest")
+    setSchedules(MOCK_SCHEDULES)
     try {
       localStorage.removeItem(STORAGE_KEY_TASKS)
       localStorage.removeItem(STORAGE_KEY_ANNOUNCEMENTS)
-      localStorage.removeItem(STORAGE_KEY_ROLE)
+      localStorage.removeItem(STORAGE_KEY_SCHEDULES)
     } catch {}
   }
 
@@ -213,6 +309,9 @@ export function MockStoreProvider({ children }: { children: React.ReactNode }) {
         userRole,
         setUserRole: handleSetUserRole,
         currentUser,
+        loginPublisher,
+        logoutPublisher,
+        canManageContent,
         courses,
         tasks,
         announcements,
@@ -235,6 +334,9 @@ export function MockStoreProvider({ children }: { children: React.ReactNode }) {
         addAnnouncement,
         updateAnnouncement,
         deleteAnnouncement,
+        addSchedule,
+        updateSchedule,
+        deleteSchedule,
         resetToDefaults,
       }}
     >

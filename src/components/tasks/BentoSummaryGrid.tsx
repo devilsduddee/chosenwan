@@ -35,7 +35,7 @@ export function BentoSummaryGrid({ currentStatusFilter = "ALL", onSelectStatusFi
   const isUrgentActive = currentStatusFilter === "UPCOMING"
 
   return (
-    <div className="grid grid-cols-2 gap-2.5 sm:gap-3">
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5 sm:gap-3.5">
       {/* Tile 1: Total Tugas Aktif */}
       <button
         type="button"
@@ -136,7 +136,7 @@ export function BentoSummaryGrid({ currentStatusFilter = "ALL", onSelectStatusFi
           </span>
         </div>
         <div className="mt-3">
-          <p className="text-[11px] font-bold text-[#111318]/85 truncate">Peluang Lomba</p>
+          <p className="text-[11px] font-bold text-[#111318]/85 truncate">Info Lomba</p>
           <p className="text-[28px] sm:text-3xl font-extrabold text-[#111318] tracking-tight leading-none mt-1 tabular-nums">
             {competitionCount}
           </p>

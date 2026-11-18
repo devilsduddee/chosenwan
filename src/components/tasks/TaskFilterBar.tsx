@@ -19,24 +19,24 @@ export function TaskFilterBar({ statusFilter, setStatusFilter }: TaskFilterBarPr
   } = useMockStore()
 
   return (
-    <div className="space-y-3">
+    <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2.5 sm:gap-3">
       {/* Search Input & Course Selector */}
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 md:flex-1 md:max-w-md">
         {/* Search Field */}
-        <div className="relative flex-1">
+        <div className="relative flex-1 min-w-0">
           <Search className="w-4 h-4 text-[#6E7485] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Cari judul atau mata kuliah..."
-            className="w-full h-11 pl-10 pr-9 rounded-2xl bg-white border border-[#E4E7F0] text-xs text-[#111318] placeholder:text-[#6E7485] focus:outline-none focus:border-[#111318] transition-colors shadow-xs"
+            placeholder="Cari tugas atau MK..."
+            className="w-full h-11 pl-10 pr-8 rounded-[14px] bg-white border border-[#E4E7F0] text-sm sm:text-xs text-[#111318] placeholder:text-[#6E7485] focus:outline-none focus:border-[#111318] transition-colors shadow-2xs"
           />
           {searchQuery && (
             <button
               type="button"
               onClick={() => setSearchQuery("")}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-[#6E7485] hover:text-[#111318] p-1"
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#6E7485] hover:text-[#111318] p-1"
               aria-label="Hapus pencarian"
             >
               <X className="w-3.5 h-3.5" />
@@ -50,7 +50,7 @@ export function TaskFilterBar({ statusFilter, setStatusFilter }: TaskFilterBarPr
             value={selectedCourseFilter}
             onChange={(e) => setSelectedCourseFilter(e.target.value)}
             aria-label="Filter berdasarkan mata kuliah"
-            className="h-11 px-3.5 rounded-2xl bg-[#EEF1F6] border border-[#E4E7F0] text-xs font-bold text-[#111318] focus:outline-none focus:border-[#111318] transition-colors cursor-pointer shadow-xs"
+            className="h-11 px-3 rounded-[14px] bg-[#EEF1F6] border border-[#E4E7F0] text-xs font-bold text-[#111318] focus:outline-none focus:border-[#111318] transition-colors cursor-pointer shadow-2xs"
           >
             <option value="ALL">Semua MK</option>
             {courses.map((c) => (
