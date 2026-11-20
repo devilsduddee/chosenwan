@@ -1,9 +1,9 @@
 # Spec Teknis: Chosenwan
 
-- **Versi:** 1.1
-- **Tanggal:** 2026-11-17
-- **Status:** Approved (Disetujui pada Gate 3)
-- **Sumber input:** `04-prd.md` v1.4, `03-scope.md` v1.2, `05-design.md` v1.0, `project-context.md`, dan keputusan Lead PM (Tech Stack Opsi A).
+- **Versi:** 1.3
+- **Tanggal:** 2026-11-20
+- **Status:** Approved (Update Tech Stack v1.3: Turso + ImageKit.io)
+- **Sumber input:** `04-prd.md` v1.4, `03-scope.md` v1.2, `05-design.md` v1.0, `project-context.md`, serta keputusan stack database & media storage (Turso + ImageKit.io).
 - **Skill digunakan:** `spec-writer`, `antislop-copywriting`
 
 ---
@@ -33,12 +33,14 @@ Menghilangkan friksi pencarian informasi kuliah yang tertimbun di grup chat What
 5. **Alur Publikasi Fleksibel (FR-05):** Opsi simpan sebagai `Draft` (hanya terlihat oleh publisher) atau langsung terbitkan (`Published`).
 6. **Jadwal Statis Kuliah (FR-06):** Penyajian jadwal terstruktur per hari (Senin-Sabtu) per semester tanpa kompleksitas recurrence kalender dinamis.
 
-### 1.3 Status Tech Stack (Approved)
-Sesuai keputusan Lead PM pada Gate 3, tech stack resmi dikunci pada **Opsi A**:
+### 1.3 Status Tech Stack & Opsi Database
+Arsitektur awal Gate 3 menggunakan **Opsi A (Supabase)**, dan pada **v1.3** diputuskan mengadopsi **Opsi B (Turso + ImageKit.io)** sebagai stack implementasi backend & media storage (dengan Opsi A tetap terdokumentasi sebagai referensi alternatif pada Section 14.1):
 - **Framework:** Next.js (App Router, TypeScript, React 19)
 - **Styling & UI Library:** Tailwind CSS + shadcn/ui + Lucide React
-- **Backend & Database:** Supabase (Managed PostgreSQL, Supabase Auth, Row Level Security / RLS)
-- **Deployment Platform:** Vercel (Frontend & Server Actions) + Supabase Cloud Free Tier (DB & Auth)
+- **Backend, Database, & Media Storage:**
+  - **Opsi B (Stack Aktif v1.3):** Turso (Edge SQLite / libSQL + Drizzle ORM), App-level Auth & Authorization di Next.js, serta **ImageKit.io** untuk penyimpanan & CDN poster
+  - **Opsi A (Alternatif Reference):** Supabase (Managed PostgreSQL, Supabase Auth, Row Level Security / RLS, Supabase Storage)
+- **Deployment Platform:** Vercel (Auto-deploy dari GitHub)
 
 ---
 
@@ -383,6 +385,8 @@ Entitas tunggal multi-kategori untuk pengumuman dosen, perubahan jadwal insident
 | `category_type` | `VARCHAR(30)` | Not Null, Index | Enum: `'ACADEMIC'`, `'CAMPUS_NEWS'`, `'COMPETITION'`. |
 | `content` | `TEXT` | Not Null | Isi ringkas pengumuman atau rincian lomba/berita. |
 | `source_url` | `VARCHAR(500)` | Nullable | Link sumber resmi (Instagram kampus, website lomba). |
+| `poster_url` | `VARCHAR(500)` | Nullable | Tautan/path gambar poster untuk kategori Info Lomba & Berita Kampus (CDN ImageKit.io / URL eksternal). |
+| `poster_file_id` | `VARCHAR(150)` | Nullable | ID file dari ImageKit.io untuk pembersihan (*delete*) poster lama saat diganti atau dihapus. |
 | `status` | `VARCHAR(20)` | Not Null, Default `'PUBLISHED'`, Index | Status: `'DRAFT'` atau `'PUBLISHED'`. |
 | `created_at` | `TIMESTAMP WITH TIME ZONE` | Default `NOW()` | Timestamp publikasi. |
 | `updated_at` | `TIMESTAMP WITH TIME ZONE` | Default `NOW()` | Timestamp pengeditan terakhir. |
@@ -701,17 +705,43 @@ chosenwan-app/
 
 ## 14. Keputusan Tech Stack & Pertanyaan Terbuka
 
-### 14.1 Keputusan Tech Stack (Approved - Gate 3)
-Lead PM telah menyetujui **Opsi A** sebagai arsitektur final untuk Chosenwan:
+### 14.1 Keputusan Tech Stack & Opsi Database
+
+#### Opsi A — Supabase (PostgreSQL) *(Baseline Approved - Gate 3)*
 - **Frontend & Fullstack API:** Next.js (App Router, TypeScript)
 - **Desain & UI Components:** Tailwind CSS + shadcn/ui + Lucide React
-- **Backend & Database:** Supabase (PostgreSQL, Supabase Auth, Row Level Security)
-- **Deployment Platform:** Vercel (Auto-deploy dari GitHub) + Supabase Cloud
+- **Backend, Auth, DB, & Storage:** Supabase (PostgreSQL, Supabase Auth `@supabase/ssr`, Row Level Security, Supabase Storage 1 GB)
+- **Deployment Platform:** Vercel + Supabase Cloud Free Tier
 
-**Alasan Pemilihan (Cost-Benefit):**
-1. **Kecepatan Bangun Maksimal:** Fitur otentikasi publisher, session handling, dan database PostgreSQL siap pakai dalam hitungan menit tanpa boilerplate manual.
-2. **Keamanan Data Mutlak (RLS):** Filter status `PUBLISHED` vs `DRAFT` dan pembatasan hak edit per `created_by` langsung diisolasi pada query level PostgreSQL via Row Level Security (RLS).
-3. **Bebas Biaya Server:** Memanfaatkan batas gratis Vercel dan Supabase Free Tier yang sangat memadai untuk pilot satu kelas.
+**Kelebihan & Trade-off Opsi A:**
+1. **Paket All-in-One:** Database, Auth email/password, RLS, dan Storage poster tersedia dalam satu SDK tanpa merangkai layanan terpisah.
+2. **Keamanan Data di Level DB (RLS):** Filter `status = 'PUBLISHED'` dan hak edit `created_by = auth.uid()` dijaga langsung oleh PostgreSQL RLS.
+3. **Catatan Free Tier:** Maksimal 2 project aktif, DB 500 MB, serta memiliki kebijakan **auto-pause setelah 7 hari tanpa aktivitas** (harus di-resume manual bila lama tidak ada query, misal saat libur semester).
+
+---
+
+#### Opsi B — Turso (libSQL / Edge SQLite) + ImageKit.io *(Stack Aktif v1.3)*
+- **Frontend & Fullstack API:** Next.js (App Router, TypeScript)
+- **Database & Query Layer:** Turso (`@libsql/client` + Drizzle ORM dengan skema SQLite)
+- **Auth & Session:** Dikelola di server Next.js (signed HTTP-only cookie + hash `bcryptjs` di tabel `profiles`, atau *Better Auth* / *Auth.js*)
+- **Media Storage & CDN Poster:** **ImageKit.io** (Forever Free: **3 GB storage**, **20 GB bandwidth/bulan**, tanpa wajib kartu kredit, optimasi CDN & resize URL otomatis)
+
+**Perbandingan Singkat (Supabase vs Turso + ImageKit.io untuk Chosenwan):**
+
+| Aspek | Opsi A: Supabase (PostgreSQL) | Opsi B: Turso + ImageKit.io |
+|---|---|---|
+| **Engine DB** | PostgreSQL terkelola | libSQL (fork open-source SQLite) di edge |
+| **Free Tier DB** | 2 project, 500 MB DB, 5 GB egress | 100 database, 5 GB storage, 500 juta row reads/bln, 10 juta row writes/bln |
+| **Risiko Auto-Pause** | Auto-pause jika 7 hari tidak ada aktivitas | Tidak kena auto-pause mingguan |
+| **Auth & Session** | Bawaan (`Supabase Auth`) | Dikelola di Next.js server (session cookie + password hash) |
+| **Isolasi Draft / Role** | PostgreSQL RLS otomatis di level tabel | Dijaga di Next.js Server Actions / API Route Handlers |
+| **Upload & CDN Poster** | Bawaan (`Supabase Storage`, 1 GB) | **ImageKit.io** (3 GB storage, 20 GB bandwidth/bln, CDN + resize URL, tanpa kartu kredit) |
+| **Kesiapan Skema** | Tipe native `UUID`, `TIMESTAMPTZ`, `TIME` | Penyesuaian minor ke tipe SQLite (`TEXT` ISO-8601, `INTEGER` check 1–6) |
+
+**Catatan Implementasi Stack Turso + ImageKit.io:**
+1. **Jangan Ekspos Secret ke Browser:** Token Turso dan `IMAGEKIT_PRIVATE_KEY` hanya boleh berada di server (`.env.local`). Seluruh query DB maupun upload/hapus file ImageKit harus melewati Next.js Server Components, Server Actions, atau Route Handlers yang tervalidasi.
+2. **Guard Query Publik Mutlak:** Endpoint/loader publik wajib selalu menyertakan `WHERE status = 'PUBLISHED'`; mutasi edit/hapus wajib memverifikasi `session.user.role === 'ketua_kelas' || record.created_by === session.user.id`.
+3. **Alur Poster ImageKit.io:** Gambar hasil kompresi client (`compressPosterImage`) dikirim ke endpoint/Server Action Next.js terautentikasi untuk di-upload ke ImageKit (folder `/chosenwan/posters`), lalu `response.url` disimpan ke `poster_url` dan `response.fileId` ke `poster_file_id`. Bila poster diganti atau pengumuman dihapus, server menghapus file lama memakai `poster_file_id` agar kuota 3 GB tetap bersih dari *orphan files*.
 
 ---
 
@@ -740,3 +770,5 @@ Fitur-fitur berikut secara eksplisit berada di luar scope spesifikasi teknis MVP
 |---|---|---|
 | **1.0** | 2026-11-17 | Pembuatan dokumen spesifikasi teknis awal (Draft) dari `04-prd.md` v1.4 dan `05-design.md` v1.0. Mencakup use case diagram, user flow, activity diagram, sequence diagram, data model ERD, state diagram, API contract, pemetaan komponen UI library standar, aturan edge case, traceability matrix, dan usulan 2 opsi tech stack. |
 | **1.1** | 2026-11-17 | Status Approved (Gate 3). Tech stack resmi dikunci pada Opsi A: Next.js + Tailwind CSS + shadcn/ui + Supabase (Auth, PostgreSQL, RLS) + Vercel Deployment sesuai persetujuan Lead PM. |
+| **1.2** | 2026-11-20 | Menambahkan kolom `poster_url` pada tabel `announcements` serta menambahkan **Opsi B: Turso (libSQL / SQLite)** beserta tabel perbandingan dan catatan implementasi di Section 1.3 dan Section 14.1. |
+| **1.3** | 2026-11-20 | Mengunci **Opsi B: Turso (libSQL / SQLite) + ImageKit.io** sebagai stack aktif backend & media storage poster, menambahkan kolom `poster_file_id` pada `announcements`, serta merinci alur upload/hapus poster ImageKit.io. |
