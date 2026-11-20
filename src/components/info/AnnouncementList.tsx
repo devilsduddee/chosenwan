@@ -1,13 +1,16 @@
 "use client"
 
-import React, { useMemo } from "react"
+import React, { useMemo, useState } from "react"
+import { Announcement } from "@/types"
 import { useMockStore } from "@/lib/mock-store"
 import { CategoryFilterPills } from "@/components/info/CategoryFilterPills"
 import { AnnouncementCard } from "@/components/info/AnnouncementCard"
+import { AnnouncementDetailSheet } from "@/components/info/AnnouncementDetailSheet"
 import { Inbox } from "lucide-react"
 
 export function AnnouncementList() {
   const { announcements, selectedCategoryFilter } = useMockStore()
+  const [selectedAnnouncement, setSelectedAnnouncement] = useState<Announcement | null>(null)
 
   const filtered = useMemo(() => {
     return announcements
@@ -37,7 +40,13 @@ export function AnnouncementList() {
       {/* Announcement Items */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-3.5 pt-1">
         {filtered.length > 0 ? (
-          filtered.map((item) => <AnnouncementCard key={item.id} announcement={item} />)
+          filtered.map((item) => (
+            <AnnouncementCard
+              key={item.id}
+              announcement={item}
+              onSelect={setSelectedAnnouncement}
+            />
+          ))
         ) : (
           <div className="md:col-span-2 bg-white rounded-[22px] p-8 border border-[#E4E7F0] text-center space-y-2.5 shadow-2xs">
             <div className="w-12 h-12 rounded-2xl bg-[#EEF1F6] text-[#6E7485] flex items-center justify-center mx-auto">
@@ -52,6 +61,12 @@ export function AnnouncementList() {
           </div>
         )}
       </div>
+
+      {/* Announcement Detail Popup Sheet */}
+      <AnnouncementDetailSheet
+        announcement={selectedAnnouncement}
+        onClose={() => setSelectedAnnouncement(null)}
+      />
     </div>
   )
 }

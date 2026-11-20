@@ -4,17 +4,15 @@ import React, { useState } from "react"
 import { Announcement } from "@/types"
 import { formatIndonesianDate } from "@/lib/date-utils"
 import { isSafePosterSrc } from "@/lib/image-utils"
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { ExternalLink, Share2, Check, Calendar, Maximize2 } from "lucide-react"
-import { toast } from "sonner"
+import { getAnnouncementCategoryMeta, isSafeHttpUrl } from "@/lib/announcement-utils"
+import { Calendar, ChevronRight, Image as ImageIcon, Link2 } from "lucide-react"
 
 interface AnnouncementCardProps {
   announcement: Announcement
+  onSelect: (announcement: Announcement) => void
 }
 
-export function AnnouncementCard({ announcement }: AnnouncementCardProps) {
-  const [copied, setCopied] = useState(false)
-  const [isPosterOpen, setIsPosterOpen] = useState(false)
+export function AnnouncementCard({ announcement, onSelect }: AnnouncementCardProps) {
   const [posterFailed, setPosterFailed] = useState(false)
 
   const posterSrc =
@@ -22,61 +20,22 @@ export function AnnouncementCard({ announcement }: AnnouncementCardProps) {
       ? announcement.poster_url
       : null
 
-  const createdDate = new Date(announcement.created_at)
-  const formattedDate = formatIndonesianDate(createdDate, {
+  const formattedDate = formatIndonesianDate(announcement.created_at, {
     showDayName: true,
     shortDayName: true,
     shortMonth: true,
   })
 
-  // Category Configuration
-  const getCategoryMeta = (cat: string) => {
-    switch (cat) {
-      case "ACADEMIC":
-        return {
-          label: "Akademik / Jadwal",
-          bgClass: "bg-[#A8C0FF]",
-          textColor: "text-[#111318]",
-        }
-      case "CAMPUS_NEWS":
-        return {
-          label: "Berita Kampus",
-          bgClass: "bg-[#F6C866]",
-          textColor: "text-[#111318]",
-        }
-      case "COMPETITION":
-        return {
-          label: "Peluang Lomba",
-          bgClass: "bg-[#EA9DFB]",
-          textColor: "text-[#111318]",
-        }
-      default:
-        return {
-          label: "Pengumuman",
-          bgClass: "bg-[#EEF1F6]",
-          textColor: "text-[#111318]",
-        }
-    }
-  }
-
-  const categoryMeta = getCategoryMeta(announcement.category_type)
-
-  const handleShare = () => {
-    const text = `📢 *INFO KELAS: ${announcement.title}*\n` +
-      `🏷 *Kategori:* ${categoryMeta.label}\n` +
-      `\n${announcement.content}\n` +
-      (announcement.source_url ? `\n🔗 *Sumber Resmi:* ${announcement.source_url}\n` : "") +
-      `\n_Info via Chosenwan Portal_`
-
-    navigator.clipboard.writeText(text)
-    setCopied(true)
-    toast.success("Info berhasil disalin untuk WhatsApp!")
-    setTimeout(() => setCopied(false), 2000)
-  }
+  const categoryMeta = getAnnouncementCategoryMeta(announcement.category_type)
+  const hasSourceUrl = isSafeHttpUrl(announcement.source_url)
 
   return (
-    <div className="bg-white rounded-[22px] p-5 border border-[#E4E7F0] shadow-2xs h-full flex flex-col justify-between gap-3">
-      <div className="space-y-3">
+    <button
+      type="button"
+      onClick={() => onSelect(announcement)}
+      className="w-full h-full flex flex-col justify-between text-left bg-white rounded-[22px] p-4 sm:p-5 border border-[#E4E7F0] shadow-2xs hover:border-[#111318]/30 transition-all cursor-pointer active:scale-[0.98] group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#111318]"
+    >
+      <div className="w-full space-y-3">
         {/* Header Row: Category Badge & Date */}
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-1.5 flex-wrap">
@@ -92,96 +51,59 @@ export function AnnouncementCard({ announcement }: AnnouncementCardProps) {
             )}
           </div>
 
-          <div className="flex items-center gap-1 text-[11px] text-[#6E7485]">
+          <div className="flex items-center gap-1 text-[11px] text-[#6E7485] shrink-0">
             <Calendar className="w-3 h-3" />
             <span suppressHydrationWarning>{formattedDate}</span>
           </div>
         </div>
 
         {/* Title */}
-        <h3 className="text-base font-bold text-[#111318] leading-snug">
+        <h3 className="text-sm sm:text-base font-bold text-[#111318] leading-snug line-clamp-2">
           {announcement.title}
         </h3>
 
-        {/* Poster Preview (when attached, clickable to zoom) */}
+        {/* Poster Thumbnail Preview */}
         {posterSrc && (
-          <button
-            type="button"
-            onClick={() => setIsPosterOpen(true)}
-            aria-label={`Perbesar poster ${announcement.title}`}
-            className="relative w-full rounded-2xl overflow-hidden border border-[#E4E7F0] bg-[#F6F7FB] group cursor-pointer active:scale-[0.99] transition-transform block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#111318]"
-          >
+          <div className="w-full rounded-2xl overflow-hidden border border-[#E4E7F0] bg-[#F6F7FB]">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={posterSrc}
               alt={`Poster ${announcement.title}`}
               onError={() => setPosterFailed(true)}
-              className="w-full max-h-60 object-cover object-top"
+              className="w-full max-h-44 object-cover object-top"
             />
-            <span className="absolute bottom-2.5 right-2.5 inline-flex items-center gap-1 rounded-full bg-[#111318]/85 text-white text-[10px] font-bold px-2.5 py-1 shadow-xs">
-              <Maximize2 className="w-3 h-3" strokeWidth={2} />
-              <span>Lihat Poster</span>
-            </span>
-          </button>
+          </div>
         )}
 
-        {/* Content */}
-        <p className="text-xs text-[#111318]/90 leading-relaxed whitespace-pre-line bg-[#F6F7FB] p-3.5 rounded-2xl border border-[#E4E7F0]/60">
+        {/* Snippet */}
+        <p className="text-xs text-[#6E7485] leading-relaxed line-clamp-3">
           {announcement.content}
         </p>
       </div>
 
-      {/* Fullscreen Poster Viewer Dialog */}
-      {posterSrc && (
-        <Dialog open={isPosterOpen} onOpenChange={setIsPosterOpen}>
-          <DialogContent className="max-w-lg w-[calc(100%-1.5rem)] mx-auto rounded-[24px] p-4 sm:p-5 bg-white border border-[#E4E7F0] shadow-2xl max-h-[90dvh] overflow-y-auto overscroll-contain">
-            <DialogHeader className="text-left pr-8">
-              <DialogTitle className="text-sm font-extrabold text-[#111318] leading-snug">
-                {announcement.title}
-              </DialogTitle>
-            </DialogHeader>
-            <div className="rounded-2xl overflow-hidden bg-[#F6F7FB] border border-[#E4E7F0]">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={posterSrc}
-                alt={`Poster penuh ${announcement.title}`}
-                className="w-full max-h-[72dvh] object-contain mx-auto"
-              />
-            </div>
-          </DialogContent>
-        </Dialog>
-      )}
-
-      {/* Footer Actions */}
-      <div className="pt-2.5 flex items-center justify-between gap-2 border-t border-[#E4E7F0]/60">
-        {announcement.source_url ? (
-          <a
-            href={announcement.source_url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 text-xs font-bold text-[#111318] hover:underline"
-          >
-            <span>Buka Sumber Resmi</span>
-            <ExternalLink className="w-3.5 h-3.5 text-[#6E7485]" strokeWidth={2} />
-          </a>
-        ) : (
-          <span className="text-[11px] text-[#6E7485]">Sumber terverifikasi kelas</span>
-        )}
-
-        <button
-          type="button"
-          onClick={handleShare}
-          className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#111318] bg-[#EEF1F6] hover:bg-[#E4E7F0] px-3 py-1.5 rounded-full transition-all cursor-pointer active:scale-95"
-          title="Salin info untuk WA"
-        >
-          {copied ? (
-            <Check className="w-3.5 h-3.5 text-[#4CD98B]" />
-          ) : (
-            <Share2 className="w-3.5 h-3.5" />
+      {/* Card Footer */}
+      <div className="w-full mt-3 pt-2.5 border-t border-[#E4E7F0]/60 flex items-center justify-between gap-2 text-xs">
+        <div className="flex items-center gap-1.5 text-[#6E7485] flex-wrap">
+          {posterSrc && (
+            <span className="inline-flex items-center gap-1 text-[10px] bg-[#EA9DFB]/40 text-[#111318] px-2 py-0.5 rounded-md font-semibold">
+              <ImageIcon className="w-2.5 h-2.5" /> Poster
+            </span>
           )}
-          <span className="text-[11px] font-semibold">{copied ? "Tersalin" : "Bagi ke WA"}</span>
-        </button>
+          {hasSourceUrl && (
+            <span className="inline-flex items-center gap-1 text-[10px] bg-[#EEF1F6] text-[#111318] px-2 py-0.5 rounded-md font-medium">
+              <Link2 className="w-2.5 h-2.5" /> Sumber Resmi
+            </span>
+          )}
+          {!posterSrc && !hasSourceUrl && (
+            <span className="text-[11px]">Ketuk untuk detail</span>
+          )}
+        </div>
+
+        <div className="inline-flex items-center gap-0.5 text-[11px] font-semibold text-[#6E7485] group-hover:text-[#111318] transition-colors shrink-0">
+          <span>Detail</span>
+          <ChevronRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+        </div>
       </div>
-    </div>
+    </button>
   )
 }

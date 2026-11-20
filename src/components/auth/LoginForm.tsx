@@ -3,7 +3,7 @@
 import React, { useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { useForm } from "react-hook-form"
+import { useForm, useWatch } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { loginFormSchema, LoginFormValues } from "@/lib/validations"
 import { MOCK_CREDENTIALS } from "@/lib/mock-data"
@@ -18,7 +18,7 @@ import {
   ArrowRight,
   Eye,
   EyeOff,
-  KeyRound,
+  Home,
   LogOut,
   ShieldCheck,
   UserCheck,
@@ -37,6 +37,8 @@ export function LoginForm() {
       password: "",
     },
   })
+
+  const currentEmail = useWatch({ control: form.control, name: "email" })
 
   const onSubmit = (values: LoginFormValues) => {
     setLoginError(null)
@@ -57,56 +59,44 @@ export function LoginForm() {
   }
 
   return (
-    <div className="w-full max-w-md mx-auto space-y-5">
-      {/* Top Navigation Back */}
-      <div className="flex items-center justify-between">
+    <div className="my-auto w-full max-w-[420px] mx-auto py-2 space-y-3">
+      {/* Top Navigation */}
+      <div className="flex items-center justify-between gap-2">
         <Link
           href="/portal"
-          className="inline-flex items-center gap-1.5 text-xs font-bold text-[#6E7485] hover:text-[#111318] transition-colors py-1.5"
+          className="min-h-[44px] px-4 rounded-full bg-white hover:bg-[#EEF1F6] border border-[#E4E7F0] shadow-2xs inline-flex items-center gap-1.5 text-xs font-bold text-[#111318] active:scale-[0.97] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#111318]"
         >
-          <ArrowLeft className="w-4 h-4" />
+          <ArrowLeft className="w-3.5 h-3.5 text-[#6E7485] shrink-0" strokeWidth={2} />
           <span>Kembali ke Portal</span>
         </Link>
 
         <Link
           href="/"
-          className="text-xs font-semibold text-[#6E7485] hover:text-[#111318] transition-colors py-1.5"
+          className="min-h-[44px] px-4 rounded-full bg-white hover:bg-[#EEF1F6] border border-[#E4E7F0] shadow-2xs inline-flex items-center gap-1.5 text-xs font-bold text-[#6E7485] hover:text-[#111318] active:scale-[0.97] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#111318]"
         >
-          Beranda
+          <Home className="w-3.5 h-3.5 shrink-0" strokeWidth={1.75} />
+          <span>Beranda</span>
         </Link>
       </div>
 
       {/* Main Login Bento Card */}
-      <div className="bg-white rounded-[24px] p-6 sm:p-7 border border-[#E4E7F0] shadow-[0_12px_36px_rgba(17,19,24,0.05)] space-y-5">
-        {/* Brand & Title */}
-        <div className="space-y-3">
-          <div className="flex items-center justify-between gap-2">
-            <div className="flex items-center gap-2.5">
-              <BrandLogo className="w-10 h-10" />
-              <div>
-                <p className="text-sm font-extrabold text-[#111318] leading-tight">Chosenwan</p>
-                <p className="text-[11px] font-medium text-[#6E7485]">Portal Informasi Kelas</p>
-              </div>
-            </div>
-            <span className="text-[10px] font-bold uppercase tracking-wider bg-[#F6C866] text-[#111318] px-2.5 py-1 rounded-full">
-              Mode Prototype
-            </span>
-          </div>
-
-          <div className="space-y-1 pt-1">
-            <h1 className="text-xl sm:text-2xl font-extrabold text-[#111318] tracking-tight">
-              Masuk sebagai Publisher
+      <div className="bg-white rounded-[24px] p-5 sm:p-7 border border-[#E4E7F0] shadow-[0_12px_36px_rgba(17,19,24,0.05)] space-y-5">
+        {/* Compact Header */}
+        <div className="flex items-center gap-3">
+          <BrandLogo className="w-11 h-11" />
+          <div className="min-w-0">
+            <h1 className="text-lg sm:text-xl font-extrabold text-[#111318] tracking-tight leading-tight">
+              Masuk Publisher
             </h1>
-            <p className="text-xs text-[#6E7485] leading-relaxed">
-              Login khusus Ketua Kelas dan PJ Mata Kuliah untuk menambah tugas, pengumuman, atau
-              jadwal kuliah.
+            <p className="text-xs text-[#6E7485] mt-0.5">
+              Khusus Ketua Kelas dan PJ Mata Kuliah.
             </p>
           </div>
         </div>
 
         {/* Already Logged In Notice */}
         {userRole !== "guest" && (
-          <div className="bg-[#EEF1F6] rounded-[18px] p-4 border border-[#E4E7F0] space-y-3">
+          <div className="bg-[#EEF1F6] rounded-[18px] p-3.5 border border-[#E4E7F0] space-y-3">
             <div className="flex items-start gap-2.5">
               <ShieldCheck className="w-5 h-5 text-[#4CD98B] shrink-0 mt-0.5" />
               <div className="space-y-0.5 text-xs">
@@ -114,7 +104,7 @@ export function LoginForm() {
                   Sesi aktif: {currentUser.full_name}
                 </p>
                 <p className="text-[#6E7485]">
-                  Anda sedang masuk sebagai{" "}
+                  Masuk sebagai{" "}
                   <strong className="text-[#111318]">
                     {userRole === "ketua_kelas" ? "Ketua Kelas" : "PJ Matkul"}
                   </strong>
@@ -129,7 +119,7 @@ export function LoginForm() {
                   setActiveTab("publisher")
                   router.push("/portal")
                 }}
-                className="flex-1 min-h-[38px] rounded-full bg-[#111318] text-white text-xs font-bold hover:bg-[#111318]/90"
+                className="flex-1 min-h-[44px] rounded-full bg-[#111318] text-white text-xs font-bold hover:bg-[#111318]/90 active:scale-[0.98] transition-all cursor-pointer"
               >
                 <span>Buka Dashboard</span>
                 <ArrowRight className="w-3.5 h-3.5 ml-1" />
@@ -141,9 +131,9 @@ export function LoginForm() {
                   logoutPublisher()
                   toast.info("Berhasil keluar ke akses publik mahasiswa")
                 }}
-                className="min-h-[38px] rounded-full border-[#E4E7F0] bg-white text-xs font-bold text-[#111318]"
+                className="min-h-[44px] px-4 rounded-full border-[#E4E7F0] bg-white text-xs font-bold text-[#111318] active:scale-[0.98] transition-all cursor-pointer"
               >
-                <LogOut className="w-3.5 h-3.5 mr-1" />
+                <LogOut className="w-3.5 h-3.5 mr-1.5" />
                 <span>Keluar</span>
               </Button>
             </div>
@@ -154,6 +144,7 @@ export function LoginForm() {
         {loginError && (
           <div
             role="alert"
+            aria-live="polite"
             className="bg-[#F05252]/10 border border-[#F05252]/30 text-[#111318] rounded-[16px] p-3.5 flex items-start gap-2.5 text-xs"
           >
             <AlertCircle className="w-4 h-4 text-[#F05252] shrink-0 mt-0.5" />
@@ -177,7 +168,7 @@ export function LoginForm() {
               enterKeyHint="next"
               placeholder="nama@chosenwan.ac.id"
               {...form.register("email")}
-              className="h-11 rounded-[14px] bg-[#F6F7FB] border-[#E4E7F0] text-sm text-[#111318] focus-visible:border-[#111318] focus-visible:ring-0"
+              className="h-12 px-3.5 rounded-[14px] bg-[#F6F7FB] border-[#E4E7F0] text-base sm:text-sm text-[#111318] focus-visible:border-[#111318] focus-visible:ring-0"
             />
             {form.formState.errors.email && (
               <p className="text-[11px] font-medium text-[#F05252]">
@@ -200,13 +191,13 @@ export function LoginForm() {
                 enterKeyHint="go"
                 placeholder="Minimal 6 karakter"
                 {...form.register("password")}
-                className="h-11 pr-10 rounded-[14px] bg-[#F6F7FB] border-[#E4E7F0] text-sm text-[#111318] focus-visible:border-[#111318] focus-visible:ring-0"
+                className="h-12 pl-3.5 pr-12 rounded-[14px] bg-[#F6F7FB] border-[#E4E7F0] text-base sm:text-sm text-[#111318] focus-visible:border-[#111318] focus-visible:ring-0"
               />
               <button
                 type="button"
                 onClick={() => setShowPassword((prev) => !prev)}
                 aria-label={showPassword ? "Sembunyikan kata sandi" : "Lihat kata sandi"}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1.5 text-[#6E7485] hover:text-[#111318] cursor-pointer"
+                className="absolute right-0.5 top-1/2 -translate-y-1/2 w-11 h-11 flex items-center justify-center rounded-xl text-[#6E7485] hover:text-[#111318] active:scale-95 transition-all cursor-pointer"
               >
                 {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
               </button>
@@ -220,54 +211,47 @@ export function LoginForm() {
 
           <Button
             type="submit"
-            className="w-full min-h-[46px] rounded-full bg-[#111318] hover:bg-[#111318]/90 text-white text-xs sm:text-sm font-bold shadow-xs cursor-pointer"
+            className="w-full min-h-[48px] rounded-full bg-[#111318] hover:bg-[#111318]/90 text-white text-sm font-bold shadow-xs active:scale-[0.98] transition-all cursor-pointer"
           >
-            <span>Masuk ke Ruang Publisher</span>
+            <span>Masuk</span>
             <ArrowRight className="w-4 h-4 ml-1.5" />
           </Button>
         </form>
-      </div>
 
-      {/* Prototype Quick-Fill Accounts Box */}
-      <div className="bg-white rounded-[22px] p-5 border border-[#E4E7F0] shadow-2xs space-y-3">
-        <div className="flex items-center gap-2">
-          <KeyRound className="w-4 h-4 text-[#111318]" strokeWidth={2} />
-          <h2 className="text-xs font-extrabold uppercase tracking-wider text-[#111318]">
-            Akun Uji Coba (Tanpa Database)
-          </h2>
-        </div>
+        {/* Compact Prototype Quick-Fill Bar */}
+        <div className="pt-4 border-t border-[#E4E7F0]/80 space-y-2.5">
+          <div className="flex items-center justify-between gap-2">
+            <span className="text-[11px] font-bold text-[#6E7485]">
+              Akun Uji Coba (Tanpa Database)
+            </span>
+            <span className="text-[10px] font-semibold text-[#6E7485]">Tap untuk isi</span>
+          </div>
 
-        <p className="text-[11px] text-[#6E7485] leading-relaxed">
-          Klik <strong>Isi Otomatis</strong> untuk langsung memasukkan email dan kata sandi ke form
-          di atas. Data disimpan lokal di browser.
-        </p>
-
-        <div className="space-y-2.5">
-          {MOCK_CREDENTIALS.map((cred) => (
-            <div
-              key={cred.role}
-              className="rounded-[16px] bg-[#F6F7FB] border border-[#E4E7F0] p-3.5 flex items-center justify-between gap-3"
-            >
-              <div className="min-w-0 space-y-0.5">
-                <div className="flex items-center gap-1.5">
-                  <UserCheck className="w-3.5 h-3.5 text-[#111318] shrink-0" />
-                  <span className="text-xs font-bold text-[#111318]">{cred.label}</span>
-                </div>
-                <p className="text-[11px] text-[#6E7485] truncate">
-                  {cred.email} • <code className="text-[#111318] font-semibold">{cred.password}</code>
-                </p>
-                <p className="text-[10px] text-[#6E7485] line-clamp-1">{cred.description}</p>
-              </div>
-
-              <button
-                type="button"
-                onClick={() => handleQuickFill(cred.email, cred.password)}
-                className="min-h-[34px] px-3 rounded-full bg-white border border-[#E4E7F0] hover:border-[#111318] text-[11px] font-bold text-[#111318] shrink-0 transition-colors cursor-pointer active:scale-95"
-              >
-                Isi Otomatis
-              </button>
-            </div>
-          ))}
+          <div className="grid grid-cols-2 gap-2">
+            {MOCK_CREDENTIALS.map((cred) => {
+              const isSelected = currentEmail?.trim().toLowerCase() === cred.email.toLowerCase()
+              return (
+                <button
+                  key={cred.role}
+                  type="button"
+                  onClick={() => handleQuickFill(cred.email, cred.password)}
+                  className={`min-h-[52px] p-3 rounded-[16px] border text-left flex flex-col justify-center gap-0.5 transition-all active:scale-[0.97] cursor-pointer ${
+                    isSelected
+                      ? "bg-[#EEF1F6] border-[#111318] shadow-2xs"
+                      : "bg-[#F6F7FB] border-[#E4E7F0] hover:border-[#111318]/40"
+                  }`}
+                >
+                  <span className="inline-flex items-center gap-1.5 text-xs font-bold text-[#111318]">
+                    <UserCheck className="w-3.5 h-3.5 shrink-0" strokeWidth={2} />
+                    <span>{cred.label}</span>
+                  </span>
+                  <span className="text-[10px] text-[#6E7485] truncate w-full">
+                    {cred.email}
+                  </span>
+                </button>
+              )
+            })}
+          </div>
         </div>
       </div>
     </div>
