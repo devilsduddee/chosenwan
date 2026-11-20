@@ -1,11 +1,14 @@
 "use client"
 
-import React from "react"
-import { UseFormReturn } from "react-hook-form"
+import React, { useRef, useState } from "react"
+import { UseFormReturn, useWatch } from "react-hook-form"
 import { AnnouncementFormValues } from "@/lib/validations"
+import { compressPosterImage, isSafePosterSrc } from "@/lib/image-utils"
 import { Course } from "@/types"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
+import { ImagePlus, X } from "lucide-react"
+import { toast } from "sonner"
 
 interface AnnouncementFormFieldsProps {
   form: UseFormReturn<AnnouncementFormValues>
@@ -15,18 +18,53 @@ interface AnnouncementFormFieldsProps {
 export function AnnouncementFormFields({ form, courses }: AnnouncementFormFieldsProps) {
   const {
     register,
-    watch,
+    control,
     setValue,
     formState: { errors },
   } = form
 
-  const selectedCategory = watch("category_type")
+  const selectedCategory = useWatch({ control, name: "category_type" })
+  const posterUrl = useWatch({ control, name: "poster_url" })
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  const [isProcessingPoster, setIsProcessingPoster] = useState(false)
 
   const categories = [
-    { id: "ACADEMIC", label: "Akademik", bg: "bg-[#A8C0FF]" },
-    { id: "CAMPUS_NEWS", label: "Berita", bg: "bg-[#F6C866]" },
-    { id: "COMPETITION", label: "Lomba", bg: "bg-[#EA9DFB]" },
+    { id: "ACADEMIC", label: "Akademik" },
+    { id: "CAMPUS_NEWS", label: "Berita" },
+    { id: "COMPETITION", label: "Lomba" },
   ] as const
+
+  const handlePosterFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    e.target.value = ""
+    if (!file) return
+
+    setIsProcessingPoster(true)
+    try {
+      const compressedDataUrl = await compressPosterImage(file)
+      setValue("poster_url", compressedDataUrl, { shouldValidate: true, shouldDirty: true })
+      toast.success("Poster lomba siap dilampirkan")
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Gagal memproses poster"
+      toast.error(message)
+    } finally {
+      setIsProcessingPoster(false)
+    }
+  }
+
+  const handleClearPoster = () => {
+    setValue("poster_url", "", { shouldValidate: true, shouldDirty: true })
+  }
+
+  const showPosterField =
+    selectedCategory === "COMPETITION" ||
+    selectedCategory === "CAMPUS_NEWS" ||
+    Boolean(posterUrl)
+  const posterLabel =
+    selectedCategory === "COMPETITION"
+      ? "Poster Perlombaan (Opsional)"
+      : "Poster / Gambar Info (Opsional)"
+  const hasValidPosterPreview = isSafePosterSrc(posterUrl)
 
   return (
     <div className="space-y-3.5">
@@ -109,6 +147,73 @@ export function AnnouncementFormFields({ form, courses }: AnnouncementFormFields
           <p className="text-[11px] text-[#F05252]">{errors.content.message}</p>
         )}
       </div>
+
+      {/* Poster Upload / URL (Shown for Info Lomba & Berita Kampus) */}
+      {showPosterField && (
+        <div className="space-y-2 rounded-2xl bg-[#F6F7FB] border border-[#E4E7F0] p-3.5">
+          <div className="flex items-center justify-between gap-2">
+            <label className="text-xs font-bold text-[#111318]">
+              {posterLabel}
+            </label>
+            <span className="text-[10px] font-semibold text-[#6E7485]">PNG / JPG / WebP</span>
+          </div>
+
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/png,image/jpeg,image/webp"
+            onChange={handlePosterFileChange}
+            className="hidden"
+          />
+
+          {hasValidPosterPreview && posterUrl && (
+            <div className="relative rounded-xl overflow-hidden border border-[#E4E7F0] bg-white">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={posterUrl}
+                alt="Preview poster perlombaan"
+                className="w-full max-h-48 object-contain mx-auto bg-[#F6F7FB]"
+              />
+              <button
+                type="button"
+                onClick={handleClearPoster}
+                aria-label="Hapus poster"
+                title="Hapus poster"
+                className="absolute top-2 right-2 w-7 h-7 rounded-full bg-[#111318]/85 hover:bg-[#F05252] text-white flex items-center justify-center transition-colors cursor-pointer"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          )}
+
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              disabled={isProcessingPoster}
+              onClick={() => fileInputRef.current?.click()}
+              className="min-h-[38px] px-3.5 rounded-xl bg-white hover:bg-[#EEF1F6] border border-[#E4E7F0] text-xs font-bold text-[#111318] inline-flex items-center gap-1.5 shrink-0 transition-colors cursor-pointer disabled:opacity-60"
+            >
+              <ImagePlus className="w-3.5 h-3.5" strokeWidth={2} />
+              <span>{isProcessingPoster ? "Memproses..." : posterUrl ? "Ganti File" : "Upload Poster"}</span>
+            </button>
+
+            <Input
+              type="url"
+              inputMode="url"
+              autoCapitalize="none"
+              autoCorrect="off"
+              placeholder="atau tempel link gambar (https://...)"
+              value={posterUrl?.startsWith("data:") ? "" : posterUrl || ""}
+              onChange={(e) => setValue("poster_url", e.target.value, { shouldValidate: true })}
+              className="h-[38px] rounded-xl bg-white border-[#E4E7F0] text-xs"
+            />
+          </div>
+
+          {errors.poster_url && (
+            <p className="text-[11px] text-[#F05252]">{errors.poster_url.message}</p>
+          )}
+        </div>
+      )}
 
       {/* Source URL */}
       <div className="space-y-1">

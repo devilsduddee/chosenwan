@@ -3,7 +3,7 @@
 import React from "react"
 import { Task, Announcement } from "@/types"
 import { formatIndonesianDate } from "@/lib/date-utils"
-import { Edit3, Trash2, BookOpen, Megaphone, Lock } from "lucide-react"
+import { Edit3, Trash2, BookOpen, Megaphone, Lock, Image as ImageIcon } from "lucide-react"
 
 interface PublisherContentItemProps {
   type: "task" | "announcement"
@@ -58,6 +58,13 @@ export function PublisherContentItem({
                   : announcement.category_type === "COMPETITION"
                   ? "Lomba"
                   : "Akademik"}
+              </span>
+            )}
+
+            {announcement?.poster_url && (
+              <span className="text-[10px] font-semibold bg-[#EA9DFB]/50 text-[#111318] px-2 py-0.5 rounded-full inline-flex items-center gap-1">
+                <ImageIcon className="w-2.5 h-2.5" />
+                <span>Poster</span>
               </span>
             )}
           </div>

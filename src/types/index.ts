@@ -41,6 +41,7 @@ export interface Announcement {
   category_type: AnnouncementCategory
   content: string
   source_url?: string | null
+  poster_url?: string | null
   status: ContentStatus
   created_at: string
   updated_at?: string

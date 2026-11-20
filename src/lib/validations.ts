@@ -1,16 +1,42 @@
 import { z } from "zod"
 
+const SAFE_HTTP_URL_REGEX = /^https?:\/\//i
+const SAFE_RASTER_DATA_URL_REGEX = /^data:image\/(png|jpeg|jpg|webp);base64,[a-z0-9+/=]+$/i
+
+const optionalHttpUrl = z
+  .string()
+  .trim()
+  .url("Format tautan harus valid (contoh: https://...)")
+  .refine((val) => SAFE_HTTP_URL_REGEX.test(val), "Tautan wajib menggunakan http:// atau https://")
+  .optional()
+  .or(z.literal(""))
+
+const optionalPosterUrl = z
+  .string()
+  .trim()
+  .refine(
+    (val) => {
+      if (!val) return true
+      if (SAFE_RASTER_DATA_URL_REGEX.test(val)) return true
+      try {
+        const parsed = new URL(val)
+        return parsed.protocol === "http:" || parsed.protocol === "https:"
+      } catch {
+        return false
+      }
+    },
+    "Poster harus berupa gambar (PNG/JPG/WebP) atau tautan https:// yang valid"
+  )
+  .optional()
+  .or(z.literal(""))
+
 export const taskFormSchema = z.object({
   course_id: z.string().min(1, "Mata kuliah wajib dipilih"),
   title: z.string().min(3, "Judul tugas minimal 3 karakter"),
   instructions: z.string().min(5, "Instruksi tugas minimal 5 karakter"),
   week_number: z.string().optional(),
   due_date: z.string().min(1, "Batas waktu tugas wajib diisi"),
-  submission_url: z
-    .string()
-    .url("Format tautan harus valid (contoh: https://...)")
-    .optional()
-    .or(z.literal("")),
+  submission_url: optionalHttpUrl,
 })
 
 export type TaskFormValues = z.infer<typeof taskFormSchema>
@@ -22,11 +48,8 @@ export const announcementFormSchema = z.object({
   course_id: z.string().optional(),
   title: z.string().min(3, "Judul pengumuman minimal 3 karakter"),
   content: z.string().min(5, "Isi pengumuman minimal 5 karakter"),
-  source_url: z
-    .string()
-    .url("Format tautan harus valid (contoh: https://...)")
-    .optional()
-    .or(z.literal("")),
+  source_url: optionalHttpUrl,
+  poster_url: optionalPosterUrl,
 })
 
 export type AnnouncementFormValues = z.infer<typeof announcementFormSchema>

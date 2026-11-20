@@ -62,6 +62,7 @@ export function ContentEditorDialog() {
       title: "",
       content: "",
       source_url: "",
+      poster_url: "",
     },
   })
 
@@ -89,6 +90,7 @@ export function ContentEditorDialog() {
           title: a.title || "",
           content: a.content || "",
           source_url: a.source_url || "",
+          poster_url: a.poster_url || "",
         })
       }
     } else {
@@ -106,6 +108,7 @@ export function ContentEditorDialog() {
         title: "",
         content: "",
         source_url: "",
+        poster_url: "",
       })
     }
   }, [editingContent, isEditorOpen, taskForm, announcementForm])
@@ -147,6 +150,7 @@ export function ContentEditorDialog() {
           title: values.title,
           content: values.content,
           source_url: values.source_url || undefined,
+          poster_url: values.poster_url || null,
           status,
           created_by: currentUser.id,
         }
