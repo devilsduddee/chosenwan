@@ -5,7 +5,7 @@ import { Announcement } from "@/types"
 import { formatIndonesianDate } from "@/lib/date-utils"
 import { isSafePosterSrc } from "@/lib/image-utils"
 import { getAnnouncementCategoryMeta, isSafeHttpUrl } from "@/lib/announcement-utils"
-import { Calendar, ChevronRight, Image as ImageIcon, Link2 } from "lucide-react"
+import { Calendar, ChevronRight, Image as ImageIcon, Link2, Pin } from "lucide-react"
 
 interface AnnouncementCardProps {
   announcement: Announcement
@@ -33,12 +33,21 @@ export function AnnouncementCard({ announcement, onSelect }: AnnouncementCardPro
     <button
       type="button"
       onClick={() => onSelect(announcement)}
-      className="w-full h-full flex flex-col justify-between text-left bg-white rounded-[22px] p-4 sm:p-5 border border-[#E4E7F0] shadow-2xs hover:border-[#111318]/30 transition-all cursor-pointer active:scale-[0.98] group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#111318]"
+      className={`w-full h-full flex flex-col justify-between text-left bg-white rounded-[22px] p-4 sm:p-5 border shadow-2xs transition-all cursor-pointer active:scale-[0.98] group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#111318] ${
+        announcement.is_pinned
+          ? "border-[#111318] ring-1 ring-[#111318]/10"
+          : "border-[#E4E7F0] hover:border-[#111318]/30"
+      }`}
     >
       <div className="w-full space-y-3">
-        {/* Header Row: Category Badge & Date */}
+        {/* Header Row: Category Badge, Pin Badge & Date */}
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-1.5 flex-wrap">
+            {announcement.is_pinned && (
+              <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded-full bg-[#111318] text-white">
+                <Pin className="w-2.5 h-2.5 fill-white" /> Dipin
+              </span>
+            )}
             <span
               className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full ${categoryMeta.bgClass} ${categoryMeta.textColor}`}
             >

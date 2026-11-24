@@ -1,113 +1,44 @@
 "use client"
 
-import React, { createContext, useContext, useState, useEffect } from "react"
+import React, { createContext, useContext, useState, useEffect, useCallback } from "react"
 import { Task, Announcement, Course, Schedule, UserRole, UserProfile, ActiveTab } from "@/types"
+import { MockStoreContextType, LoginResult } from "@/types/store"
+import { loginAction, logoutAction } from "@/lib/actions/auth"
+import { getInitialPortalData } from "@/lib/actions/portal"
+import { createTaskAction, updateTaskAction, deleteTaskAction } from "@/lib/actions/tasks"
 import {
-  MOCK_COURSES,
-  MOCK_TASKS,
-  MOCK_ANNOUNCEMENTS,
-  MOCK_SCHEDULES,
-  MOCK_USERS,
-  MOCK_CREDENTIALS,
-} from "@/lib/mock-data"
-
-interface LoginResult {
-  ok: boolean
-  error?: string
-  user?: UserProfile
-}
-
-interface MockStoreContextType {
-  // Navigation & Role / Auth
-  activeTab: ActiveTab
-  setActiveTab: (tab: ActiveTab) => void
-  userRole: UserRole
-  currentUser: UserProfile
-  loginPublisher: (email: string, password: string) => LoginResult
-  logoutPublisher: () => void
-  canManageContent: (createdBy: string) => boolean
-
-  // Data
-  courses: Course[]
-  tasks: Task[]
-  announcements: Announcement[]
-  schedules: Schedule[]
-
-  // Filtering & Search
-  searchQuery: string
-  setSearchQuery: (query: string) => void
-  selectedCourseFilter: string
-  setSelectedCourseFilter: (courseId: string) => void
-  selectedCategoryFilter: string
-  setSelectedCategoryFilter: (category: string) => void
-
-  // Task Detail Sheet State
-  selectedTaskForDetail: Task | null
-  setSelectedTaskForDetail: (task: Task | null) => void
-
-  // Dialog State
-  isEditorOpen: boolean
-  setIsEditorOpen: (open: boolean) => void
-  editingContent: { type: "task" | "announcement"; data: Task | Announcement } | null
-  setEditingContent: (content: { type: "task" | "announcement"; data: Task | Announcement } | null) => void
-
-  // Mutations
-  addTask: (task: Omit<Task, "id" | "created_at">) => void
-  updateTask: (id: string, task: Partial<Task>) => void
-  deleteTask: (id: string) => void
-
-  addAnnouncement: (announcement: Omit<Announcement, "id" | "created_at">) => void
-  updateAnnouncement: (id: string, announcement: Partial<Announcement>) => void
-  deleteAnnouncement: (id: string) => void
-
-  addSchedule: (schedule: Omit<Schedule, "id">) => void
-  updateSchedule: (id: string, schedule: Partial<Schedule>) => void
-  deleteSchedule: (id: string) => void
-
-  resetToDefaults: () => void
-}
+  createEventAction,
+  updateEventAction,
+  deleteEventAction,
+  togglePinEventAction,
+} from "@/lib/actions/events"
+import { updateScheduleAction } from "@/lib/actions/schedules"
+import { toast } from "sonner"
 
 const MockStoreContext = createContext<MockStoreContextType | undefined>(undefined)
 
-const STORAGE_KEY_TASKS = "chosenwan_mock_tasks_v2"
-const STORAGE_KEY_ANNOUNCEMENTS = "chosenwan_mock_announcements_v2"
-const STORAGE_KEY_SCHEDULES = "chosenwan_mock_schedules_v2"
-const STORAGE_KEY_ROLE = "chosenwan_mock_role"
-
 export function MockStoreProvider({ children }: { children: React.ReactNode }) {
-  const [activeTab, setActiveTab] = useState<ActiveTab>("tasks")
+  const [activeTab, setActiveTab] = useState<ActiveTab>("schedule")
   const [userRole, setUserRole] = useState<UserRole>("guest")
-  const [courses] = useState<Course[]>(MOCK_COURSES)
-  const [tasks, setTasks] = useState<Task[]>(MOCK_TASKS)
-  const [announcements, setAnnouncements] = useState<Announcement[]>(MOCK_ANNOUNCEMENTS)
-  const [schedules, setSchedules] = useState<Schedule[]>(MOCK_SCHEDULES)
+  const [currentUser, setCurrentUser] = useState<UserProfile>({
+    id: "guest-user",
+    name: "Pengunjung",
+    role: "guest",
+  })
 
-  const isLoadedRef = React.useRef(false)
+  const [courses, setCourses] = useState<Course[]>([])
+  const [tasks, setTasks] = useState<Task[]>([])
+  const [announcements, setAnnouncements] = useState<Announcement[]>([])
+  const [schedules, setSchedules] = useState<Schedule[]>([])
+  const [isTasksGated, setIsTasksGated] = useState(true)
+  const [isLoading, setIsLoading] = useState(true)
 
-  // Hydrate from localStorage safely on client mount (prevents SSR mismatch)
-  useEffect(() => {
-    try {
-      const savedTasks = localStorage.getItem(STORAGE_KEY_TASKS)
-      if (savedTasks) setTasks(JSON.parse(savedTasks))
-
-      const savedAnnouncements = localStorage.getItem(STORAGE_KEY_ANNOUNCEMENTS)
-      if (savedAnnouncements) setAnnouncements(JSON.parse(savedAnnouncements))
-
-      const savedSchedules = localStorage.getItem(STORAGE_KEY_SCHEDULES)
-      if (savedSchedules) setSchedules(JSON.parse(savedSchedules))
-
-      const savedRole = localStorage.getItem(STORAGE_KEY_ROLE)
-      if (savedRole === "guest" || savedRole === "ketua_kelas" || savedRole === "pj_matkul") {
-        setUserRole(savedRole as UserRole)
-      }
-    } catch {}
-    isLoadedRef.current = true
-  }, [])
-
+  // Filter & Search states
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedCourseFilter, setSelectedCourseFilter] = useState("ALL")
   const [selectedCategoryFilter, setSelectedCategoryFilter] = useState("ALL")
 
+  // Sheet & Dialog states
   const [selectedTaskForDetail, setSelectedTaskForDetail] = useState<Task | null>(null)
   const [isEditorOpen, setIsEditorOpen] = useState(false)
   const [editingContent, setEditingContent] = useState<{
@@ -115,204 +46,237 @@ export function MockStoreProvider({ children }: { children: React.ReactNode }) {
     data: Task | Announcement
   } | null>(null)
 
-  // Sync to LocalStorage on change (only after initial load)
-  useEffect(() => {
-    if (!isLoadedRef.current) return
+  const loadData = useCallback(async () => {
     try {
-      localStorage.setItem(STORAGE_KEY_TASKS, JSON.stringify(tasks))
-    } catch {}
-  }, [tasks])
-
-  useEffect(() => {
-    if (!isLoadedRef.current) return
-    try {
-      localStorage.setItem(STORAGE_KEY_ANNOUNCEMENTS, JSON.stringify(announcements))
-    } catch {}
-  }, [announcements])
-
-  useEffect(() => {
-    if (!isLoadedRef.current) return
-    try {
-      localStorage.setItem(STORAGE_KEY_SCHEDULES, JSON.stringify(schedules))
-    } catch {}
-  }, [schedules])
-
-  const handleSetUserRole = (role: UserRole) => {
-    setUserRole(role)
-    try {
-      localStorage.setItem(STORAGE_KEY_ROLE, role)
-    } catch {}
-    if (role === "guest" && activeTab === "publisher") {
-      setActiveTab("tasks")
-    }
-  }
-
-  const loginPublisher = (email: string, password: string): LoginResult => {
-    const normalizedEmail = email.trim().toLowerCase()
-    const match = MOCK_CREDENTIALS.find(
-      (cred) => cred.email.toLowerCase() === normalizedEmail && cred.password === password
-    )
-
-    if (!match) {
-      return {
-        ok: false,
-        error: "Email atau kata sandi salah. Periksa kembali atau gunakan akun uji coba di bawah.",
+      setIsLoading(true)
+      const data = await getInitialPortalData()
+      setCourses(data.courses)
+      setSchedules(data.schedules)
+      setAnnouncements(data.announcements)
+      setTasks(data.tasks)
+      setIsTasksGated(data.isTasksGated)
+      setCurrentUser(data.currentUser)
+      setUserRole(data.currentUser.role)
+      if (data.currentUser.role !== "guest") {
+        const tabParam =
+          typeof window !== "undefined"
+            ? new URLSearchParams(window.location.search).get("tab")
+            : null
+        if (!tabParam) {
+          setActiveTab("tasks")
+        }
       }
+    } catch (err) {
+      console.error("Gagal memuat data portal:", err)
+      toast.error("Gagal memuat data dari database.")
+    } finally {
+      setIsLoading(false)
     }
+  }, [])
 
-    handleSetUserRole(match.role)
-    setActiveTab("publisher")
-    return { ok: true, user: match.user }
-  }
+  useEffect(() => {
+    loadData()
+  }, [loadData])
 
-  const logoutPublisher = () => {
-    handleSetUserRole("guest")
-    setIsEditorOpen(false)
-    setEditingContent(null)
-    setActiveTab("tasks")
-  }
-
-  const currentUser: UserProfile = MOCK_USERS[userRole] || MOCK_USERS.guest
-
-  const canManageContent = (createdBy: string) => {
+  const canManageContent = (createdBy?: string) => {
+    if (userRole === "guest" || userRole === "member") return false
     if (userRole === "ketua_kelas") return true
-    if (userRole === "pj_matkul") return createdBy === currentUser.id
+    if (userRole === "pj" || userRole === "pj_matkul") {
+      return !createdBy || createdBy === currentUser.id
+    }
     return false
   }
 
-  // Task Mutations (guarded by publisher session & ownership)
-  const addTask = (newTaskData: Omit<Task, "id" | "created_at">) => {
-    if (userRole === "guest") return
-    const courseObj = courses.find((c) => c.id === newTaskData.course_id)
-    const newTask: Task = {
-      ...newTaskData,
-      created_by: currentUser.id,
-      id: `task_${Date.now()}`,
-      created_at: new Date().toISOString(),
-      course: courseObj,
+  // Auth Handlers
+  const loginPublisher = async (name: string, password: string): Promise<LoginResult> => {
+    try {
+      const result = await loginAction(name, password)
+      if (result.ok && result.user) {
+        setCurrentUser(result.user)
+        setUserRole(result.user.role)
+        await loadData()
+        return { ok: true, user: result.user }
+      }
+      return { ok: false, error: result.error || "Login gagal." }
+    } catch (err) {
+      return {
+        ok: false,
+        error: err instanceof Error ? err.message : "Terjadi kesalahan koneksi.",
+      }
     }
-    setTasks((prev) => [newTask, ...prev])
   }
 
-  const updateTask = (id: string, updatedFields: Partial<Task>) => {
-    setTasks((prev) =>
-      prev.map((t) => {
-        if (t.id === id && canManageContent(t.created_by)) {
-          const courseObj = updatedFields.course_id
-            ? courses.find((c) => c.id === updatedFields.course_id)
-            : t.course
-          return {
-            ...t,
-            ...updatedFields,
-            created_by: t.created_by, // Preserve original author on moderation edits
-            updated_at: new Date().toISOString(),
-            course: courseObj,
-          }
-        }
-        return t
+  const logoutPublisher = async () => {
+    try {
+      await logoutAction()
+      setCurrentUser({ id: "guest-user", name: "Pengunjung", role: "guest" })
+      setUserRole("guest")
+      setActiveTab("tasks")
+      await loadData()
+      toast.success("Berhasil keluar.")
+    } catch (err) {
+      console.error("Logout error:", err)
+    }
+  }
+
+  // Mutations
+  const addTask = async (task: Omit<Task, "id" | "created_at">) => {
+    try {
+      await createTaskAction({
+        course_id: task.course_id,
+        title: task.title,
+        instructions: task.instructions,
+        due_date: task.due_date,
+        submission_url: task.submission_url,
+        status: task.status,
       })
-    )
-  }
-
-  const deleteTask = (id: string) => {
-    const target = tasks.find((t) => t.id === id)
-    if (!target || !canManageContent(target.created_by)) return
-    setTasks((prev) => prev.filter((t) => t.id !== id))
-    if (selectedTaskForDetail?.id === id) {
-      setSelectedTaskForDetail(null)
+      await loadData()
+      toast.success(
+        task.status === "DRAFT" ? "Draft tugas tersimpan" : "Tugas berhasil diterbitkan!"
+      )
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Gagal menambah tugas")
+      throw err
     }
   }
 
-  // Announcement Mutations (guarded by publisher session & ownership)
-  const addAnnouncement = (newAnnData: Omit<Announcement, "id" | "created_at">) => {
-    if (userRole === "guest") return
-    const courseObj = newAnnData.course_id
-      ? courses.find((c) => c.id === newAnnData.course_id)
-      : undefined
-    const newAnn: Announcement = {
-      ...newAnnData,
-      created_by: currentUser.id,
-      id: `ann_${Date.now()}`,
-      created_at: new Date().toISOString(),
-      course: courseObj,
-    }
-    setAnnouncements((prev) => [newAnn, ...prev])
-  }
-
-  const updateAnnouncement = (id: string, updatedFields: Partial<Announcement>) => {
-    setAnnouncements((prev) =>
-      prev.map((a) => {
-        if (a.id === id && canManageContent(a.created_by)) {
-          const courseObj = updatedFields.course_id
-            ? courses.find((c) => c.id === updatedFields.course_id)
-            : a.course
-          return {
-            ...a,
-            ...updatedFields,
-            created_by: a.created_by, // Preserve original author on moderation edits
-            updated_at: new Date().toISOString(),
-            course: courseObj,
-          }
-        }
-        return a
+  const updateTask = async (id: string, partial: Partial<Task>) => {
+    try {
+      await updateTaskAction(id, {
+        course_id: partial.course_id,
+        title: partial.title,
+        instructions: partial.instructions,
+        due_date: partial.due_date,
+        submission_url: partial.submission_url,
+        status: partial.status,
       })
-    )
-  }
-
-  const deleteAnnouncement = (id: string) => {
-    const target = announcements.find((a) => a.id === id)
-    if (!target || !canManageContent(target.created_by)) return
-    setAnnouncements((prev) => prev.filter((a) => a.id !== id))
-  }
-
-  // Schedule Mutations (guarded by publisher session)
-  const addSchedule = (newScheduleData: Omit<Schedule, "id">) => {
-    if (userRole === "guest") return
-    const courseObj = courses.find((c) => c.id === newScheduleData.course_id)
-    const newSchedule: Schedule = {
-      ...newScheduleData,
-      updated_by: currentUser.id,
-      id: `sched_${Date.now()}`,
-      course: courseObj,
-      lecturer_name: newScheduleData.lecturer_name || courseObj?.lecturer_name,
+      await loadData()
+      toast.success("Tugas berhasil diperbarui")
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Gagal memperbarui tugas")
+      throw err
     }
-    setSchedules((prev) => [...prev, newSchedule])
   }
 
-  const updateSchedule = (id: string, updatedFields: Partial<Schedule>) => {
-    if (userRole === "guest") return
-    setSchedules((prev) =>
-      prev.map((s) => {
-        if (s.id === id) {
-          const courseObj = updatedFields.course_id
-            ? courses.find((c) => c.id === updatedFields.course_id)
-            : s.course
-          return {
-            ...s,
-            ...updatedFields,
-            updated_by: currentUser.id,
-            course: courseObj,
-          }
-        }
-        return s
+  const deleteTask = async (id: string) => {
+    try {
+      await deleteTaskAction(id)
+      await loadData()
+      toast.success("Tugas berhasil dihapus")
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Gagal menghapus tugas")
+      throw err
+    }
+  }
+
+  const addAnnouncement = async (announcement: Omit<Announcement, "id" | "created_at">) => {
+    try {
+      await createEventAction({
+        category: announcement.category_type,
+        title: announcement.title,
+        content: announcement.content,
+        course_id: announcement.course_id,
+        source_url: announcement.source_url,
+        poster_url: announcement.poster_url,
+        poster_file_id: announcement.poster_file_id,
+        is_pinned: announcement.is_pinned,
+        status: announcement.status,
       })
-    )
+      await loadData()
+      toast.success(
+        announcement.status === "DRAFT"
+          ? "Draft pengumuman tersimpan"
+          : "Pengumuman berhasil diterbitkan!"
+      )
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Gagal menambah pengumuman")
+      throw err
+    }
   }
 
-  const deleteSchedule = (id: string) => {
-    if (userRole === "guest") return
-    setSchedules((prev) => prev.filter((s) => s.id !== id))
+  const updateAnnouncement = async (id: string, partial: Partial<Announcement>) => {
+    try {
+      await updateEventAction(id, {
+        category: partial.category_type,
+        title: partial.title,
+        content: partial.content,
+        course_id: partial.course_id,
+        source_url: partial.source_url,
+        poster_url: partial.poster_url,
+        poster_file_id: partial.poster_file_id,
+        is_pinned: partial.is_pinned,
+        status: partial.status,
+      })
+      await loadData()
+      toast.success("Pengumuman berhasil diperbarui")
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Gagal memperbarui pengumuman")
+      throw err
+    }
+  }
+
+  const togglePinAnnouncement = async (id: string) => {
+    try {
+      const updated = await togglePinEventAction(id)
+      await loadData()
+      toast.success(
+        updated.isPinned
+          ? "Pengumuman disematkan di paling atas!"
+          : "Sematan pengumuman dilepas."
+      )
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Gagal mengubah status sematan")
+      throw err
+    }
+  }
+
+  const deleteAnnouncement = async (id: string) => {
+    try {
+      await deleteEventAction(id)
+      await loadData()
+      toast.success("Pengumuman berhasil dihapus")
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Gagal menghapus pengumuman")
+      throw err
+    }
+  }
+
+  const addSchedule = () => {
+    toast.info("Penambahan jadwal otomatis dikelola via admin.")
+  }
+
+  const updateSchedule = async (id: string, partial: Partial<Schedule>) => {
+    try {
+      if (
+        !partial.course_id ||
+        partial.day_of_week === undefined ||
+        !partial.start_time ||
+        !partial.end_time ||
+        !partial.room
+      ) {
+        throw new Error("Data jadwal tidak lengkap.")
+      }
+      await updateScheduleAction(id, {
+        course_id: partial.course_id,
+        day_of_week: partial.day_of_week,
+        start_time: partial.start_time,
+        end_time: partial.end_time,
+        room: partial.room,
+      })
+      await loadData()
+      toast.success("Jadwal kuliah berhasil diperbarui")
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Gagal memperbarui jadwal")
+      throw err
+    }
+  }
+
+  const deleteSchedule = () => {
+    toast.info("Penghapusan slot jadwal dibatasi.")
   }
 
   const resetToDefaults = () => {
-    setTasks(MOCK_TASKS)
-    setAnnouncements(MOCK_ANNOUNCEMENTS)
-    setSchedules(MOCK_SCHEDULES)
-    try {
-      localStorage.removeItem(STORAGE_KEY_TASKS)
-      localStorage.removeItem(STORAGE_KEY_ANNOUNCEMENTS)
-      localStorage.removeItem(STORAGE_KEY_SCHEDULES)
-    } catch {}
+    loadData()
   }
 
   return (
@@ -325,10 +289,13 @@ export function MockStoreProvider({ children }: { children: React.ReactNode }) {
         loginPublisher,
         logoutPublisher,
         canManageContent,
+        isTasksGated,
         courses,
         tasks,
         announcements,
         schedules,
+        isLoading,
+        refreshData: loadData,
         searchQuery,
         setSearchQuery,
         selectedCourseFilter,
@@ -347,6 +314,7 @@ export function MockStoreProvider({ children }: { children: React.ReactNode }) {
         addAnnouncement,
         updateAnnouncement,
         deleteAnnouncement,
+        togglePinAnnouncement,
         addSchedule,
         updateSchedule,
         deleteSchedule,

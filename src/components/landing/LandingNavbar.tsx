@@ -48,7 +48,7 @@ export function LandingNavbar() {
           </Link>
 
           <Link
-            href="/portal"
+            href="/portal?tab=schedule"
             className="min-h-[40px] h-10 px-4 rounded-full bg-[#111318] text-white text-xs font-bold inline-flex items-center gap-1.5 hover:bg-[#111318]/90 active:scale-[0.97] transition-all shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#111318] focus-visible:ring-offset-2"
           >
             <span>Buka Portal</span>

@@ -54,7 +54,7 @@ export function LandingWorkflow() {
           </div>
 
           <Link
-            href="/portal"
+            href="/portal?tab=schedule"
             className="min-h-[44px] px-5 rounded-full bg-[#111318] text-white text-xs font-bold inline-flex items-center justify-center gap-1.5 hover:bg-[#111318]/90 active:scale-[0.98] transition-all w-full sm:w-fit"
           >
             <span>Buka Halaman Mahasiswa</span>

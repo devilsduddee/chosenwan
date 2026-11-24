@@ -34,10 +34,10 @@ export function LandingHero() {
 
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-1">
             <Link
-              href="/portal"
+              href="/portal?tab=schedule"
               className="min-h-[48px] px-6 rounded-full bg-[#111318] text-white text-sm font-bold inline-flex items-center justify-center gap-2 hover:bg-[#111318]/90 active:scale-[0.98] transition-all shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#111318] focus-visible:ring-offset-2"
             >
-              <span>Buka Portal Kelas</span>
+              <span>Buka Jadwal & Portal</span>
               <ArrowRight className="w-4 h-4" strokeWidth={2} />
             </Link>
 

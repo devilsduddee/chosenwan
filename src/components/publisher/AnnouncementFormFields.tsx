@@ -7,7 +7,7 @@ import { compressPosterImage, isSafePosterSrc } from "@/lib/image-utils"
 import { Course } from "@/types"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
-import { ImagePlus, X } from "lucide-react"
+import { ImagePlus, X, Pin } from "lucide-react"
 import { toast } from "sonner"
 
 interface AnnouncementFormFieldsProps {
@@ -43,9 +43,9 @@ export function AnnouncementFormFields({ form, courses }: AnnouncementFormFields
     try {
       const compressedDataUrl = await compressPosterImage(file)
       setValue("poster_url", compressedDataUrl, { shouldValidate: true, shouldDirty: true })
-      toast.success("Poster lomba siap dilampirkan")
+      toast.success("Gambar pengumuman siap dilampirkan")
     } catch (err) {
-      const message = err instanceof Error ? err.message : "Gagal memproses poster"
+      const message = err instanceof Error ? err.message : "Gagal memproses gambar"
       toast.error(message)
     } finally {
       setIsProcessingPoster(false)
@@ -56,13 +56,12 @@ export function AnnouncementFormFields({ form, courses }: AnnouncementFormFields
     setValue("poster_url", "", { shouldValidate: true, shouldDirty: true })
   }
 
-  const showPosterField =
-    selectedCategory === "COMPETITION" ||
-    selectedCategory === "CAMPUS_NEWS" ||
-    Boolean(posterUrl)
+  const showPosterField = true
   const posterLabel =
     selectedCategory === "COMPETITION"
       ? "Poster Perlombaan (Opsional)"
+      : selectedCategory === "ACADEMIC"
+      ? "Gambar / Foto Pengumuman (Opsional, misal Jadwal UTS)"
       : "Poster / Gambar Info (Opsional)"
   const hasValidPosterPreview = isSafePosterSrc(posterUrl)
 
@@ -232,6 +231,27 @@ export function AnnouncementFormFields({ form, courses }: AnnouncementFormFields
         {errors.source_url && (
           <p className="text-[11px] text-[#F05252]">{errors.source_url.message}</p>
         )}
+      </div>
+
+      {/* Pin Announcement Switch */}
+      <div className="rounded-2xl bg-[#F6F7FB] border border-[#E4E7F0] p-3.5 flex items-start justify-between gap-3">
+        <div className="space-y-0.5">
+          <div className="flex items-center gap-1.5">
+            <Pin className="w-3.5 h-3.5 text-[#111318]" strokeWidth={2} />
+            <label htmlFor="is_pinned" className="text-xs font-bold text-[#111318] cursor-pointer">
+              Sematkan di Paling Atas (Pin)
+            </label>
+          </div>
+          <p className="text-[11px] text-[#6E7485] leading-relaxed">
+            Aktifkan agar pengumuman penting (misal Jadwal UTS) selalu tampil di urutan teratas feed Info & Kampus.
+          </p>
+        </div>
+        <input
+          id="is_pinned"
+          type="checkbox"
+          {...register("is_pinned")}
+          className="w-5 h-5 rounded-md accent-[#111318] cursor-pointer mt-0.5 shrink-0"
+        />
       </div>
     </div>
   )

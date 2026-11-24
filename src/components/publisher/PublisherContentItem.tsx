@@ -3,7 +3,8 @@
 import React from "react"
 import { Task, Announcement } from "@/types"
 import { formatIndonesianDate } from "@/lib/date-utils"
-import { Edit3, Trash2, BookOpen, Megaphone, Lock, Image as ImageIcon } from "lucide-react"
+import { Edit3, Trash2, BookOpen, Megaphone, Lock, Image as ImageIcon, Pin } from "lucide-react"
+import { useMockStore } from "@/lib/mock-store"
 
 interface PublisherContentItemProps {
   type: "task" | "announcement"
@@ -20,6 +21,7 @@ export function PublisherContentItem({
   onEdit,
   onDelete,
 }: PublisherContentItemProps) {
+  const { togglePinAnnouncement } = useMockStore()
   const isTask = type === "task"
   const task = isTask ? (item as Task) : null
   const announcement = !isTask ? (item as Announcement) : null
@@ -58,6 +60,13 @@ export function PublisherContentItem({
                   : announcement.category_type === "COMPETITION"
                   ? "Lomba"
                   : "Akademik"}
+              </span>
+            )}
+
+            {announcement?.is_pinned && (
+              <span className="text-[10px] font-bold bg-[#111318] text-white px-2 py-0.5 rounded-full inline-flex items-center gap-1">
+                <Pin className="w-2.5 h-2.5 fill-white" />
+                <span>Dipin</span>
               </span>
             )}
 
@@ -100,6 +109,24 @@ export function PublisherContentItem({
 
         {canManage ? (
           <div className="flex items-center gap-1">
+            {!isTask && announcement && (
+              <button
+                type="button"
+                onClick={() => togglePinAnnouncement(announcement.id)}
+                className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
+                  announcement.is_pinned
+                    ? "text-[#111318] bg-[#EEF1F6]"
+                    : "text-[#6E7485] hover:text-[#111318] hover:bg-[#EEF1F6]"
+                }`}
+                title={announcement.is_pinned ? "Lepas Sematan (Unpin)" : "Sematkan di Atas (Pin)"}
+              >
+                <Pin
+                  className={`w-4 h-4 ${
+                    announcement.is_pinned ? "fill-[#111318]" : ""
+                  }`}
+                />
+              </button>
+            )}
             <button
               type="button"
               onClick={onEdit}

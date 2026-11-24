@@ -1,0 +1,18 @@
+import { config } from "dotenv"
+config({ path: ".env.local" })
+
+import { createClient } from "@libsql/client"
+import { drizzle } from "drizzle-orm/libsql"
+import * as schema from "./schema"
+
+const url = process.env.TURSO_DATABASE_URL || "file:chosenwan.db"
+const authToken = process.env.TURSO_AUTH_TOKEN
+
+console.log("🔌 Database connecting to:", url.startsWith("libsql://") ? "Turso Cloud" : "Local SQLite")
+
+export const client = createClient({
+  url,
+  authToken,
+})
+
+export const db = drizzle(client, { schema })

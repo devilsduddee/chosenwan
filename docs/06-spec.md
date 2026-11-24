@@ -402,6 +402,7 @@ Entitas multi-kategori untuk informasi kegiatan kelas, pengumuman dosen, berita 
 | `source_url` | `VARCHAR(500)` / `TEXT` | Nullable | Link sumber resmi eksternal (Instagram / website kampus). |
 | `poster_url` | `VARCHAR(500)` / `TEXT` | Nullable | URL gambar poster teroptimasi dari CDN ImageKit.io. |
 | `poster_file_id` | `VARCHAR(150)` / `TEXT` | Nullable | File ID ImageKit.io untuk pembersihan (*delete*) otomatis. |
+| `is_pinned` | `BOOLEAN` / `INTEGER` | Not Null, Default `FALSE` / `0`, Index | Penanda sematan info penting (contoh: Jadwal UTS); urutan teratas feed publik. |
 | `status` | `VARCHAR(20)` / `TEXT` | Not Null, Default `'PUBLISHED'`, Index | Status: `'DRAFT'` atau `'PUBLISHED'`. |
 | `created_at` | `TIMESTAMP` / `TEXT` | Default `NOW()` / ISO-8601 | Timestamp publikasi. |
 | `updated_at` | `TIMESTAMP` / `TEXT` | Default `NOW()` / ISO-8601 | Timestamp pengeditan terakhir. |
@@ -790,3 +791,4 @@ Fitur-fitur berikut secara eksplisit berada di luar scope spesifikasi teknis MVP
 | **1.2** | 2026-11-20 | Menambahkan kolom `poster_url` pada tabel `announcements` serta menambahkan **Opsi B: Turso (libSQL / SQLite)** beserta tabel perbandingan dan catatan implementasi di Section 1.3 dan Section 14.1. |
 | **1.3** | 2026-11-20 | Mengunci **Opsi B: Turso (libSQL / SQLite) + ImageKit.io** sebagai stack aktif backend & media storage poster, menambahkan kolom `poster_file_id` pada `announcements`, serta merinci alur upload/hapus poster ImageKit.io. |
 | **1.4** | 2026-11-24 | Menyelaraskan skema database dengan dokumen desain ERD serah-terima: mengadopsi 5 tabel standar (`account`, `course`, `schedule`, `task`, `event`), menghapus kolom redundan di `task` dan `schedule`, memproteksi halaman Tugas khusus anggota kelas yang login (`role = member` / HTTP 401 jika publik), serta mencatat arsitektur fitur Scraping dan LLM Parser ke Out of Scope (Future Roadmap). |
+| **1.5** | 2026-11-24 | Menambahkan kolom `is_pinned` pada tabel `event` dan hak akses publisher (`pj` dan `ketua_kelas`) untuk menyematkan pengumuman penting / Jadwal UTS di urutan teratas feed Info & Kampus. |

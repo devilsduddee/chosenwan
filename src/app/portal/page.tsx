@@ -27,6 +27,12 @@ export default function PortalPage() {
       setActiveTab("publisher")
     } else if (tabParam && ["tasks", "info", "schedule"].includes(tabParam)) {
       setActiveTab(tabParam)
+    } else if (!tabParam) {
+      if (userRole === "guest") {
+        setActiveTab("schedule")
+      } else {
+        setActiveTab("tasks")
+      }
     }
   }, [router, setActiveTab, userRole])
 

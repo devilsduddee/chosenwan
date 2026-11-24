@@ -19,7 +19,11 @@ export function AnnouncementList() {
         if (selectedCategoryFilter === "ALL") return true
         return a.category_type === selectedCategoryFilter
       })
-      .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+      .sort((a, b) => {
+        if (a.is_pinned && !b.is_pinned) return -1
+        if (!a.is_pinned && b.is_pinned) return 1
+        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      })
   }, [announcements, selectedCategoryFilter])
 
   return (

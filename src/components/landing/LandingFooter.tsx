@@ -19,7 +19,7 @@ export function LandingFooter() {
         </div>
 
         <Link
-          href="/portal"
+          href="/portal?tab=schedule"
           className="min-h-[48px] px-6 rounded-full bg-[#F6C866] text-[#111318] text-sm font-extrabold inline-flex items-center justify-center gap-2 hover:bg-[#F6C866]/90 active:scale-[0.98] transition-all shrink-0 w-full sm:w-auto"
         >
           <span>Buka Portal Kelas</span>
@@ -38,7 +38,7 @@ export function LandingFooter() {
         </div>
 
         <div className="flex items-center gap-5 text-xs font-semibold text-[#6E7485]">
-          <Link href="/portal" className="hover:text-[#111318] transition-colors">
+          <Link href="/portal?tab=schedule" className="hover:text-[#111318] transition-colors">
             Portal Mahasiswa
           </Link>
           <Link href="/login" className="hover:text-[#111318] transition-colors">

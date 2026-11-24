@@ -50,13 +50,14 @@ export const announcementFormSchema = z.object({
   content: z.string().min(5, "Isi pengumuman minimal 5 karakter"),
   source_url: optionalHttpUrl,
   poster_url: optionalPosterUrl,
+  is_pinned: z.boolean().optional(),
 })
 
 export type AnnouncementFormValues = z.infer<typeof announcementFormSchema>
 
 export const loginFormSchema = z.object({
-  email: z.string().trim().min(1, "Email wajib diisi").email("Format email tidak valid"),
-  password: z.string().min(6, "Kata sandi minimal 6 karakter"),
+  name: z.string().trim().min(2, "Nama pengguna / username wajib diisi"),
+  password: z.string().min(4, "Kata sandi minimal 4 karakter"),
 })
 
 export type LoginFormValues = z.infer<typeof loginFormSchema>

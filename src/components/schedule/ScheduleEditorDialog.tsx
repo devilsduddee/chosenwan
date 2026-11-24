@@ -79,7 +79,7 @@ export function ScheduleEditorDialog({
   const handleCourseChange = (courseId: string) => {
     const selectedCourse = courses.find((c) => c.id === courseId)
     if (selectedCourse && !form.getValues("lecturer_name")) {
-      form.setValue("lecturer_name", selectedCourse.lecturer_name)
+      form.setValue("lecturer_name", selectedCourse.lecturer_name || "")
     }
   }
 

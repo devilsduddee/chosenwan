@@ -114,13 +114,14 @@ Informasi yang tersedia berasal dari pengalaman pengguna dan cerita tentang grup
 
 **Related User Story:** Anggota kelas story 3; publisher story 4.
 
-### FR-04 — Mengelola Event dan Pengumuman (Akademik, Berita Kampus, Info Lomba)
+### FR-04 — Mengelola Event dan Pengumuman (Akademik, Berita Kampus, Info Lomba, & Pin Info Penting)
 
-**Requirement:** Publisher MUST dapat membuat, mengubah, dan menghapus pengumuman dan info non-tugas menggunakan satu struktur entitas `event` yang mencakup judul, kategori (`Akademik / Umum`, `Berita Kampus`, atau `Info Lomba`), mata kuliah (opsional), deskripsi, tanggal event, link sumber, dan lampiran poster/gambar (opsional).
+**Requirement:** Publisher MUST dapat membuat, mengubah, dan menghapus pengumuman dan info non-tugas menggunakan satu struktur entitas `event` yang mencakup judul, kategori (`Akademik / Umum`, `Berita Kampus`, atau `Info Lomba`), mata kuliah (opsional), deskripsi, tanggal event, link sumber, lampiran poster/gambar (opsional), serta opsi **Sematkan / Pin Info Penting** (misal Jadwal UTS atau pengumuman genting kelas).
 
 **Acceptance Criteria:**
-- Form event mendukung unggah poster/gambar (dioptimasi via CDN ImageKit.io) untuk kategori Info Lomba dan Berita Kampus.
+- Form event mendukung unggah poster/gambar (dioptimasi via CDN ImageKit.io) untuk seluruh kategori pengumuman (Akademik/Jadwal UTS, Berita Kampus, dan Info Lomba).
 - Item event publik menampilkan judul, badge kategori, tanggal, deskripsi, gambar poster (jika ada), dan link sumber resmi.
+- Publisher (`pj` dan `ketua_kelas`) dapat menyematkan (*pin*) atau melepas sematan (*unpin*) informasi sehingga selalu berada di urutan teratas feed Info & Kampus, ditandai dengan badge khusus *"Dipin"*.
 - Saat poster diganti atau event dihapus, sistem membersihkan file lama di storage ImageKit via `poster_file_id`.
 
 **Related User Story:** Pengunjung publik story 1; publisher story 4.
@@ -212,3 +213,4 @@ Pengunggahan poster dioptimasi melalui kompresi client dan ditayangkan melalui C
 | 1.3 | 2026-11-17 | Menambahkan **Berita Kampus** dan **Info Lomba** ke dalam kategori Pengumuman & Info Simpel (`FR-04`) dan filter navigasi (`FR-07`). |
 | 1.4 | 2026-11-17 | Menyederhanakan `FR-06` menjadi **jadwal kuliah statis** per semester dan memindahkan info perubahan jadwal insidental ke Pengumuman & Info Simpel (`FR-04`). |
 | 1.5 | 2026-11-24 | Menyesuaikan model akses: **Task di-gated khusus Anggota Kelas (login)** demi privasi link GDrive; Jadwal & Event tetap publik; menambahkan peran `member` (read-only); mengadopsi 5 tabel standar (`account`, `course`, `schedule`, `task`, `event`); mencatat fitur Scraping dan LLM Parser ke Out of Scope (Future Roadmap). |
+| 1.6 | 2026-11-24 | Menambahkan fitur **Sematkan / Pin Info Penting** (misal Jadwal UTS) pada FR-04 dengan hak akses khusus publisher (`pj` dan `ketua_kelas`). |

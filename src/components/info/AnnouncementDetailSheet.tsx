@@ -16,10 +16,11 @@ import {
   SheetTitle,
   SheetDescription,
 } from "@/components/ui/sheet"
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { ImageLightbox } from "@/components/ui/image-lightbox"
 import { Button } from "@/components/ui/button"
 import { toast } from "sonner"
-import { Calendar, Check, ExternalLink, Maximize2, Share2 } from "lucide-react"
+import { Calendar, Check, ExternalLink, Maximize2, Share2, Pin } from "lucide-react"
+import { useMockStore } from "@/lib/mock-store"
 
 interface AnnouncementDetailSheetProps {
   announcement: Announcement | null
@@ -30,7 +31,9 @@ export function AnnouncementDetailSheet({
   announcement,
   onClose,
 }: AnnouncementDetailSheetProps) {
+  const { userRole, togglePinAnnouncement } = useMockStore()
   const [copied, setCopied] = useState(false)
+  const [isPinning, setIsPinning] = useState(false)
   const [isPosterZoomOpen, setIsPosterZoomOpen] = useState(false)
   const [failedPosterUrl, setFailedPosterUrl] = useState<string | null>(null)
 
@@ -68,6 +71,11 @@ export function AnnouncementDetailSheet({
         >
           <SheetHeader className="text-left space-y-2.5">
             <div className="flex items-center gap-2 flex-wrap">
+              {announcement.is_pinned && (
+                <span className="text-xs font-bold px-3 py-1 rounded-full bg-[#111318] text-white inline-flex items-center gap-1">
+                  <Pin className="w-3 h-3 fill-white" /> Dipin
+                </span>
+              )}
               <span
                 className={`text-xs font-bold px-3 py-1 rounded-full ${categoryMeta.bgClass} ${categoryMeta.textColor}`}
               >
@@ -139,6 +147,37 @@ export function AnnouncementDetailSheet({
 
           {/* Action Buttons */}
           <div className="mt-6 space-y-2.5 pt-2 border-t border-[#E4E7F0]">
+            {(userRole === "pj" || userRole === "ketua_kelas") && (
+              <Button
+                type="button"
+                variant="outline"
+                disabled={isPinning}
+                onClick={async () => {
+                  setIsPinning(true)
+                  try {
+                    await togglePinAnnouncement(announcement.id)
+                    onClose()
+                  } finally {
+                    setIsPinning(false)
+                  }
+                }}
+                className="w-full min-h-[44px] rounded-full border-[#111318] bg-white text-[#111318] hover:bg-[#EEF1F6] font-bold text-xs flex items-center justify-center gap-2 active:scale-[0.98] cursor-pointer"
+              >
+                <Pin
+                  className={`w-3.5 h-3.5 ${
+                    announcement.is_pinned ? "fill-[#111318]" : ""
+                  }`}
+                />
+                <span>
+                  {isPinning
+                    ? "Memperbarui sematan..."
+                    : announcement.is_pinned
+                    ? "Lepas Sematan (Unpin)"
+                    : "Sematkan Info ini (Pin)"}
+                </span>
+              </Button>
+            )}
+
             {safeSourceUrl ? (
               <a
                 href={safeSourceUrl}
@@ -177,26 +216,14 @@ export function AnnouncementDetailSheet({
         </SheetContent>
       </Sheet>
 
-      {/* Fullscreen Poster Zoom Dialog */}
-      {posterSrc && (
-        <Dialog open={isPosterZoomOpen} onOpenChange={setIsPosterZoomOpen}>
-          <DialogContent className="max-w-lg w-[calc(100%-1.5rem)] mx-auto rounded-[24px] p-4 sm:p-5 bg-white border border-[#E4E7F0] shadow-2xl max-h-[90dvh] overflow-y-auto overscroll-contain">
-            <DialogHeader className="text-left pr-8">
-              <DialogTitle className="text-sm font-extrabold text-[#111318] leading-snug">
-                {announcement.title}
-              </DialogTitle>
-            </DialogHeader>
-            <div className="rounded-2xl overflow-hidden bg-[#F6F7FB] border border-[#E4E7F0]">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={posterSrc}
-                alt={`Poster penuh ${announcement.title}`}
-                className="w-full max-h-[75dvh] object-contain mx-auto"
-              />
-            </div>
-          </DialogContent>
-        </Dialog>
-      )}
+      {/* Immersive Zoomable Fullscreen Image Lightbox */}
+      <ImageLightbox
+        src={posterSrc}
+        alt={`Poster penuh ${announcement.title}`}
+        title={announcement.title}
+        isOpen={isPosterZoomOpen}
+        onClose={() => setIsPosterZoomOpen(false)}
+      />
     </>
   )
 }

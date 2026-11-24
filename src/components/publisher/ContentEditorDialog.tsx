@@ -91,6 +91,7 @@ export function ContentEditorDialog() {
           content: a.content || "",
           source_url: a.source_url || "",
           poster_url: a.poster_url || "",
+          is_pinned: Boolean(a.is_pinned),
         })
       }
     } else {
@@ -109,6 +110,7 @@ export function ContentEditorDialog() {
         content: "",
         source_url: "",
         poster_url: "",
+        is_pinned: false,
       })
     }
   }, [editingContent, isEditorOpen, taskForm, announcementForm])
@@ -151,6 +153,7 @@ export function ContentEditorDialog() {
           content: values.content,
           source_url: values.source_url || undefined,
           poster_url: values.poster_url || null,
+          is_pinned: Boolean(values.is_pinned),
           status,
           created_by: currentUser.id,
         }

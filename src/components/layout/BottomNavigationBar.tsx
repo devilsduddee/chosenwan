@@ -14,7 +14,7 @@ export function BottomNavigationBar() {
     { id: "schedule", label: "Jadwal", icon: Calendar },
   ]
 
-  if (userRole !== "guest") {
+  if (userRole === "ketua_kelas" || userRole === "pj" || userRole === "pj_matkul") {
     navItems.push({ id: "publisher", label: "Kelola", icon: SlidersHorizontal })
   }
 
