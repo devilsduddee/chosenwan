@@ -739,7 +739,7 @@ chosenwan-app/
 #### Opsi B — Turso (libSQL / Edge SQLite) + ImageKit.io *(Stack Aktif v1.4)*
 - **Frontend & Fullstack API:** Next.js (App Router, TypeScript)
 - **Database & Query Layer:** Turso (`@libsql/client` + Drizzle ORM dengan skema SQLite)
-- **Auth & Session:** Dikelola di server Next.js (signed HTTP-only cookie + hash `bcryptjs` di tabel `account`)
+- **Auth & Session:** Dikelola di server Next.js (PASETO v3.local encrypted HTTP-only cookie + hash `bcryptjs` di tabel `account`)
 - **Media Storage & CDN Poster:** **ImageKit.io** (Forever Free: **3 GB storage**, **20 GB bandwidth/bulan**, tanpa wajib kartu kredit, optimasi CDN & resize URL otomatis)
 
 **Perbandingan Singkat (Supabase vs Turso + ImageKit.io untuk Chosenwan):**
@@ -749,7 +749,7 @@ chosenwan-app/
 | **Engine DB** | PostgreSQL terkelola | libSQL (fork open-source SQLite) di edge |
 | **Free Tier DB** | 2 project, 500 MB DB, 5 GB egress | 100 database, 5 GB storage, 500 juta row reads/bln, 10 juta row writes/bln |
 | **Risiko Auto-Pause** | Auto-pause jika 7 hari tidak ada aktivitas | Tidak kena auto-pause mingguan |
-| **Auth & Session** | Bawaan (`Supabase Auth`) | Dikelola di Next.js server (session cookie + password hash di tabel `account`) |
+| **Auth & Session** | Bawaan (`Supabase Auth`) | Dikelola di Next.js server (PASETO v3.local encrypted session cookie + password hash di tabel `account`) |
 | **Isolasi Draft / Role** | PostgreSQL RLS otomatis di level tabel | Dijaga di Next.js Server Actions / API Route Handlers (`member`, `pj`, `ketua_kelas`) |
 | **Upload & CDN Poster** | Bawaan (`Supabase Storage`, 1 GB) | **ImageKit.io** (3 GB storage, 20 GB bandwidth/bln, CDN + resize URL, tanpa kartu kredit) |
 | **Kesiapan Skema** | Tipe native `UUID`, `TIMESTAMPTZ`, `TIME` | Penyesuaian minor ke tipe SQLite (`TEXT` ISO-8601, `INTEGER` check 1–6) |

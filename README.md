@@ -51,7 +51,7 @@ Dengan Chosenwan:
 - **Penyimpanan Media ImageKit.io CDN:** Dukungan upload foto pengumuman akademik dan poster lomba beresolusi tinggi dengan optimasi kompresi otomatis WebP.
 - **Fullscreen Interactive Lightbox:** Penampil gambar penuh layar dengan fitur zoom bertingkat (+ / - / double-tap) serta geser (pan & scroll) untuk mempermudah membaca tabel jadwal yang lebar.
 - **Multi-Role RBAC:** Hak akses bertingkat antara Tamu Publik (`guest`), Mahasiswa (`member`), Penanggung Jawab Matkul (`pj`), dan Ketua Kelas (`ketua_kelas`).
-- **Keamanan & Hardening OWASP:** HTTP Security Headers (HSTS, Anti-Clickjacking, Anti-Sniffing), proteksi SSRF terhadap private network, JWT sesi bertanda tangan pada HTTP-only cookie, dan middleware pemblokir vulnerability scanner.
+- **Keamanan & Hardening OWASP:** HTTP Security Headers (HSTS, Anti-Clickjacking, Anti-Sniffing), proteksi SSRF terhadap private network, token sesi PASETO terenkripsi (v3.local) pada HTTP-only cookie, dan middleware pemblokir vulnerability scanner.
 
 ---
 
@@ -64,7 +64,7 @@ Dengan Chosenwan:
 | **Database** | Turso (libSQL / Edge SQLite) | Database SQLite terdistribusi dengan latensi rendah dan dukungan serverless. |
 | **ORM** | Drizzle ORM | Query builder bertipe aman tanpa overhead runtime yang besar. |
 | **Media CDN** | ImageKit.io | Penyimpanan berkas poster dan foto jadwal dengan kompresi otomatis. |
-| **Autentikasi** | Jose (JWT) + BcryptJS | Enkripsi sesi berbasis stateless token yang disimpan dalam HTTP-only Cookie. |
+| **Autentikasi** | PASETO (v3.local) + BcryptJS | Enkripsi sesi berbasis Platform-Agnostic Security Tokens (AEAD ciphertext) yang disimpan dalam HTTP-only Cookie. |
 | **Styling** | Tailwind CSS v4 + shadcn/ui | Desain visual Playful Bento, token warna pastel, dan komponen modular berbasis Radix UI. |
 | **Ikon** | Lucide React | Set ikon outline seragam (stroke 1.75px). |
 | **Validasi** | Zod + React Hook Form | Validasi skema input pada batas klien (*client*) dan server (*Server Actions*). |
@@ -92,7 +92,7 @@ chosenwan/
 │   ├── db/                 # Skema Drizzle ORM, koneksi libSQL, dan skrip seed database
 │   ├── lib/
 │   │   ├── actions/        # Server Actions mutasi data (auth, tasks, events, schedules, portal)
-│   │   ├── auth.ts         # Utilitas manajemen sesi JWT dan verifikasi cookie
+│   │   ├── auth.ts         # Utilitas manajemen sesi PASETO (v3.local) dan verifikasi cookie
 │   │   ├── imagekit.ts     # Integrasi upload dan pembersihan berkas ImageKit CDN
 │   │   └── validations.ts  # Skema validasi Zod untuk formulir dan payload
 │   └── types/              # Definisi tipe TypeScript domain portal dan state
@@ -157,7 +157,7 @@ Saat melakukan deployment di platform **Vercel** (*Project Settings → Environm
 
 1. `TURSO_DATABASE_URL` : URL koneksi Turso Cloud (format `libsql://...`).
 2. `TURSO_AUTH_TOKEN` : Token autentikasi database Turso Cloud.
-3. `SESSION_SECRET` : String rahasia minimal 32 karakter untuk enkripsi sesi JWT.
+3. `SESSION_SECRET` : String rahasia minimal 32 karakter untuk derivasi kunci enkripsi sesi PASETO.
 4. `IMAGEKIT_PUBLIC_KEY` : Public API Key dari dashboard ImageKit.io.
 5. `IMAGEKIT_PRIVATE_KEY` : Private API Key dari dashboard ImageKit.io.
 6. `IMAGEKIT_URL_ENDPOINT` : URL Endpoint dari dashboard ImageKit.io (`https://ik.imagekit.io/...`).
