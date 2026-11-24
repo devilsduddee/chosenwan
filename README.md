@@ -124,7 +124,7 @@ cp .env.example .env.local
 Buka `.env.local` dan isi kredensial yang dibutuhkan:
 
 ```ini
-TURSO_DATABASE_URL="libsql://chosenwan-devilsduddee.aws-ap-southeast-1.turso.io"
+TURSO_DATABASE_URL="libsql://_______.aws-ap-southeast-1.turso.io"
 TURSO_AUTH_TOKEN="<token_turso_anda>"
 SESSION_SECRET="<kunci_acak_minimal_32_karakter>"
 IMAGEKIT_PUBLIC_KEY="<public_key_imagekit>"
