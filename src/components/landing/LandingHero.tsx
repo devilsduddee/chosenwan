@@ -10,6 +10,7 @@ import {
   Clock,
   ArrowUpRight,
   User,
+  Smartphone,
 } from "lucide-react"
 
 export function LandingHero() {
@@ -24,7 +25,8 @@ export function LandingHero() {
               <span>Portal Kelas 3IA01</span>
             </div>
             <div className="inline-flex items-center gap-1.5 bg-[#EEF1F6] border border-[#E4E7F0] px-3 py-1.5 rounded-full text-xs font-bold text-[#111318]">
-              <span>📱 PWA Mobile App</span>
+              <Smartphone className="w-3 h-3 text-[#111318]" strokeWidth={2} />
+              <span>Aplikasi Web Ponsel</span>
             </div>
           </div>
 

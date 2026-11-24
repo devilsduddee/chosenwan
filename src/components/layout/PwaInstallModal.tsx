@@ -42,7 +42,7 @@ export function PwaInstallModal() {
                 Pasang Aplikasi Chosenwan
               </DialogTitle>
               <DialogDescription className="text-xs text-[#6E7485] mt-0.5">
-                Buka instan dari layar utama HP layaknya aplikasi native.
+                Akses jadwal dan tugas langsung dari layar ponsel tanpa membuka browser.
               </DialogDescription>
             </div>
           </div>
@@ -71,7 +71,7 @@ export function PwaInstallModal() {
                     : "text-[#6E7485] hover:text-[#111318]"
                 }`}
               >
-                <span>🍎 iPhone (iOS)</span>
+                <span>iPhone (Safari)</span>
               </button>
               <button
                 type="button"
@@ -82,7 +82,7 @@ export function PwaInstallModal() {
                     : "text-[#6E7485] hover:text-[#111318]"
                 }`}
               >
-                <span>🤖 Android / PC</span>
+                <span>Android & Komputer</span>
               </button>
             </div>
 
@@ -95,12 +95,11 @@ export function PwaInstallModal() {
                   </div>
                   <div className="text-xs space-y-0.5">
                     <p className="font-bold text-[#111318] flex items-center gap-1.5">
-                      Buka Safari & Tap Bagikan
+                      Buka Safari dan ketuk Bagikan
                       <Share className="w-3.5 h-3.5 text-[#111318]" />
                     </p>
                     <p className="text-[#6E7485] leading-relaxed">
-                      Buka web ini di browser Safari, lalu tap ikon <strong>Bagikan</strong> (kotak
-                      panah atas) di bilah bawah.
+                      Buka halaman ini di Safari, lalu ketuk ikon <strong>Bagikan</strong> di bilah bawah layar.
                     </p>
                   </div>
                 </div>
@@ -111,12 +110,11 @@ export function PwaInstallModal() {
                   </div>
                   <div className="text-xs space-y-0.5">
                     <p className="font-bold text-[#111318] flex items-center gap-1.5">
-                      Pilih &quot;Tambah ke Layar Utama&quot;
+                      Pilih Tambahkan ke Layar Utama
                       <PlusSquare className="w-3.5 h-3.5 text-[#111318]" />
                     </p>
                     <p className="text-[#6E7485] leading-relaxed">
-                      Gulir ke bawah pada menu opsi lalu pilih{" "}
-                      <strong>&quot;Tambahkan ke Layar Utama&quot;</strong> (Add to Home Screen).
+                      Gulir ke bawah pada menu opsi, lalu pilih <strong>Tambahkan ke Layar Utama</strong> (Add to Home Screen).
                     </p>
                   </div>
                 </div>
@@ -127,12 +125,11 @@ export function PwaInstallModal() {
                   </div>
                   <div className="text-xs space-y-0.5">
                     <p className="font-bold text-[#111318] flex items-center gap-1.5">
-                      Tap Tambah (Selesai!)
+                      Konfirmasi Tambah
                       <Sparkles className="w-3.5 h-3.5 text-[#F6C866]" />
                     </p>
                     <p className="text-[#6E7485] leading-relaxed">
-                      Tap <strong>Tambah</strong> di pojok kanan atas. Ikon Chosenwan akan muncul di
-                      Home Screen HP Anda.
+                      Ketuk <strong>Tambah</strong> di pojok kanan atas. Ikon Chosenwan akan muncul di layar utama ponsel.
                     </p>
                   </div>
                 </div>
@@ -149,7 +146,7 @@ export function PwaInstallModal() {
                     className="w-full min-h-[46px] rounded-full bg-[#111318] text-white text-xs font-extrabold hover:bg-[#111318]/90 active:scale-[0.98] transition-all flex items-center justify-center gap-2 cursor-pointer shadow-sm"
                   >
                     <Download className="w-4 h-4" />
-                    <span>Pasang Aplikasi Sekarang (1-Klik)</span>
+                    <span>Pasang Aplikasi Langsung</span>
                   </Button>
                 )}
 
@@ -159,12 +156,11 @@ export function PwaInstallModal() {
                   </div>
                   <div className="text-xs space-y-0.5">
                     <p className="font-bold text-[#111318] flex items-center gap-1.5">
-                      Buka Menu Browser Chrome
+                      Buka menu peramban Chrome
                       <MoreVertical className="w-3.5 h-3.5 text-[#111318]" />
                     </p>
                     <p className="text-[#6E7485] leading-relaxed">
-                      Tap menu titik tiga (<strong>⋮</strong>) di pojok kanan atas browser Google
-                      Chrome.
+                      Ketuk menu titik tiga (<strong>⋮</strong>) di pojok kanan atas Chrome.
                     </p>
                   </div>
                 </div>
@@ -175,12 +171,11 @@ export function PwaInstallModal() {
                   </div>
                   <div className="text-xs space-y-0.5">
                     <p className="font-bold text-[#111318] flex items-center gap-1.5">
-                      Pilih &quot;Install Aplikasi&quot;
+                      Pilih Install Aplikasi
                       <Smartphone className="w-3.5 h-3.5 text-[#111318]" />
                     </p>
                     <p className="text-[#6E7485] leading-relaxed">
-                      Pilih opsi <strong>&quot;Install Aplikasi&quot;</strong> atau{" "}
-                      <strong>&quot;Tambahkan ke Layar Utama&quot;</strong>.
+                      Pilih opsi <strong>Install Aplikasi</strong> atau <strong>Tambahkan ke Layar Utama</strong>.
                     </p>
                   </div>
                 </div>
@@ -191,11 +186,11 @@ export function PwaInstallModal() {
                   </div>
                   <div className="text-xs space-y-0.5">
                     <p className="font-bold text-[#111318] flex items-center gap-1.5">
-                      Buka dari Layar HP
+                      Buka dari layar ponsel
                       <CheckCircle2 className="w-3.5 h-3.5 text-[#4CD98B]" />
                     </p>
                     <p className="text-[#6E7485] leading-relaxed">
-                      Aplikasi siap dibuka layar penuh tanpa bilah browser dan hemat memori.
+                      Aplikasi siap dibuka layar penuh tanpa bilah browser.
                     </p>
                   </div>
                 </div>
@@ -205,7 +200,7 @@ export function PwaInstallModal() {
         )}
 
         <div className="pt-2 border-t border-[#E4E7F0]/80 flex items-center justify-between text-[11px] text-[#6E7485]">
-          <span>Tanpa file APK · Otomatis terbarui</span>
+          <span>Hemat memori dan otomatis terbarui</span>
           <button
             type="button"
             onClick={closeModal}

@@ -48,10 +48,10 @@ export function LandingNavbar() {
               type="button"
               onClick={triggerInstall}
               className="min-h-[40px] h-10 px-3 sm:px-3.5 rounded-full bg-white hover:bg-[#EEF1F6] border border-[#E4E7F0] text-[#111318] text-xs font-bold inline-flex items-center gap-1.5 shadow-2xs hover:border-[#111318]/40 active:scale-[0.97] transition-all shrink-0 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#111318]"
-              title="Pasang Aplikasi PWA di Layar HP"
+              title="Pasang aplikasi di layar ponsel"
             >
               <Smartphone className="w-3.5 h-3.5 text-[#111318]" strokeWidth={2} />
-              <span>Install App</span>
+              <span>Pasang App</span>
             </button>
           )}
 

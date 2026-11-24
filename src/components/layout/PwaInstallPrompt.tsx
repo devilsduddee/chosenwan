@@ -48,8 +48,8 @@ export function PwaInstallPrompt() {
             <p className="text-xs font-bold leading-tight truncate">Pasang Aplikasi Chosenwan</p>
             <p className="text-[10px] text-white/70 leading-tight">
               {isIos
-                ? "Buka tanpa Safari · Tap untuk lihat panduan"
-                : "Aplikasi cepat di layar HP · Tap untuk pasang"}
+                ? "Akses langsung dari layar utama. Ketuk untuk panduan."
+                : "Akses langsung dari layar utama ponsel Anda."}
             </p>
           </div>
         </div>
