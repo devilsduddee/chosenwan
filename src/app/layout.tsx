@@ -3,8 +3,10 @@ import "./globals.css"
 import { Plus_Jakarta_Sans } from "next/font/google"
 import { cn } from "@/lib/utils"
 import { MockStoreProvider } from "@/lib/mock-store"
+import { PwaProvider } from "@/lib/pwa-context"
 import { Toaster } from "@/components/ui/sonner"
 import { PwaInstallPrompt } from "@/components/layout/PwaInstallPrompt"
+import { PwaInstallModal } from "@/components/layout/PwaInstallModal"
 
 const plusJakartaSans = Plus_Jakarta_Sans({
   subsets: ["latin"],
@@ -56,11 +58,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="id" className={cn("font-sans antialiased", plusJakartaSans.variable)}>
       <body className="bg-[#F6F7FB] min-h-dvh text-[#111318]">
-        <MockStoreProvider>
-          {children}
-          <PwaInstallPrompt />
-          <Toaster position="top-center" richColors />
-        </MockStoreProvider>
+        <PwaProvider>
+          <MockStoreProvider>
+            {children}
+            <PwaInstallPrompt />
+            <PwaInstallModal />
+            <Toaster position="top-center" richColors />
+          </MockStoreProvider>
+        </PwaProvider>
       </body>
     </html>
   )

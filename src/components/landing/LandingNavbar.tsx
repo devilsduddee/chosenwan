@@ -1,9 +1,14 @@
+"use client"
+
 import React from "react"
 import Link from "next/link"
+import { usePwa } from "@/lib/pwa-context"
 import { BrandLogo } from "@/components/layout/BrandLogo"
-import { ArrowRight, LogIn } from "lucide-react"
+import { ArrowRight, LogIn, Smartphone } from "lucide-react"
 
 export function LandingNavbar() {
+  const { isStandalone, triggerInstall } = usePwa()
+
   return (
     <header className="sticky top-0 z-40 bg-[#F6F7FB]/90 backdrop-blur-md border-b border-[#E4E7F0]/70 pt-[env(safe-area-inset-top,0px)]">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
@@ -38,6 +43,18 @@ export function LandingNavbar() {
         </nav>
 
         <div className="flex items-center gap-2 shrink-0">
+          {!isStandalone && (
+            <button
+              type="button"
+              onClick={triggerInstall}
+              className="min-h-[40px] h-10 px-3 sm:px-3.5 rounded-full bg-white hover:bg-[#EEF1F6] border border-[#E4E7F0] text-[#111318] text-xs font-bold inline-flex items-center gap-1.5 shadow-2xs hover:border-[#111318]/40 active:scale-[0.97] transition-all shrink-0 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#111318]"
+              title="Pasang Aplikasi PWA di Layar HP"
+            >
+              <Smartphone className="w-3.5 h-3.5 text-[#111318]" strokeWidth={2} />
+              <span>Install App</span>
+            </button>
+          )}
+
           <Link
             href="/login"
             aria-label="Masuk Publisher"

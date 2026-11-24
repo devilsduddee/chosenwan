@@ -3,6 +3,7 @@
 import React from "react"
 import Link from "next/link"
 import { useMockStore } from "@/lib/mock-store"
+import { usePwa } from "@/lib/pwa-context"
 import { BrandLogo } from "@/components/layout/BrandLogo"
 import { Button } from "@/components/ui/button"
 import {
@@ -14,6 +15,7 @@ import {
   Megaphone,
   Calendar,
   SlidersHorizontal,
+  Smartphone,
 } from "lucide-react"
 import { ActiveTab } from "@/types"
 
@@ -26,6 +28,7 @@ export function TopHeader() {
     setIsEditorOpen,
     setEditingContent,
   } = useMockStore()
+  const { isStandalone, triggerInstall } = usePwa()
 
   const desktopNavItems: { id: ActiveTab; label: string; icon: React.ElementType }[] = [
     { id: "tasks", label: "Tugas", icon: CheckSquare },
@@ -106,6 +109,27 @@ export function TopHeader() {
 
         {/* Right: Publisher Auth / Actions */}
         <div className="flex items-center gap-1.5 shrink-0">
+          {/* PWA Mode indicator or Install Trigger Button */}
+          {isStandalone ? (
+            <span
+              className="hidden sm:inline-flex items-center gap-1 h-[34px] px-2.5 rounded-full bg-[#4CD98B]/15 text-[#111318] text-[11px] font-bold border border-[#4CD98B]/30 shrink-0"
+              title="Aplikasi berjalan dalam mode PWA Standalone"
+            >
+              <Smartphone className="w-3.5 h-3.5 text-[#111318]" strokeWidth={2} />
+              <span>App Mode</span>
+            </span>
+          ) : (
+            <button
+              type="button"
+              onClick={triggerInstall}
+              className="flex items-center gap-1.5 h-[34px] px-2.5 sm:px-3 rounded-full bg-white hover:bg-[#EEF1F6] border border-[#E4E7F0] text-[11px] font-bold text-[#111318] shadow-2xs hover:border-[#111318]/40 active:scale-95 transition-all shrink-0 cursor-pointer"
+              title="Pasang Aplikasi di Layar HP / Desktop"
+            >
+              <Smartphone className="w-3.5 h-3.5 text-[#111318]" strokeWidth={2} />
+              <span>Install App</span>
+            </button>
+          )}
+
           {userRole === "guest" ? (
             <Link
               href="/login"

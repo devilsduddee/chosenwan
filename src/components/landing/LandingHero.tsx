@@ -18,9 +18,14 @@ export function LandingHero() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-8 items-center">
         {/* Left Copy & CTA */}
         <div className="lg:col-span-6 space-y-6">
-          <div className="inline-flex items-center gap-2 bg-white border border-[#E4E7F0] px-3 py-1.5 rounded-full text-xs font-semibold text-[#111318] shadow-2xs">
-            <span className="w-2 h-2 rounded-full bg-[#4CD98B] shrink-0" />
-            <span>Portal Kelas</span>
+          <div className="flex items-center gap-2 flex-wrap">
+            <div className="inline-flex items-center gap-2 bg-white border border-[#E4E7F0] px-3 py-1.5 rounded-full text-xs font-semibold text-[#111318] shadow-2xs">
+              <span className="w-2 h-2 rounded-full bg-[#4CD98B] shrink-0" />
+              <span>Portal Kelas 3IA01</span>
+            </div>
+            <div className="inline-flex items-center gap-1.5 bg-[#EEF1F6] border border-[#E4E7F0] px-3 py-1.5 rounded-full text-xs font-bold text-[#111318]">
+              <span>📱 PWA Mobile App</span>
+            </div>
           </div>
 
           <h1 className="text-3xl sm:text-4xl lg:text-[44px] font-extrabold text-[#111318] tracking-[-0.03em] leading-[1.12]">
