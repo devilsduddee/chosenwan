@@ -3,17 +3,17 @@ import { Clock, Megaphone, Trophy, Calendar, ShieldCheck, Pin, Lock, ArrowUpRigh
 
 export function LandingFeatures() {
   const days = [
-    { num: "01", label: "Sen", active: false },
-    { num: "02", label: "Sel", active: true },
-    { num: "03", label: "Rab", active: false },
-    { num: "04", label: "Kam", active: false },
-    { num: "05", label: "Jum", active: false },
-    { num: "06", label: "Sab", active: false },
+    { label: "Sen", slots: "2 mk", active: false },
+    { label: "Sel", slots: "3 mk", active: true },
+    { label: "Rab", slots: "2 mk", active: false },
+    { label: "Kam", slots: "3 mk", active: false },
+    { label: "Jum", slots: "1 mk", active: false },
+    { label: "Sab", slots: "2 mk", active: false },
   ]
 
   return (
-    <section id="fitur" className="max-w-6xl mx-auto px-4 sm:px-6 py-12 sm:py-16 border-t border-[#E4E7F0]/80">
-      <div className="max-w-2xl space-y-2 mb-8 sm:mb-10">
+    <section id="fitur" className="max-w-6xl mx-auto px-4 sm:px-6 py-10 sm:py-16 border-t border-[#E4E7F0]/80">
+      <div className="max-w-2xl space-y-2 mb-6 sm:mb-10">
         <span className="text-[11px] font-bold uppercase tracking-wider text-[#6E7485]">
           Pilar Fungsional
         </span>
@@ -27,19 +27,19 @@ export function LandingFeatures() {
       </div>
 
       {/* Bento Feature Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-6 gap-3.5 sm:gap-4">
         {/* Card 1: Dark Anchor - Tugas Kelas Privat & Gated */}
-        <div className="md:col-span-2 bg-[#111318] text-white rounded-[24px] p-6 flex flex-col justify-between gap-6 shadow-sm hover:-translate-y-0.5 transition-transform duration-200">
-          <div className="flex items-center justify-between">
-            <div className="w-10 h-10 rounded-xl bg-[#F6C866] text-[#111318] flex items-center justify-center shadow-2xs">
-              <Lock className="w-5 h-5" strokeWidth={2} />
+        <div className="md:col-span-2 bg-[#111318] text-white rounded-[22px] sm:rounded-[24px] p-4.5 sm:p-6 flex flex-col justify-between gap-5 sm:gap-6 shadow-sm hover:-translate-y-0.5 transition-transform duration-200">
+          <div className="flex items-center justify-between gap-2">
+            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-[#F6C866] text-[#111318] flex items-center justify-center shadow-2xs shrink-0">
+              <Lock className="w-4 h-4 sm:w-5 sm:h-5" strokeWidth={2} />
             </div>
-            <span className="inline-flex items-center gap-1 text-[10px] font-extrabold uppercase tracking-wider bg-[#F05252] text-white px-2.5 py-1 rounded-full">
+            <span className="shrink-0 whitespace-nowrap text-[10px] font-extrabold uppercase tracking-wider bg-[#F05252] text-white px-2.5 py-1 rounded-full">
               Khusus Anggota
             </span>
           </div>
-          <div className="space-y-2">
-            <h3 className="text-base font-bold leading-snug">
+          <div className="space-y-1.5 sm:space-y-2">
+            <h3 className="text-sm sm:text-base font-bold leading-snug">
               Daftar tugas & tautan pengumpulan privat
             </h3>
             <p className="text-xs text-white/75 leading-relaxed">
@@ -50,17 +50,17 @@ export function LandingFeatures() {
         </div>
 
         {/* Card 2: Periwinkle - Info Akademik & Sematkan Info Penting */}
-        <div className="md:col-span-2 bg-[#A8C0FF] text-[#111318] rounded-[24px] p-6 flex flex-col justify-between gap-6 hover:-translate-y-0.5 transition-transform duration-200">
-          <div className="flex items-center justify-between">
-            <div className="w-10 h-10 rounded-xl bg-white text-[#111318] flex items-center justify-center shadow-2xs">
-              <Pin className="w-5 h-5 text-[#111318]" strokeWidth={2} />
+        <div className="md:col-span-2 bg-[#A8C0FF] text-[#111318] rounded-[22px] sm:rounded-[24px] p-4.5 sm:p-6 flex flex-col justify-between gap-5 sm:gap-6 hover:-translate-y-0.5 transition-transform duration-200">
+          <div className="flex items-center justify-between gap-2">
+            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-white text-[#111318] flex items-center justify-center shadow-2xs shrink-0">
+              <Pin className="w-4 h-4 sm:w-5 sm:h-5 text-[#111318]" strokeWidth={2} />
             </div>
-            <span className="inline-flex items-center gap-1 text-[10px] font-extrabold uppercase tracking-wider bg-white/90 text-[#111318] px-2.5 py-1 rounded-full shadow-2xs">
+            <span className="shrink-0 whitespace-nowrap text-[10px] font-extrabold uppercase tracking-wider bg-white/90 text-[#111318] px-2.5 py-1 rounded-full shadow-2xs">
               Pin & Akademik
             </span>
           </div>
-          <div className="space-y-2">
-            <h3 className="text-base font-bold leading-snug">
+          <div className="space-y-1.5 sm:space-y-2">
+            <h3 className="text-sm sm:text-base font-bold leading-snug">
               Pengumuman dosen & sematkan info UTS
             </h3>
             <p className="text-xs text-[#111318]/85 leading-relaxed">
@@ -71,17 +71,17 @@ export function LandingFeatures() {
         </div>
 
         {/* Card 3: Orchid Lilac - Berita Kampus & Info Lomba */}
-        <div className="md:col-span-2 bg-[#EA9DFB] text-[#111318] rounded-[24px] p-6 flex flex-col justify-between gap-6 hover:-translate-y-0.5 transition-transform duration-200">
-          <div className="flex items-center justify-between">
-            <div className="w-10 h-10 rounded-xl bg-white text-[#111318] flex items-center justify-center shadow-2xs">
-              <Trophy className="w-5 h-5 text-[#111318]" strokeWidth={2} />
+        <div className="md:col-span-2 bg-[#EA9DFB] text-[#111318] rounded-[22px] sm:rounded-[24px] p-4.5 sm:p-6 flex flex-col justify-between gap-5 sm:gap-6 hover:-translate-y-0.5 transition-transform duration-200">
+          <div className="flex items-center justify-between gap-2">
+            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-white text-[#111318] flex items-center justify-center shadow-2xs shrink-0">
+              <Trophy className="w-4 h-4 sm:w-5 sm:h-5 text-[#111318]" strokeWidth={2} />
             </div>
-            <span className="inline-flex items-center gap-1 text-[10px] font-extrabold uppercase tracking-wider bg-white/90 text-[#111318] px-2.5 py-1 rounded-full shadow-2xs">
-              Poster Visual CDN
+            <span className="shrink-0 whitespace-nowrap text-[10px] font-extrabold uppercase tracking-wider bg-white/90 text-[#111318] px-2.5 py-1 rounded-full shadow-2xs">
+              Poster CDN
             </span>
           </div>
-          <div className="space-y-2">
-            <h3 className="text-base font-bold leading-snug">
+          <div className="space-y-1.5 sm:space-y-2">
+            <h3 className="text-sm sm:text-base font-bold leading-snug">
               Berita kampus & info lomba berposter
             </h3>
             <p className="text-xs text-[#111318]/85 leading-relaxed">
@@ -92,35 +92,52 @@ export function LandingFeatures() {
         </div>
 
         {/* Card 4: White - Jadwal Kuliah Statis Publik */}
-        <div className="md:col-span-3 bg-white border border-[#E4E7F0] text-[#111318] rounded-[24px] p-6 flex flex-col justify-between gap-5 shadow-2xs hover:-translate-y-0.5 transition-transform duration-200">
-          <div className="flex items-center justify-between gap-2">
-            <div className="flex items-center gap-2.5">
-              <div className="w-10 h-10 rounded-xl bg-[#EEF1F6] text-[#111318] flex items-center justify-center">
-                <Calendar className="w-5 h-5" strokeWidth={2} />
+        <div className="md:col-span-3 bg-white border border-[#E4E7F0] text-[#111318] rounded-[22px] sm:rounded-[24px] p-4.5 sm:p-6 flex flex-col justify-between gap-4 sm:gap-5 shadow-2xs hover:-translate-y-0.5 transition-transform duration-200">
+          {/* Header */}
+          <div className="flex items-start sm:items-center justify-between gap-2.5">
+            <div className="flex items-center gap-2.5 min-w-0">
+              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-[#EEF1F6] text-[#111318] flex items-center justify-center shrink-0">
+                <Calendar className="w-4 h-4 sm:w-5 sm:h-5" strokeWidth={2} />
               </div>
-              <div>
-                <h3 className="text-base font-bold leading-tight">Jadwal kuliah Senin sampai Sabtu</h3>
-                <p className="text-xs text-[#6E7485]">Daftar jadwal tetap per semester</p>
+              <div className="min-w-0">
+                <h3 className="text-sm sm:text-base font-bold leading-tight truncate">
+                  Jadwal kuliah Senin – Sabtu
+                </h3>
+                <p className="text-[11px] sm:text-xs text-[#6E7485] mt-0.5 truncate">Daftar jadwal tetap per semester</p>
               </div>
             </div>
-            <span className="text-[10px] font-extrabold uppercase tracking-wider bg-[#4CD98B]/20 text-[#111318] px-2.5 py-1 rounded-full border border-[#4CD98B]/40">
+            <span className="shrink-0 whitespace-nowrap text-[10px] font-extrabold uppercase tracking-wider bg-[#4CD98B]/20 text-[#111318] px-2.5 py-1 rounded-full border border-[#4CD98B]/40">
               Bebas Login
             </span>
           </div>
 
-          {/* Mini Authentic Day Strip */}
-          <div className="bg-[#F6F7FB] rounded-2xl p-2 flex items-center justify-between gap-1.5 border border-[#E4E7F0]/70">
-            {days.map((d) => (
-              <div
-                key={d.num}
-                className={`flex-1 py-2 rounded-xl flex flex-col items-center justify-center text-center ${
-                  d.active ? "bg-[#111318] text-white" : "text-[#6E7485]"
-                }`}
-              >
-                <span className="text-[9px] font-bold uppercase">{d.label}</span>
-                <span className="text-xs font-extrabold mt-0.5">{d.num}</span>
+          {/* Authentic Mini Schedule View */}
+          <div className="space-y-2">
+            {/* Day selector row */}
+            <div className="grid grid-cols-6 gap-1 bg-[#F6F7FB] p-1 rounded-xl border border-[#E4E7F0]/70">
+              {days.map((d) => (
+                <div
+                  key={d.label}
+                  className={`py-1.5 rounded-lg flex flex-col items-center justify-center text-center select-none ${
+                    d.active ? "bg-[#111318] text-white font-extrabold shadow-2xs" : "text-[#6E7485] font-semibold"
+                  }`}
+                >
+                  <span className="text-[10px] uppercase leading-tight">{d.label}</span>
+                  <span className="text-[9px] opacity-75 mt-0.5 leading-none">{d.slots}</span>
+                </div>
+              ))}
+            </div>
+
+            {/* Active Class Preview Card */}
+            <div className="bg-[#F6F7FB] p-2.5 rounded-xl border border-[#E4E7F0]/70 flex items-center justify-between gap-2">
+              <div className="min-w-0">
+                <p className="text-[10px] font-bold text-[#6E7485] truncate">08:30 – 10:30 WIB · Ruang D421</p>
+                <p className="text-xs font-extrabold text-[#111318] truncate mt-0.5">Interaksi Manusia & Komputer</p>
               </div>
-            ))}
+              <span className="shrink-0 text-[10px] font-bold text-[#111318] bg-white border border-[#E4E7F0] px-2 py-0.5 rounded-full shadow-2xs">
+                Rutin
+              </span>
+            </div>
           </div>
 
           <p className="text-xs text-[#6E7485] leading-relaxed">
@@ -130,18 +147,18 @@ export function LandingFeatures() {
         </div>
 
         {/* Card 5: Warm Honey Amber - Multi-Peran & Opsi Draft */}
-        <div className="md:col-span-3 bg-[#F6C866] text-[#111318] rounded-[24px] p-6 flex flex-col justify-between gap-5 hover:-translate-y-0.5 transition-transform duration-200">
-          <div className="flex items-center justify-between">
-            <div className="w-10 h-10 rounded-xl bg-white text-[#111318] flex items-center justify-center shadow-2xs">
-              <ShieldCheck className="w-5 h-5" strokeWidth={2} />
+        <div className="md:col-span-3 bg-[#F6C866] text-[#111318] rounded-[22px] sm:rounded-[24px] p-4.5 sm:p-6 flex flex-col justify-between gap-4 sm:gap-5 hover:-translate-y-0.5 transition-transform duration-200">
+          <div className="flex items-center justify-between gap-2">
+            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-white text-[#111318] flex items-center justify-center shadow-2xs shrink-0">
+              <ShieldCheck className="w-4 h-4 sm:w-5 sm:h-5 text-[#111318]" strokeWidth={2} />
             </div>
-            <span className="text-[10px] font-extrabold uppercase tracking-wider bg-[#111318] text-white px-2.5 py-1 rounded-full">
+            <span className="shrink-0 whitespace-nowrap text-[10px] font-extrabold uppercase tracking-wider bg-[#111318] text-white px-2.5 py-1 rounded-full">
               Multi-Peran RBAC
             </span>
           </div>
 
-          <div className="space-y-2">
-            <h3 className="text-base font-bold leading-snug">
+          <div className="space-y-1.5 sm:space-y-2">
+            <h3 className="text-sm sm:text-base font-bold leading-snug">
               Simpan draft atau terbitkan langsung
             </h3>
             <p className="text-xs text-[#111318]/85 leading-relaxed">

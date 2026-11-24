@@ -5,7 +5,6 @@ import { cn } from "@/lib/utils"
 import { MockStoreProvider } from "@/lib/mock-store"
 import { PwaProvider } from "@/lib/pwa-context"
 import { Toaster } from "@/components/ui/sonner"
-import { PwaInstallPrompt } from "@/components/layout/PwaInstallPrompt"
 import { PwaInstallModal } from "@/components/layout/PwaInstallModal"
 
 const plusJakartaSans = Plus_Jakarta_Sans({
@@ -61,7 +60,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <PwaProvider>
           <MockStoreProvider>
             {children}
-            <PwaInstallPrompt />
             <PwaInstallModal />
             <Toaster position="top-center" richColors />
           </MockStoreProvider>

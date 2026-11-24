@@ -18,23 +18,23 @@ export function LandingWorkflow() {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4.5">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5 sm:gap-4.5">
         {/* Persona 1: Pengunjung Publik / Tamu */}
-        <div className="bg-white border border-[#E4E7F0] rounded-[24px] p-5 sm:p-6 flex flex-col justify-between gap-6 shadow-2xs hover:-translate-y-0.5 transition-transform duration-200">
+        <div className="bg-white border border-[#E4E7F0] rounded-[22px] sm:rounded-[24px] p-4.5 sm:p-6 flex flex-col justify-between gap-5 sm:gap-6 shadow-2xs hover:-translate-y-0.5 transition-transform duration-200">
           <div className="space-y-4">
             <div className="flex items-center justify-between gap-2">
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-lg bg-[#EEF1F6] flex items-center justify-center text-[#111318]">
+              <div className="flex items-center gap-2 min-w-0">
+                <div className="w-8 h-8 rounded-lg bg-[#EEF1F6] flex items-center justify-center text-[#111318] shrink-0">
                   <Globe className="w-4 h-4" strokeWidth={2} />
                 </div>
-                <h3 className="text-base font-extrabold text-[#111318]">Pengunjung Publik</h3>
+                <h3 className="text-sm sm:text-base font-extrabold text-[#111318] truncate">Pengunjung Publik</h3>
               </div>
-              <span className="text-[10px] font-extrabold uppercase tracking-wider bg-[#4CD98B]/20 text-[#111318] px-2 py-0.5 rounded-full border border-[#4CD98B]/30">
+              <span className="shrink-0 whitespace-nowrap text-[10px] font-extrabold uppercase tracking-wider bg-[#4CD98B]/20 text-[#111318] px-2 py-0.5 rounded-full border border-[#4CD98B]/30">
                 Tanpa Login
               </span>
             </div>
 
-            <ol className="space-y-3 text-xs text-[#6E7485]">
+            <ol className="space-y-2.5 sm:space-y-3 text-xs text-[#6E7485]">
               <li className="flex items-start gap-2.5">
                 <span className="w-5 h-5 rounded-full bg-[#EEF1F6] text-[#111318] text-[11px] font-extrabold flex items-center justify-center shrink-0 mt-0.5">
                   1
@@ -66,21 +66,21 @@ export function LandingWorkflow() {
         </div>
 
         {/* Persona 2: Anggota Kelas (Member) */}
-        <div className="bg-[#EEF1F6] border border-[#E4E7F0] rounded-[24px] p-5 sm:p-6 flex flex-col justify-between gap-6 hover:-translate-y-0.5 transition-transform duration-200">
+        <div className="bg-[#EEF1F6] border border-[#E4E7F0] rounded-[22px] sm:rounded-[24px] p-4.5 sm:p-6 flex flex-col justify-between gap-5 sm:gap-6 hover:-translate-y-0.5 transition-transform duration-200">
           <div className="space-y-4">
             <div className="flex items-center justify-between gap-2">
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-lg bg-white flex items-center justify-center text-[#111318] shadow-2xs">
+              <div className="flex items-center gap-2 min-w-0">
+                <div className="w-8 h-8 rounded-lg bg-white flex items-center justify-center text-[#111318] shadow-2xs shrink-0">
                   <Lock className="w-4 h-4" strokeWidth={2} />
                 </div>
-                <h3 className="text-base font-extrabold text-[#111318]">Anggota Kelas</h3>
+                <h3 className="text-sm sm:text-base font-extrabold text-[#111318] truncate">Anggota Kelas</h3>
               </div>
-              <span className="text-[10px] font-extrabold uppercase tracking-wider bg-[#A8C0FF] text-[#111318] px-2 py-0.5 rounded-full">
+              <span className="shrink-0 whitespace-nowrap text-[10px] font-extrabold uppercase tracking-wider bg-[#A8C0FF] text-[#111318] px-2 py-0.5 rounded-full">
                 Privat Kelas
               </span>
             </div>
 
-            <ol className="space-y-3 text-xs text-[#111318]/80">
+            <ol className="space-y-2.5 sm:space-y-3 text-xs text-[#111318]/80">
               <li className="flex items-start gap-2.5">
                 <span className="w-5 h-5 rounded-full bg-white text-[#111318] text-[11px] font-extrabold flex items-center justify-center shrink-0 mt-0.5 shadow-2xs">
                   1
@@ -112,21 +112,21 @@ export function LandingWorkflow() {
         </div>
 
         {/* Persona 3: Ketua Kelas & PJ Matkul (Publisher) */}
-        <div className="bg-white border border-[#E4E7F0] rounded-[24px] p-5 sm:p-6 flex flex-col justify-between gap-6 shadow-2xs hover:-translate-y-0.5 transition-transform duration-200">
+        <div className="bg-white border border-[#E4E7F0] rounded-[22px] sm:rounded-[24px] p-4.5 sm:p-6 flex flex-col justify-between gap-5 sm:gap-6 shadow-2xs hover:-translate-y-0.5 transition-transform duration-200">
           <div className="space-y-4">
             <div className="flex items-center justify-between gap-2">
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-lg bg-[#F6C866] flex items-center justify-center text-[#111318] shadow-2xs">
+              <div className="flex items-center gap-2 min-w-0">
+                <div className="w-8 h-8 rounded-lg bg-[#F6C866] flex items-center justify-center text-[#111318] shadow-2xs shrink-0">
                   <ShieldCheck className="w-4 h-4" strokeWidth={2} />
                 </div>
-                <h3 className="text-base font-extrabold text-[#111318]">Pengurus Kelas</h3>
+                <h3 className="text-sm sm:text-base font-extrabold text-[#111318] truncate">Pengurus Kelas</h3>
               </div>
-              <span className="text-[10px] font-extrabold uppercase tracking-wider bg-[#111318] text-white px-2 py-0.5 rounded-full">
+              <span className="shrink-0 whitespace-nowrap text-[10px] font-extrabold uppercase tracking-wider bg-[#111318] text-white px-2 py-0.5 rounded-full">
                 Publisher
               </span>
             </div>
 
-            <ol className="space-y-3 text-xs text-[#6E7485]">
+            <ol className="space-y-2.5 sm:space-y-3 text-xs text-[#6E7485]">
               <li className="flex items-start gap-2.5">
                 <span className="w-5 h-5 rounded-full bg-[#EEF1F6] text-[#111318] text-[11px] font-extrabold flex items-center justify-center shrink-0 mt-0.5">
                   1
