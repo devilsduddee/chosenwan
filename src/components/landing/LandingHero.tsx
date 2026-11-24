@@ -1,6 +1,9 @@
+"use client"
+
 import React from "react"
 import Link from "next/link"
 import { BrandLogo } from "@/components/layout/BrandLogo"
+import { usePwa } from "@/lib/pwa-context"
 import {
   ArrowRight,
   CheckSquare,
@@ -14,6 +17,8 @@ import {
 } from "lucide-react"
 
 export function LandingHero() {
+  const { isStandalone, triggerInstall, openModal } = usePwa()
+
   return (
     <section className="max-w-5xl mx-auto px-4 sm:px-6 pt-8 pb-14 sm:pt-14 sm:pb-20">
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-8 items-center">
@@ -42,23 +47,46 @@ export function LandingHero() {
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-1">
             <Link
               href="/portal?tab=schedule"
-              className="min-h-[48px] px-6 rounded-full bg-[#111318] text-white text-sm font-bold inline-flex items-center justify-center gap-2 hover:bg-[#111318]/90 active:scale-[0.98] transition-all shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#111318] focus-visible:ring-offset-2"
+              className="min-h-[48px] px-6 rounded-full bg-[#111318] text-white text-sm font-bold inline-flex items-center justify-center gap-2 hover:bg-[#111318]/90 active:scale-[0.98] transition-all shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#111318] focus-visible:ring-offset-2 select-none"
             >
               <span>Buka Jadwal & Portal</span>
               <ArrowRight className="w-4 h-4" strokeWidth={2} />
             </Link>
 
+            {!isStandalone && (
+              <button
+                type="button"
+                onClick={triggerInstall}
+                className="min-h-[48px] px-5 rounded-full bg-white border border-[#E4E7F0] text-[#111318] text-sm font-bold inline-flex items-center justify-center gap-2 hover:bg-[#EEF1F6] active:scale-[0.98] transition-all shadow-2xs cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#111318] select-none"
+              >
+                <Smartphone className="w-4 h-4 text-[#111318]" strokeWidth={2} />
+                <span>Pasang Aplikasi di HP</span>
+              </button>
+            )}
+
             <a
               href="#alur-kerja"
-              className="min-h-[48px] px-6 rounded-full bg-white border border-[#E4E7F0] text-[#111318] text-sm font-bold inline-flex items-center justify-center hover:bg-[#EEF1F6] active:scale-[0.98] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#111318]"
+              className="min-h-[48px] px-5 rounded-full bg-transparent hover:bg-[#EEF1F6] text-[#6E7485] hover:text-[#111318] text-sm font-semibold inline-flex items-center justify-center active:scale-[0.98] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#111318] select-none"
             >
               Lihat Alur Pakai
             </a>
           </div>
 
-          <p className="text-xs font-medium text-[#6E7485] pt-1">
-            Bisa dibuka langsung tanpa akun mahasiswa. Tugas disaring per mata kuliah dan status deadline.
-          </p>
+          <div className="flex items-center gap-2 flex-wrap text-xs font-medium text-[#6E7485] pt-1">
+            <span>Dapat dibuka langsung tanpa akun mahasiswa.</span>
+            {!isStandalone && (
+              <>
+                <span className="text-[#D3D8E2]">·</span>
+                <button
+                  type="button"
+                  onClick={openModal}
+                  className="text-[#111318] font-semibold underline underline-offset-2 hover:text-[#4CD98B] transition-colors cursor-pointer select-none"
+                >
+                  Panduan Pasang iOS & Android
+                </button>
+              </>
+            )}
+          </div>
         </div>
 
         {/* Right: Authentic Playful Bento Portal Preview */}

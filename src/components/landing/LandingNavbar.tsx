@@ -1,32 +1,29 @@
-"use client"
-
 import React from "react"
 import Link from "next/link"
-import { usePwa } from "@/lib/pwa-context"
 import { BrandLogo } from "@/components/layout/BrandLogo"
-import { ArrowRight, LogIn, Smartphone } from "lucide-react"
+import { ArrowRight, LogIn } from "lucide-react"
 
 export function LandingNavbar() {
-  const { isStandalone, triggerInstall } = usePwa()
-
   return (
     <header className="sticky top-0 z-40 bg-[#F6F7FB]/90 backdrop-blur-md border-b border-[#E4E7F0]/70 pt-[env(safe-area-inset-top,0px)]">
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-3 sm:gap-4">
+        {/* Left: Brand Identity */}
         <Link
           href="/"
-          className="flex items-center gap-2.5 min-w-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#111318] rounded-xl"
+          className="flex items-center gap-2.5 min-w-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#111318] rounded-xl shrink-0"
         >
-          <BrandLogo className="w-9 h-9" />
+          <BrandLogo className="w-9 h-9 shrink-0" />
           <div className="min-w-0">
-            <span className="block text-sm sm:text-base font-extrabold text-[#111318] tracking-tight leading-tight truncate">
+            <span className="block text-sm sm:text-base font-extrabold text-[#111318] tracking-tight leading-tight whitespace-nowrap">
               Chosenwan
             </span>
-            <span className="block text-[10px] sm:text-[11px] font-medium text-[#6E7485] leading-none mt-0.5 truncate">
+            <span className="block text-[10px] sm:text-[11px] font-medium text-[#6E7485] leading-none mt-0.5 whitespace-nowrap">
               Portal Informasi Kelas
             </span>
           </div>
         </Link>
 
+        {/* Center: Desktop Navigation */}
         <nav aria-label="Navigasi Beranda" className="hidden sm:flex items-center gap-6">
           <a
             href="#fitur"
@@ -42,19 +39,8 @@ export function LandingNavbar() {
           </a>
         </nav>
 
+        {/* Right: Actions */}
         <div className="flex items-center gap-2 shrink-0">
-          {!isStandalone && (
-            <button
-              type="button"
-              onClick={triggerInstall}
-              className="min-h-[40px] h-10 px-3 sm:px-3.5 rounded-full bg-white hover:bg-[#EEF1F6] border border-[#E4E7F0] text-[#111318] text-xs font-bold inline-flex items-center gap-1.5 shadow-2xs hover:border-[#111318]/40 active:scale-[0.97] transition-all shrink-0 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#111318]"
-              title="Pasang aplikasi di layar ponsel"
-            >
-              <Smartphone className="w-3.5 h-3.5 text-[#111318]" strokeWidth={2} />
-              <span>Pasang App</span>
-            </button>
-          )}
-
           <Link
             href="/login"
             aria-label="Masuk Publisher"

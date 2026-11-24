@@ -126,7 +126,7 @@ export function TopHeader() {
               title="Pasang aplikasi di layar ponsel atau komputer"
             >
               <Smartphone className="w-3.5 h-3.5 text-[#111318]" strokeWidth={2} />
-              <span>Pasang App</span>
+              <span className="hidden min-[400px]:inline">Pasang App</span>
             </button>
           )}
 
