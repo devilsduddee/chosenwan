@@ -4,6 +4,7 @@ import { Plus_Jakarta_Sans } from "next/font/google"
 import { cn } from "@/lib/utils"
 import { MockStoreProvider } from "@/lib/mock-store"
 import { Toaster } from "@/components/ui/sonner"
+import { PwaInstallPrompt } from "@/components/layout/PwaInstallPrompt"
 
 const plusJakartaSans = Plus_Jakarta_Sans({
   subsets: ["latin"],
@@ -12,20 +13,31 @@ const plusJakartaSans = Plus_Jakarta_Sans({
 })
 
 export const metadata: Metadata = {
-  title: "Chosenwan: Portal Informasi Kelas",
-  description: "Cek tugas kuliah, jadwal statis harian, dan pengumuman kampus kelas pilot dengan cepat.",
+  title: "Chosenwan: Portal Informasi Kelas 3IA01",
+  description: "Cek tugas kuliah, jadwal statis harian, dan pengumuman kampus kelas 3IA01 dengan cepat.",
+  applicationName: "Chosenwan",
+  authors: [{ name: "Chosenwan Team" }],
+  generator: "Next.js",
+  keywords: ["Chosenwan", "3IA01", "Gunadarma", "Jadwal Kuliah", "Tugas Kelas", "Portal Mahasiswa"],
   icons: {
     icon: [
       { url: "/favicon.ico", sizes: "any" },
       { url: "/favicon.svg", type: "image/svg+xml" },
+      { url: "/icon-192.png", sizes: "192x192", type: "image/png" },
+      { url: "/icon-512.png", sizes: "512x512", type: "image/png" },
     ],
-    apple: "/apple-touch-icon.png",
+    apple: [
+      { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
+    ],
   },
   manifest: "/site.webmanifest",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
     title: "Chosenwan",
+  },
+  formatDetection: {
+    telephone: false,
   },
 }
 
@@ -46,6 +58,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="bg-[#F6F7FB] min-h-dvh text-[#111318]">
         <MockStoreProvider>
           {children}
+          <PwaInstallPrompt />
           <Toaster position="top-center" richColors />
         </MockStoreProvider>
       </body>

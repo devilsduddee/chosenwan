@@ -1,0 +1,31 @@
+{
+  "name": "Chosenwan - Portal Informasi Kelas 3IA01",
+  "short_name": "Chosenwan",
+  "description": "Portal informasi kelas mobile-first untuk jadwal kuliah harian, tugas, dan pengumuman kelas 3IA01.",
+  "start_url": "/portal",
+  "scope": "/",
+  "id": "/portal",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#F6F7FB",
+  "theme_color": "#111318",
+  "categories": ["education", "productivity"],
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "/maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
