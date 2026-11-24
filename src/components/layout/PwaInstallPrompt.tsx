@@ -1,15 +1,18 @@
 "use client"
 
 import React, { useState, useEffect } from "react"
+import { usePathname } from "next/navigation"
 import { usePwa } from "@/lib/pwa-context"
 import { Download, Share, X } from "lucide-react"
 
 export function PwaInstallPrompt() {
+  const pathname = usePathname()
   const { isStandalone, isIos, triggerInstall } = usePwa()
   const [isDismissed, setIsDismissed] = useState(true)
 
   useEffect(() => {
-    if (isStandalone) return
+    // Hanya aktif di beranda / landing page
+    if (pathname !== "/" || isStandalone) return
 
     // Cek apakah user pernah menutup prompt di sesi browser ini
     const dismissed = sessionStorage.getItem("chosenwan_pwa_session_dismissed")
@@ -21,7 +24,7 @@ export function PwaInstallPrompt() {
     }, 1800)
 
     return () => clearTimeout(timer)
-  }, [isStandalone])
+  }, [pathname, isStandalone])
 
   const handleDismiss = (e: React.MouseEvent) => {
     e.stopPropagation()
@@ -29,7 +32,8 @@ export function PwaInstallPrompt() {
     sessionStorage.setItem("chosenwan_pwa_session_dismissed", "true")
   }
 
-  if (isStandalone || isDismissed) return null
+  // Jangan pernah tampil di luar landing page ('/')
+  if (pathname !== "/" || isStandalone || isDismissed) return null
 
   return (
     <div
