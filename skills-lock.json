@@ -45,7 +45,7 @@
     },
     "debugging-and-error-recovery": {
       "source": "addyosmani/agent-skills",
-      "commit": "39b723ceebf81474d0557c1fecd01eddab585563",
+      "commit": "e997ac5b9a74eab332d5e9793bb38a38c8cfdd74",
       "sourceType": "github",
       "skillPath": "skills/debugging-and-error-recovery/SKILL.md",
       "computedHash": "aa26ffd65f2e2759c66806c4a3111c6fbaad612c5f39799bd3bc6cd942abd0fc"
@@ -91,6 +91,13 @@
       "sourceType": "github",
       "skillPath": "skills/planning-and-task-breakdown/SKILL.md",
       "computedHash": "e4ef8d478d672103693af0cab5a97a1914f776099ef0756c2a093d9ae061f024"
+    },
+    "security-and-hardening": {
+      "source": "addyosmani/agent-skills",
+      "commit": "e997ac5b9a74eab332d5e9793bb38a38c8cfdd74",
+      "sourceType": "github",
+      "skillPath": "skills/security-and-hardening/SKILL.md",
+      "computedHash": "208e6266166f4a97792a391487f8df528c6a02ad70a0a86ada699836b2a70730"
     },
     "shadcn": {
       "source": "shadcn-ui/ui",

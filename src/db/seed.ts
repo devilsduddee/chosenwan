@@ -36,7 +36,7 @@ export async function seed() {
       .get()
 
     if (!existing) {
-      const hashedPassword = await bcrypt.hash(acc.passwordRaw, 10)
+      const hashedPassword = await bcrypt.hash(acc.passwordRaw, 12)
       await db.insert(accounts).values({
         name: acc.name,
         password: hashedPassword,
