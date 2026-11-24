@@ -72,7 +72,7 @@ export function PwaInstallPrompt() {
   if (isStandalone || isDismissed) return null
 
   return (
-    <div className="fixed bottom-20 left-4 right-4 z-40 max-w-[420px] mx-auto animate-in fade-in slide-in-from-bottom-3 duration-300">
+    <div className="fixed bottom-[calc(5rem+env(safe-area-inset-bottom,0px))] left-4 right-4 z-40 max-w-[420px] mx-auto animate-in fade-in slide-in-from-bottom-3 duration-300">
       <div className="bg-[#111318] text-white p-3.5 sm:p-4 rounded-[22px] shadow-[0_12px_36px_rgba(17,19,24,0.35)] border border-white/10 flex items-center justify-between gap-3">
         <div className="flex items-center gap-3 min-w-0">
           <div className="w-9 h-9 rounded-xl bg-white/10 flex items-center justify-center shrink-0 text-[#F6C866]">
