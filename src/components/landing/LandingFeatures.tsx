@@ -11,7 +11,7 @@ export function LandingFeatures() {
   ]
 
   return (
-    <section id="fitur" className="max-w-5xl mx-auto px-4 sm:px-6 py-12 sm:py-16 border-t border-[#E4E7F0]/80">
+    <section id="fitur" className="max-w-6xl mx-auto px-4 sm:px-6 py-12 sm:py-16 border-t border-[#E4E7F0]/80">
       <div className="max-w-2xl space-y-2 mb-8 sm:mb-10">
         <span className="text-[11px] font-bold uppercase tracking-wider text-[#6E7485]">
           Isi Portal

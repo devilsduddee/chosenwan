@@ -6,7 +6,7 @@ import { ArrowRight, LogIn } from "lucide-react"
 export function LandingNavbar() {
   return (
     <header className="sticky top-0 z-40 bg-[#F6F7FB]/90 backdrop-blur-md border-b border-[#E4E7F0]/70 pt-[env(safe-area-inset-top,0px)]">
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-3 sm:gap-4">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-3 sm:gap-4">
         {/* Left: Brand Identity */}
         <Link
           href="/"

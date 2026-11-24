@@ -5,7 +5,7 @@ import { ArrowRight } from "lucide-react"
 
 export function LandingFooter() {
   return (
-    <footer className="max-w-5xl mx-auto px-4 sm:px-6 pt-4 pb-12 space-y-10">
+    <footer className="max-w-6xl mx-auto px-4 sm:px-6 pt-4 pb-12 space-y-10">
       {/* Final CTA Bento Banner */}
       <div className="bg-[#111318] text-white rounded-[24px] p-6 sm:p-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
         <div className="space-y-1.5 max-w-lg">
