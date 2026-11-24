@@ -9,7 +9,6 @@ import { ScheduleSlotCard } from "@/components/schedule/ScheduleSlotCard"
 import { ScheduleEditorDialog } from "@/components/schedule/ScheduleEditorDialog"
 import { DeleteConfirmDialog } from "@/components/publisher/DeleteConfirmDialog"
 import { Calendar, Coffee, Plus } from "lucide-react"
-import { toast } from "sonner"
 
 export function ScheduleTimeline() {
   const { schedules, userRole, deleteSchedule } = useMockStore()
@@ -23,7 +22,8 @@ export function ScheduleTimeline() {
   const [editingSchedule, setEditingSchedule] = useState<Schedule | null>(null)
   const [deleteTarget, setDeleteTarget] = useState<Schedule | null>(null)
 
-  const canManageSchedule = userRole !== "guest"
+  const canManageSchedule =
+    userRole === "ketua_kelas" || userRole === "pj" || userRole === "pj_matkul"
 
   const dayNames = ["", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"]
 
@@ -48,11 +48,13 @@ export function ScheduleTimeline() {
     setIsScheduleEditorOpen(true)
   }
 
-  const handleConfirmDelete = () => {
+  const handleConfirmDelete = async () => {
     if (!deleteTarget) return
-    deleteSchedule(deleteTarget.id)
-    toast.success("Slot jadwal berhasil dihapus")
-    setDeleteTarget(null)
+    try {
+      await deleteSchedule(deleteTarget.id)
+    } finally {
+      setDeleteTarget(null)
+    }
   }
 
   return (

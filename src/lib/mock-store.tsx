@@ -12,7 +12,11 @@ import {
   deleteEventAction,
   togglePinEventAction,
 } from "@/lib/actions/events"
-import { updateScheduleAction } from "@/lib/actions/schedules"
+import {
+  createScheduleAction,
+  updateScheduleAction,
+  deleteScheduleAction,
+} from "@/lib/actions/schedules"
 import { toast } from "sonner"
 
 const MockStoreContext = createContext<MockStoreContextType | undefined>(undefined)
@@ -241,8 +245,30 @@ export function MockStoreProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
-  const addSchedule = () => {
-    toast.info("Penambahan jadwal otomatis dikelola via admin.")
+  const addSchedule = async (schedule: Omit<Schedule, "id">) => {
+    try {
+      if (
+        !schedule.course_id ||
+        schedule.day_of_week === undefined ||
+        !schedule.start_time ||
+        !schedule.end_time ||
+        !schedule.room
+      ) {
+        throw new Error("Data jadwal tidak lengkap.")
+      }
+      await createScheduleAction({
+        course_id: schedule.course_id,
+        day_of_week: schedule.day_of_week,
+        start_time: schedule.start_time,
+        end_time: schedule.end_time,
+        room: schedule.room,
+      })
+      await loadData()
+      toast.success("Slot jadwal berhasil ditambahkan")
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Gagal menambah jadwal")
+      throw err
+    }
   }
 
   const updateSchedule = async (id: string, partial: Partial<Schedule>) => {
@@ -271,8 +297,15 @@ export function MockStoreProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
-  const deleteSchedule = () => {
-    toast.info("Penghapusan slot jadwal dibatasi.")
+  const deleteSchedule = async (id: string) => {
+    try {
+      await deleteScheduleAction(id)
+      await loadData()
+      toast.success("Slot jadwal berhasil dihapus")
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Gagal menghapus jadwal")
+      throw err
+    }
   }
 
   const resetToDefaults = () => {

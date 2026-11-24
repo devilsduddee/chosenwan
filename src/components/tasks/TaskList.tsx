@@ -56,7 +56,7 @@ export function TaskList() {
     if (mounted && now > 0) {
       return publishedSorted.find((t) => isTaskUrgent(t.due_date, now))
     }
-    return publishedSorted[0]
+    return undefined
   }, [publishedSorted, mounted, now])
 
   // Gated Task View for Guests (FR-01 Privacy Guard)

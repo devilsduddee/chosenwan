@@ -20,7 +20,7 @@ export function BentoSummaryGrid({ currentStatusFilter = "ALL", onSelectStatusFi
   const publishedTasks = tasks.filter((t) => t.status === "PUBLISHED")
   const urgentTasksCount = mounted && now > 0
     ? publishedTasks.filter((t) => isTaskUrgent(t.due_date, now)).length
-    : 1
+    : 0
 
   const campusNewsCount = announcements.filter(
     (a) => a.status === "PUBLISHED" && a.category_type === "CAMPUS_NEWS"

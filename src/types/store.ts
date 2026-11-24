@@ -55,9 +55,9 @@ export interface MockStoreContextType {
   deleteAnnouncement: (id: string) => Promise<void>
   togglePinAnnouncement: (id: string) => Promise<void>
 
-  addSchedule: (schedule: Omit<Schedule, "id">) => void
+  addSchedule: (schedule: Omit<Schedule, "id">) => Promise<void>
   updateSchedule: (id: string, schedule: Partial<Schedule>) => Promise<void>
-  deleteSchedule: (id: string) => void
+  deleteSchedule: (id: string) => Promise<void>
 
   resetToDefaults: () => void
 }

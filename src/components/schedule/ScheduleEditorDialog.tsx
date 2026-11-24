@@ -15,7 +15,6 @@ import {
 } from "@/components/ui/sheet"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { toast } from "sonner"
 
 interface ScheduleEditorDialogProps {
   isOpen: boolean
@@ -83,7 +82,7 @@ export function ScheduleEditorDialog({
     }
   }
 
-  const onSubmit = (values: ScheduleFormValues) => {
+  const onSubmit = async (values: ScheduleFormValues) => {
     const payload = {
       course_id: values.course_id,
       updated_by: currentUser.id,
@@ -94,14 +93,16 @@ export function ScheduleEditorDialog({
       lecturer_name: values.lecturer_name || undefined,
     }
 
-    if (editingSchedule) {
-      updateSchedule(editingSchedule.id, payload)
-      toast.success("Slot jadwal berhasil diperbarui")
-    } else {
-      addSchedule(payload)
-      toast.success("Slot jadwal baru berhasil ditambahkan")
+    try {
+      if (editingSchedule) {
+        await updateSchedule(editingSchedule.id, payload)
+      } else {
+        await addSchedule(payload)
+      }
+      onClose()
+    } catch {
+      // Error toast ditangani di dalam mock-store
     }
-    onClose()
   }
 
   return (

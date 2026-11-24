@@ -20,7 +20,7 @@ export function PublisherDashboard() {
     setEditingContent,
     deleteTask,
     deleteAnnouncement,
-    resetToDefaults,
+    refreshData,
   } = useMockStore()
 
   const [activeSegment, setActiveSegment] = useState<"PUBLISHED" | "DRAFT">("PUBLISHED")
@@ -114,12 +114,12 @@ export function PublisherDashboard() {
           <div className="flex items-center gap-1 shrink-0">
             <button
               type="button"
-              onClick={() => {
-                resetToDefaults()
-                toast.info("Data dikembalikan ke sampel default")
+              onClick={async () => {
+                await refreshData()
+                toast.success("Data berhasil diperbarui dari database")
               }}
               className="p-2 rounded-xl text-[#6E7485] hover:text-[#111318] hover:bg-[#EEF1F6] transition-colors cursor-pointer"
-              title="Reset Data Sampel"
+              title="Perbarui Data Database"
             >
               <RotateCcw className="w-4 h-4" />
             </button>
