@@ -1,24 +1,34 @@
 # PRD — Chosenwan
 
-- **Versi:** 1.4
-- **Tanggal:** 2026-11-17
-- **Status:** Draft (Menunggu Gate 2)
-- **Sumber input:** `01-discovery.md` v1.0, `02-opportunity.md` v1.0, `03-scope.md` v1.2, dan keputusan pengguna (2026-11-11 & 2026-11-17).
+- **Versi:** 1.5
+- **Tanggal:** 2026-11-24
+- **Status:** Approved (Revisi Akses Gated Task & Akun Anggota Kelas v1.5)
+- **Sumber input:** `01-discovery.md` v1.0, `02-opportunity.md` v1.0, `03-scope.md` v1.2, dokumen desain database ERD serah-terima, dan keputusan pengguna (2026-11-20 & 2026-11-24).
 - **Skill digunakan:** `prd-writer`, `antislop-copywriting`
 
 ## TL;DR
 
-Chosenwan adalah portal web mobile-first untuk satu kelas pilot agar mahasiswa bisa mengecek tugas, jadwal statis kuliah, serta pengumuman/info kelas (termasuk **perubahan jadwal insidental**, **Berita Kampus**, dan **Info Lomba**) tanpa menggali chat WhatsApp atau menunggu teman membalas. Mahasiswa membaca tanpa login, sementara ketua kelas dan PJ mata kuliah login untuk membuat dan **langsung menerbitkan** info (dengan opsi `Draft` jika perlu dicek dulu).
+Chosenwan adalah portal web mobile-first untuk satu kelas pilot agar mahasiswa bisa mengecek tugas, jadwal statis kuliah, serta pengumuman/event kelas (termasuk **perubahan jadwal insidental**, **Berita Kampus**, dan **Info Lomba**) tanpa menggali chat WhatsApp atau menunggu teman membalas. 
 
-Revisi v1.4 menyederhanakan modul jadwal menjadi **jadwal statis per semester** (`FR-06`), sementara **perubahan jadwal insidental** diposting melalui **Pengumuman & Info Simpel** (`FR-04`) untuk memangkas kompleksitas teknis.
+Pada revisi v1.5, akses portal dibagi menjadi dua lapis keamanan:
+1. **Area Publik (Tanpa Login):** Menampilkan **Jadwal Kuliah Statis** dan **Event / Info Kampus & Lomba**.
+2. **Area Khusus Anggota Kelas (Wajib Login):** Menampilkan **Daftar & Detail Tugas (Task)** beserta tautan pengumpulan (Google Drive / LMS). Akses ini di-gated untuk menjaga privasi kelas dan mencegah pihak luar/kelas lain mengakses tautan pengumpulan kelas. Anggota kelas berstatus *read-only*.
+3. **Pengurus Kelas (Ketua Kelas & PJ Mata Kuliah):** Login dengan peran publisher untuk membuat, mengedit, menyimpan `Draft`, atau langsung menerbitkan (*self-publish*) informasi tanpa bottleneck persetujuan bertingkat.
 
 ```mermaid
-flowchart LR
-    P[Ketua Kelas / PJ] -->|Login| F[Input Tugas / Pengumuman / Jadwal]
-    F -->|Simpan sementara| D[Status: Draft]
-    D -->|Review & Terbitkan| PUB[Status: Published]
-    F -->|Langsung Terbitkan| PUB
-    M[Mahasiswa Kelas] -->|Buka Portal tanpa Login| PUB
+flowchart TD
+    Guest[Pengunjung Publik / Tamu] -->|Buka Portal| PublicView[Lihat Jadwal Kuliah & Event Publik]
+    Guest -.->|Buka Halaman Tugas| LoginGate[HTTP 401: Arahkan ke Login]
+    
+    Member[Anggota Kelas / Teman Sekelas] -->|Login Akun Kelas| MemberView[Lihat Tugas + Buka Link GDrive / LMS - Read-Only]
+    
+    Publisher[Ketua Kelas & PJ Matkul] -->|Login Akun Publisher| Dashboard[Dashboard Kelola Konten]
+    Dashboard -->|Input / Edit Tugas, Event, Jadwal| ActionChoice{Aksi}
+    ActionChoice -->|Simpan Sementara| Draft[Status: Draft - Khusus Publisher]
+    ActionChoice -->|Langsung Terbitkan| Pub[Status: Published]
+    Draft -->|Review & Terbitkan| Pub
+    Pub -->|Data Tugas| MemberView
+    Pub -->|Data Jadwal & Event| PublicView
 ```
 
 ## 1. Problem Statement
@@ -29,165 +39,168 @@ Informasi yang tersedia berasal dari pengalaman pengguna dan cerita tentang grup
 
 ## 2. Goals
 
-- Membantu mahasiswa menemukan detail tugas, pengumuman dosen (termasuk perubahan jadwal insidental), berita kampus, dan info lomba tanpa menggali chat panjang, tertinggal info karena *misscom*, atau menunggu teman membalas.
-- Membantu mahasiswa melihat jadwal kuliah statis beserta hari, jam, mata kuliah, kelas/ruangan, dan dosen di satu tempat.
+- Membantu mahasiswa kelas mengakses tugas kuliah dan tautan pengumpulan (Google Drive / LMS) secara aman dalam wadah tertutup khusus kelas tanpa risiko diakses pihak luar.
+- Membantu mahasiswa dan publik melihat jadwal kuliah statis (hari, jam, mata kuliah, ruangan, dosen) serta informasi event (berita kampus & info lomba) di satu tempat.
 - Memungkinkan ketua kelas dan PJ mata kuliah mengelola dan menerbitkan informasi secara langsung dengan kontrol penuh atas keakuratan konten.
 
 ## 3. Target Users
 
-### Mahasiswa kelas
+### Pengunjung Publik (Tamu)
 
-**Description:** Mahasiswa pada satu kelas pilot.
+**Description:** Siapa saja yang membuka website tanpa login (misal dosen, mahasiswa luar, atau mahasiswa kelas yang belum login).
 
-**Need:** Melihat dan menemukan kembali tugas, pengumuman dosen, jadwal kelas, berita kampus, serta info lomba yang relevan.
+**Need:** Melihat jadwal kuliah kelas dan agenda event/lomba kampus.
 
-**Context:** Informasi kuliah sering tertumpuk di grup WhatsApp, berita kampus sering *misscom* karena tersebar di banyak kanal, dan sebagian teman kelas belum pernah mengikuti lomba karena akses info kurang terpusat `[ASUMSI]`. Mahasiswa membuka portal tanpa login.
+**Context:** Membuka portal langsung dari browser ponsel tanpa login. Tidak memiliki akses ke daftar tugas kelas.
 
-### Ketua kelas dan PJ mata kuliah
+### Anggota Kelas (Mahasiswa Kelas Pilot)
 
-**Description:** Publisher yang menerima informasi dari dosen atau mengkurasi info kampus/lomba lalu meneruskannya ke kelas.
+**Description:** Teman sekelas terdaftar yang memiliki akun login kelas (`role = member`).
 
-**Need:** Menambahkan atau memperbarui informasi tugas, pengumuman/info simpel, dan jadwal, memilih kategori secara manual, serta langsung menerbitkan (atau menyimpan sementara sebagai draft) tanpa bottleneck persetujuan berlapis.
+**Need:** Melihat detail tugas, tenggat deadline, instruksi pengerjaan, dan membuka tautan pengumpulan (Google Drive / LMS).
 
-**Context:** Saat ini mereka menerima informasi lewat WhatsApp dan meneruskannya ke grup kelas. Mereka login untuk mengelola portal.
+**Context:** Login menggunakan nama akun dan password kelas. Memiliki hak akses *Read-Only* (tidak dapat mengubah/menghapus konten kelas).
+
+### Ketua Kelas dan PJ Mata Kuliah (Publisher)
+
+**Description:** Pengurus kelas yang ditugaskan mengelola informasi akademik (`role = pj` dan `role = ketua_kelas`).
+
+**Need:** Menambahkan atau memperbarui informasi tugas, event/pengumuman, dan jadwal statis, memilih kategori, serta langsung menerbitkan atau menyimpan draft.
+
+**Context:** Menerima arahan dari dosen atau kanal kampus, lalu mempublikasikannya ke portal.
 
 ## 4. User Stories
 
-- As a mahasiswa kelas, I want to melihat daftar tugas, pengumuman, berita kampus, dan info lomba berdasarkan kategori/mata kuliah, so that gue bisa menemukan info tanpa mencari lama di chat atau ketinggalan *misscom* kampus.
-- As a mahasiswa kelas, I want to melihat detail tugas, deadline, dan tempat pengumpulan, so that gue tahu apa yang harus dikerjakan dan ke mana mengumpulkannya.
-- As a mahasiswa kelas, I want to melihat jadwal statis kuliah beserta waktu, ruangan, dan dosen, so that gue bisa mengecek jadwal rutin di satu tempat tanpa harus tanya ulang di grup.
-- As a ketua kelas atau PJ mata kuliah, I want to membuat dan langsung menerbitkan tugas, pengumuman/info simpel (akademik, berita kampus, info lomba), atau update jadwal, so that informasi cepat sampai ke kelas tanpa perlu menunggu approval pihak lain.
-- As a ketua kelas atau PJ mata kuliah, I want to menyimpan informasi sebagai draft sementara jika belum siap tayang, so that informasi yang belum pasti tidak langsung terlihat mahasiswa.
+- As a pengunjung publik, I want to melihat jadwal statis kuliah dan informasi event kampus/lomba, so that gue bisa mengecek agenda umum kelas tanpa hambatan login.
+- As a anggota kelas, I want to login dengan akun kelas gue, so that gue bisa melihat tugas kuliah dan link pengumpulan Google Drive secara privat tanpa bocor ke pihak luar.
+- As a anggota kelas, I want to melihat detail tugas, deadline, dan link pengumpulan, so that gue tahu apa yang harus dikerjakan dan ke mana mengumpulkannya.
+- As a ketua kelas atau PJ mata kuliah, I want to membuat dan langsung menerbitkan tugas, event/pengumuman, atau jadwal, so that informasi cepat sampai ke teman sekelas.
+- As a ketua kelas atau PJ mata kuliah, I want to menyimpan informasi sebagai draft sementara jika belum siap tayang, so that informasi yang belum pasti tidak langsung terlihat oleh anggota kelas.
 
 ## 5. Functional Requirements
 
-### FR-01 — Akses informasi publik
+### FR-01 — Akses Informasi Publik & Gated Task
 
-**Requirement:** Mahasiswa MUST dapat melihat informasi berstatus `Published` tanpa login. Informasi berstatus `Draft` MUST NOT tampil di area publik.
-
-**Acceptance Criteria:**
-- Pengunjung tanpa login dapat membuka halaman tugas, pengumuman, dan jadwal yang berstatus `Published`.
-- Item berstatus `Draft` tidak muncul di daftar publik maupun hasil pencarian/filter publik, dan tidak dapat diakses langsung lewat URL publik.
-
-**Related User Story:** Mahasiswa kelas, stories 1–3.
-
-### FR-02 — Akses dan otorisasi publisher
-
-**Requirement:** Ketua kelas dan PJ mata kuliah MUST login untuk membuat, mengubah, menerbitkan, atau menghapus informasi. Pengunjung tanpa login MUST NOT dapat mengelola konten.
+**Requirement:** Publik MUST dapat melihat informasi Jadwal dan Event berstatus `Published` tanpa login. Halaman dan data Tugas (Task) MUST di-gated dan hanya dapat diakses oleh pengguna yang telah login (Anggota Kelas & Publisher). Informasi berstatus `Draft` MUST NOT tampil di area publik maupun anggota kelas.
 
 **Acceptance Criteria:**
-- Akses ke halaman/endpoint kelola konten ditolak untuk user yang belum login.
-- `[ASUMSI]` Setiap publisher dapat mengedit dan menghapus postingan yang dibuatnya sendiri; ketua kelas memiliki hak edit/hapus untuk seluruh postingan kelas sebagai *fallback* bila PJ berhalangan.
+- Pengunjung tanpa login dapat membuka halaman Jadwal dan Event yang berstatus `Published`.
+- Akses ke halaman atau endpoint data Tugas oleh pengunjung tanpa login ditolak (HTTP 401) dan diarahkan ke halaman login.
+- Data tugas dan link pengumpulan tidak boleh terkirim sama sekali ke browser pengunjung yang belum login.
+- Item berstatus `Draft` hanya dapat dilihat oleh publisher (PJ/Ketua Kelas) di dashboard publisher.
 
-**Related User Story:** Publisher, stories 4–5.
+**Related User Story:** Pengunjung publik story 1; Anggota kelas stories 2–3.
 
-### FR-03 — Mengelola informasi tugas
+### FR-02 — Akses dan Otorisasi Multi-Peran (RBAC)
 
-**Requirement:** Publisher MUST dapat membuat, mengubah, dan menghapus informasi tugas yang mencakup mata kuliah (dipilih manual), minggu ke-*n*, judul/detail instruksi, deadline (tanggal dan jam), tempat atau link pengumpulan, serta lampiran/referensi bila ada.
-
-**Acceptance Criteria:**
-- Form tugas mewajibkan minimal: mata kuliah, detail/instruksi, dan deadline; field minggu, link/lokasi pengumpulan, dan lampiran bersifat opsional atau sesuai ketersediaan info dosen.
-- `[ASUMSI]` Daftar mata kuliah kelas pilot dikelola di awal oleh ketua kelas/publisher agar pilihan kategori manual tetap konsisten dan tidak menghasilkan duplikat penamaan.
-
-**Related User Story:** Mahasiswa kelas stories 1–2; publisher story 4.
-
-### FR-04 — Mengelola pengumuman dan info simpel (Akademik, Perubahan Jadwal, Berita Kampus, Info Lomba)
-
-**Requirement:** Publisher MUST dapat membuat, mengubah, dan menghapus pengumuman dan info non-tugas menggunakan satu struktur simpel yang mencakup judul, kategori info (`Akademik / Umum`, `Berita Kampus`, atau `Info Lomba`), kategori mata kuliah (opsional, khusus untuk pengumuman akademik/perubahan jadwal), isi ringkas, dan lampiran/link sumber opsional.
+**Requirement:** Sistem MUST menerapkan otorisasi berbasis peran (`account.role`): `member` (Anggota Kelas), `pj` (PJ Mata Kuliah), dan `ketua_kelas` (Ketua Kelas).
 
 **Acceptance Criteria:**
-- Publisher dapat mempublikasikan pengumuman dosen, info perubahan jadwal insidental (pindah ruang, ganti jam, kelas online, atau batal), berita kampus, maupun info lomba lewat satu form yang sama tanpa harus mengisi field khusus tugas seperti minggu ke-*n* atau deadline pengumpulan tugas.
-- Pengumuman publik menampilkan judul, badge kategori info (`Akademik / Umum`, `Berita Kampus`, atau `Info Lomba`), label mata kuliah (bila dipilih), waktu publikasi/pembaruan, isi ringkas, dan link/lampiran sumber bila ada.
-- Untuk `Berita Kampus` dan `Info Lomba`, publisher SHOULD menyertakan link sumber resmi (IG/web/pengumuman resmi) bila tersedia agar keaslian informasi dapat diverifikasi.
+- `member`: Memiliki hak baca (*Read-Only*) untuk seluruh Tugas, Event, dan Jadwal berstatus `Published`. Tidak dapat melakukan aksi tambah, ubah, atau hapus.
+- `pj`: Memiliki hak baca penuh, serta hak membuat, mengubah, dan menghapus tugas dan event yang dibuatnya sendiri (atau terkait mata kuliah binaannya).
+- `ketua_kelas`: Memiliki seluruh hak akses `pj`, plus hak moderasi darurat (mengubah/menghapus konten milik publisher lain) dan hak memperbarui jadwal kuliah statis kelas.
+- Pengunjung tanpa login ditolak dari seluruh endpoint mutasi (insert, update, delete).
 
-**Related User Story:** Mahasiswa kelas story 1; publisher story 4.
+**Related User Story:** Anggota kelas story 2; Publisher stories 4–5.
 
-### FR-05 — Publikasi langsung dan opsi Draft
+### FR-03 — Mengelola Informasi Tugas
 
-**Requirement:** Publisher MUST dapat langsung menerbitkan (*publish*) informasi yang dibuatnya tanpa perlu menunggu persetujuan ketua kelas. Publisher MUST juga memiliki opsi menyimpan informasi sebagai `Draft` sebelum diterbitkan. Jika kelak ringkasan otomatis digunakan, sistem MUST menyimpan sumber pesan asli agar publisher dapat membandingkannya sebelum publish.
+**Requirement:** Publisher MUST dapat membuat, mengubah, dan menghapus informasi tugas yang mencakup mata kuliah (relasi ke master `course`), judul tugas, instruksi pengerjaan, tenggat (deadline tanggal & jam), dan link pengumpulan (Google Drive/LMS).
 
 **Acceptance Criteria:**
-- Setiap form input memiliki dua aksi jelas: **Simpan Draft** (hanya terlihat oleh publisher) dan **Terbitkan** (langsung tampil di portal publik).
+- Form tugas mewajibkan minimal: mata kuliah, judul, instruksi, dan deadline; link pengumpulan bersifat opsional.
+- Master mata kuliah dikelola secara terpusat pada tabel `course` untuk mencegah duplikasi penulisan.
+- Data tugas tersimpan dengan relasi akun pembuat (`id_acc`) dan status (`DRAFT` atau `PUBLISHED`).
+
+**Related User Story:** Anggota kelas story 3; publisher story 4.
+
+### FR-04 — Mengelola Event dan Pengumuman (Akademik, Berita Kampus, Info Lomba)
+
+**Requirement:** Publisher MUST dapat membuat, mengubah, dan menghapus pengumuman dan info non-tugas menggunakan satu struktur entitas `event` yang mencakup judul, kategori (`Akademik / Umum`, `Berita Kampus`, atau `Info Lomba`), mata kuliah (opsional), deskripsi, tanggal event, link sumber, dan lampiran poster/gambar (opsional).
+
+**Acceptance Criteria:**
+- Form event mendukung unggah poster/gambar (dioptimasi via CDN ImageKit.io) untuk kategori Info Lomba dan Berita Kampus.
+- Item event publik menampilkan judul, badge kategori, tanggal, deskripsi, gambar poster (jika ada), dan link sumber resmi.
+- Saat poster diganti atau event dihapus, sistem membersihkan file lama di storage ImageKit via `poster_file_id`.
+
+**Related User Story:** Pengunjung publik story 1; publisher story 4.
+
+### FR-05 — Publikasi Langsung dan Opsi Draft
+
+**Requirement:** Publisher MUST dapat langsung menerbitkan (*publish*) tugas atau event yang dibuatnya tanpa perlu menunggu persetujuan ketua kelas. Publisher MUST juga memiliki opsi menyimpan informasi sebagai `Draft` sebelum diterbitkan.
+
+**Acceptance Criteria:**
+- Setiap form input memiliki dua aksi jelas: **Simpan Draft** (hanya terlihat oleh publisher) dan **Terbitkan** (tampil untuk anggota kelas/publik sesuai hak akses).
 - Tidak ada antrean wajib approval dari ketua kelas untuk publikasi oleh PJ mata kuliah.
 
 **Related User Story:** Publisher stories 4–5.
 
-### FR-06 — Mengelola dan melihat jadwal statis kuliah
+### FR-06 — Mengelola dan Melihat Jadwal Statis Kuliah
 
-**Requirement:** Produk MUST menampilkan daftar jadwal statis kuliah per semester yang mencakup hari, jam mulai–selesai, mata kuliah, kelas/ruangan, dan dosen. Publisher MUST dapat menambahkan atau memperbarui jadwal statis tersebut bila ada perubahan permanen. Perubahan jadwal insidental (satu pertemuan) disampaikan melalui pengumuman (`FR-04`), bukan lewat sistem *override* tanggal di jadwal.
-
-**Acceptance Criteria:**
-- Jadwal statis ditampilkan terurut berdasarkan hari dan jam mulai.
-- Sistem tidak membutuhkan logika tanggal kalender berulang atau *override* jadwal per pertemuan; perubahan jadwal sementara diposting sebagai pengumuman kategori `Akademik / Umum` (`FR-04`).
-
-**Related User Story:** Mahasiswa kelas story 3; publisher story 4.
-
-### FR-07 — Pemisahan akses, filter, dan kebaruan informasi
-
-**Requirement:** Produk MUST memisahkan akses/navigasi antara tugas, pengumuman/info (akademik, berita kampus, info lomba), dan jadwal, serta menampilkan nama mata kuliah atau kategori info dan waktu publikasi/pembaruan. Pencarian dan filter berdasarkan mata kuliah serta kategori info SHOULD disediakan.
+**Requirement:** Produk MUST menampilkan daftar jadwal statis kuliah per semester yang mencakup hari, jam mulai–selesai, mata kuliah, ruangan, dan dosen. Publisher (Ketua Kelas) MUST dapat menambahkan atau memperbarui jadwal statis tersebut bila ada perubahan permanen.
 
 **Acceptance Criteria:**
-- Navigasi utama memisahkan jelas tampilan Tugas, Pengumuman & Info, dan Jadwal (agar info lomba dan berita kampus tidak menenggelamkan tugas kuliah).
-- Daftar tugas diurutkan secara jelas (misal berdasarkan deadline terdekat) dan memisahkan atau menandai tugas yang sudah lewat deadline.
-- Filter memungkinkan mahasiswa menyaring daftar berdasarkan mata kuliah atau kategori info (`Akademik / Umum`, `Berita Kampus`, `Info Lomba`).
+- Jadwal statis ditampilkan terurut berdasarkan hari (Senin–Sabtu) dan jam mulai.
+- Perubahan jadwal insidental (satu pertemuan) disampaikan melalui pengumuman kategori `Akademik` (`FR-04`), bukan merombak jadwal statis.
 
-**Related User Story:** Mahasiswa kelas stories 1–3.
+**Related User Story:** Pengunjung publik story 1; publisher story 4.
+
+### FR-07 — Pemisahan Navigasi, Filter, dan Kebaruan Informasi
+
+**Requirement:** Produk MUST memisahkan navigasi antara Tugas, Event & Pengumuman, dan Jadwal, serta menyediakan filter berdasarkan mata kuliah dan kategori info.
+
+**Acceptance Criteria:**
+- Navigasi utama memisahkan jelas tampilan Tugas, Event & Pengumuman, dan Jadwal.
+- Jika pengguna belum login dan menekan tab Tugas, antarmuka menampilkan pintu login (*login prompt*) dengan penjelasan alasan privasi kelas.
+- Filter memungkinkan pengguna menyaring daftar berdasarkan mata kuliah atau kategori info (`Akademik`, `Berita Kampus`, `Info Lomba`).
+
+**Related User Story:** Pengunjung publik story 1; Anggota kelas stories 2–3.
 
 ## 6. Non-Functional Requirements
 
 ### NFR-01 — Mobile use
 
-Konten inti MUST dapat dibaca dan digunakan nyaman melalui layar ponsel (mobile-first). Detail kompatibilitas browser: **TBD**.
+Konten inti MUST dapat dibaca dan digunakan nyaman melalui layar ponsel (mobile-first, `max-w-md mx-auto`).
 
-### NFR-02 — Privacy
+### NFR-02 — Privacy & Security
 
-Portal publik MUST NOT menampilkan data pribadi mahasiswa atau informasi rahasia. Pengguna menyatakan konten pilot seputar mata kuliah tidak rahasia.
+Portal publik MUST NOT mengekspos daftar tugas atau tautan Google Drive kelas ke pengunjung yang belum terautentikasi. Password akun MUST disimpan dalam bentuk hash (bcrypt), bukan plain text.
 
 ### NFR-03 — Content accuracy
 
-Informasi berstatus `Draft` MUST NOT tampil di area publik. Jika fitur bantuan ringkasan otomatis diaktifkan pada iterasi mendatang, pesan asli MUST tetap tersedia di tampilan editor publisher untuk pemeriksaan sebelum publish.
+Informasi berstatus `Draft` MUST NOT tampil di area publik maupun anggota kelas biasa.
 
-### NFR-04 — Performance and availability
+### NFR-04 — Performance and Media Delivery
 
-Target waktu respons, kapasitas, dan ketersediaan: **TBD**. Jangan menganggap target angka sebelum ditentukan.
+Pengunggahan poster dioptimasi melalui kompresi client dan ditayangkan melalui CDN pihak ketiga (ImageKit.io) agar tidak membebani database dan hemat bandwidth.
 
 ## 7. Scope
 
 ### In Scope
 
 - Portal web mobile-first untuk satu kelas pilot.
-- Akses publik mahasiswa tanpa login.
-- Login untuk ketua kelas dan PJ mata kuliah sebagai publisher (self-publish langsung tanpa approval berjenjang, dengan opsi `Draft`).
-- Informasi **tugas**: mata kuliah, minggu (opsional), isi/instruksi, deadline, link/tempat pengumpulan, referensi/lampiran opsional.
-- Informasi **pengumuman & info simpel**: satu format ringan untuk pengumuman dosen/umum (termasuk perubahan jadwal insidental), **Berita Kampus**, dan **Info Lomba** (judul, kategori info, mata kuliah opsional, isi, lampiran/link sumber opsional).
-- **Jadwal kuliah statis**: hari, jam mulai–selesai, mata kuliah, kelas/ruangan, dan dosen.
-- Kategori mata kuliah dan kategori info dipilih publisher secara manual.
-- Pemisahan tampilan tugas, pengumuman/info, dan jadwal, waktu pembaruan, serta pencarian/filter mata kuliah dan kategori info (`Should have`).
+- Akses publik tanpa login khusus untuk **Jadwal Kuliah Statis** dan **Event / Berita & Lomba**.
+- Akses privat berbasis login khusus untuk **Tugas (Task)** dan link pengumpulan (Google Drive / LMS).
+- Sistem akun multi-peran: `member` (read-only), `pj` (editor matkul), dan `ketua_kelas` (admin/moderator).
+- Form kelola konten tugas, event, dan jadwal dengan aksi ganda **Simpan Draft** vs **Terbitkan**.
+- Dukungan gambar poster pada event/lomba via ImageKit.io.
+- Database relasional 5 tabel: `account`, `course`, `schedule`, `task`, `event`.
 
-### Out of Scope
+### Out of Scope (Future Roadmap)
 
-- Sistem kalender jadwal berulang dengan *override* atau penanda perubahan per tanggal pertemuan.
-- Modul event/lomba terpisah (pendaftaran lomba, pencari teman tim, pengingat otomatis, kalender lomba).
-- Scraping atau sinkronisasi otomatis berita kampus/lomba dari Instagram atau website kampus.
-- Tracking progres atau status pengumpulan tugas mahasiswa.
-- Pengumpulan file tugas di dalam portal.
-- Workflow approval berjenjang oleh ketua kelas sebelum PJ bisa menerbitkan konten.
-- Publikasi otomatis dari AI/forward WA tanpa aksi terbit dari publisher.
-- Kategori mata kuliah ditentukan otomatis oleh AI sebagai keputusan final.
-- Integrasi langsung WhatsApp atau pemilihan vendor/model AI tertentu di tahap ini.
-- Oprec lab sebagai prioritas MVP.
-- Dukungan banyak kelas atau portal seluruh kampus.
-- Target numerik performa atau metrik keberhasilan yang belum memiliki baseline.
+- **Scraping Otomatis Jadwal & Mata Kuliah:** Penarikan otomatis jadwal kuliah dan data dosen dari portal akademik kampus / SIAKAD secara terjadwal. Arsitektur tabel `course` dan `schedule` sudah disiapkan agar siap menerima injeksi data scraper di masa depan.
+- **LLM / AI Chat Parser:** Fitur ekstraksi pesan chat WhatsApp (dari dosen/grup) langsung menjadi prefilled form tugas atau event. Arsitektur form berbasis Zod sudah kompatibel untuk menerima payload JSON dari API model bahasa di masa depan.
+- Sistem kalender jadwal berulang dinamis dengan penanda libur nasional.
+- Penyimpanan file tugas internal di server Chosenwan (tetap diarahkan ke Google Drive/LMS).
+- Pelacakan checklist tugas pribadi per mahasiswa.
+- Portal multi-kelas atau multi-fakultas.
 
 ## 8. Asumsi, Risiko, dan Pertanyaan Terbuka
 
-- `[ASUMSI]` Hak edit/hapus konten berlaku untuk pembuatnya sendiri plus ketua kelas untuk seluruh konten kelas.
-- `[ASUMSI]` Menaruh **Info Lomba** lewat format pengumuman simpel meningkatkan *awareness* mahasiswa kelas, meski belum tervalidasi apakah alasan belum ikut lomba hanya karena kurang informasi atau faktor lain (tim, percaya diri, waktu).
-- `[RISIKO]` **Adopsi & Beban Kurasi Publisher:** Selain input info kuliah manual, berita kampus dan info lomba tidak datang otomatis dari dosen sehingga butuh kurasi manual publisher. Jika terlalu berat atau info kedaluwarsa menumpuk, portal cepat kehilangan kepercayaan.
-- `[RISIKO]` **Akurasi Berita Kampus & Lomba:** Tanpa pencantuman link sumber resmi (IG/web kampus), informasi berisiko *misscom* ulang.
-- `[PERTANYAAN]` Apa nama/identitas kelas pilot, dan siapa saja daftar mata kuliah semester berjalan untuk opsi kategori awal?
-- `[PERTANYAAN]` Apakah PJ mata kuliah boleh saling mengedit postingan lintas mata kuliah, atau cukup pembuat asli + ketua kelas?
-- `[PERTANYAAN]` Siapa di antara ketua kelas/PJ/tim pengelola yang bertanggung jawab mengkurasi berita kampus dan info lomba agar konsisten update?
+- `[ASUMSI]` Akun anggota kelas dibagikan/dibuat oleh ketua kelas atau tim pengelola dengan username unik (`name`) dan password standar.
+- `[ASUMSI]` Tautan pengumpulan tugas berupa Google Drive, Google Classroom, atau LMS kampus yang aman dan hanya bisa diakses oleh pemegang akun terdaftar.
+- `[RISIKO]` **Lupa Password / Manajemen Akun:** Belum ada fitur reset password mandiri via email. Jika anggota lupa password, reset dilakukan manual oleh ketua kelas/admin.
+- `[RISIKO]` **Beban Kurasi Event:** Info lomba dan berita kampus memerlukan inisiatif ketua kelas/PJ untuk memposting link sumber dan poster.
 
 ## Changelog
 
@@ -196,5 +209,6 @@ Target waktu respons, kapasitas, dan ketersediaan: **TBD**. Jangan menganggap ta
 | 1.0 | 2026-11-11 | Draft awal PRD dari `03-scope.md`. |
 | 1.1 | 2026-11-11 | Penyesuaian core features awal. |
 | 1.2 | 2026-11-17 | Menambahkan TL;DR, diagram alur Mermaid, struktur simpel pengumuman non-tugas (`FR-04`), alur publikasi langsung tanpa approval ketua kelas (`FR-05`), Acceptance Criteria per FR, serta bagian Asumsi/Risiko/Pertanyaan Terbuka dan Changelog. |
-| 1.3 | 2026-11-17 | Menambahkan **Berita Kampus** dan **Info Lomba** ke dalam kategori Pengumuman & Info Simpel (`FR-04`) dan filter navigasi (`FR-07`) sesuai keputusan pengguna tanpa membuat modul event terpisah; menambahkan risiko kurasi dan verifikasi sumber. |
+| 1.3 | 2026-11-17 | Menambahkan **Berita Kampus** dan **Info Lomba** ke dalam kategori Pengumuman & Info Simpel (`FR-04`) dan filter navigasi (`FR-07`). |
 | 1.4 | 2026-11-17 | Menyederhanakan `FR-06` menjadi **jadwal kuliah statis** per semester dan memindahkan info perubahan jadwal insidental ke Pengumuman & Info Simpel (`FR-04`). |
+| 1.5 | 2026-11-24 | Menyesuaikan model akses: **Task di-gated khusus Anggota Kelas (login)** demi privasi link GDrive; Jadwal & Event tetap publik; menambahkan peran `member` (read-only); mengadopsi 5 tabel standar (`account`, `course`, `schedule`, `task`, `event`); mencatat fitur Scraping dan LLM Parser ke Out of Scope (Future Roadmap). |

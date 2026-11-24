@@ -1,45 +1,47 @@
 # Spec Teknis: Chosenwan
 
-- **Versi:** 1.3
-- **Tanggal:** 2026-11-20
-- **Status:** Approved (Update Tech Stack v1.3: Turso + ImageKit.io)
-- **Sumber input:** `04-prd.md` v1.4, `03-scope.md` v1.2, `05-design.md` v1.0, `project-context.md`, serta keputusan stack database & media storage (Turso + ImageKit.io).
+- **Versi:** 1.4
+- **Tanggal:** 2026-11-24
+- **Status:** Approved (Penyelarasan Desain ERD & Akses Gated Task v1.4)
+- **Sumber input:** `04-prd.md` v1.5, `03-scope.md` v1.2, `05-design.md` v1.0, dokumen desain database ERD serah-terima, serta keputusan arsitektur stack Turso + ImageKit.io.
 - **Skill digunakan:** `spec-writer`, `antislop-copywriting`
 
 ---
 
 ## TL;DR
 
-Chosenwan adalah portal web mobile-first untuk satu kelas pilot yang menyajikan tugas kuliah, jadwal statis per semester, dan pengumuman/info simpel (akademik, perubahan jadwal insidental, berita kampus, dan info lomba) dalam satu wadah terkurasi. 
+Chosenwan adalah portal web mobile-first untuk satu kelas pilot yang menyajikan tugas kuliah, jadwal statis per semester, dan event/pengumuman kelas (akademik, perubahan jadwal insidental, berita kampus, dan info lomba) dalam satu wadah terkurasi. 
 
-Mahasiswa mengakses portal secara instan tanpa login (publik read-only), sementara publisher (ketua kelas dan PJ mata kuliah) login menggunakan otentikasi berbasis peran untuk membuat, menyimpan draft, atau langsung menerbitkan (*self-publish*) informasi tanpa bottleneck persetujuan bertingkat. 
+Pada versi 1.4, arsitektur data diselaraskan dengan dokumen desain ERD final menggunakan 5 tabel relasional terstandarisasi: `account`, `course`, `schedule`, `task`, dan `event`. 
 
-Bagian paling kompleks terletak pada pemisahan otorisasi mutasi konten (RLS/role check) dengan feed publik berlatensi rendah serta manajemen form multi-kategori yang ringan di ponsel. 
-
-Dokumen ini mendefinisikan arsitektur teknis, diagram alur sistem, data model, kontrak API, pemetaan komponen UI ke library standar, penanganan edge case, dan usulan 2 opsi tech stack untuk diputuskan pada Gate 3.
+Akses portal dibagi menjadi dua zona keamanan:
+1. **Zona Publik (Tanpa Login):** Membuka **Jadwal Kuliah Statis** dan **Event (Berita & Lomba)**.
+2. **Zona Privat Anggota Kelas (Wajib Login):** Membuka **Tugas Kuliah (Task)** dan tautan pengumpulan (Google Drive / LMS) untuk mencegah akses pihak luar/kelas lain. Anggota kelas berstatus *Read-Only*.
+3. **Pengurus Kelas (Ketua Kelas & PJ):** Mengelola konten secara langsung melalui peran `pj` dan `ketua_kelas` dengan opsi `Draft` atau langsung `Published`.
 
 ---
 
 ## 1. Ringkasan
 
 ### 1.1 Tujuan Produk
-Menghilangkan friksi pencarian informasi kuliah yang tertimbun di grup chat WhatsApp atau kanal kampus yang terpecah, sehingga mahasiswa kelas pilot dapat mengecek deadline tugas, jadwal harian, pengumuman dosen, serta peluang lomba secara cepat dan akurat dalam hitungan detik dari ponsel.
+Menghilangkan friksi pencarian informasi kuliah yang tertimbun di grup chat WhatsApp atau kanal kampus yang terpecah, menjaga kerahasiaan tautan pengumpulan tugas kelas pilot, serta menyajikan jadwal dan info kegiatan secara cepat dan akurat dalam hitungan detik dari ponsel.
 
 ### 1.2 Cakupan Fitur MVP
-1. **Akses Publik Mahasiswa (FR-01, FR-07):** Akses baca tanpa login ke seluruh konten berstatus `Published` (tab Tugas, tab Info & Kampus, dan tab Jadwal Statis) dengan fitur pencarian dan filter kategori.
-2. **Otentikasi Publisher (FR-02):** Login aman khusus ketua kelas dan penanggung jawab (PJ) mata kuliah.
-3. **Manajemen Tugas (FR-03):** Input, update, dan hapus tugas dengan atribut mata kuliah, minggu pertemuan, instruksi, tenggat (deadline), dan link pengumpulan.
-4. **Manajemen Pengumuman & Info Simpel (FR-04):** Satu format entri ringan untuk pengumuman dosen, perubahan jadwal dadakan/insidental, kurasi berita kampus, dan info lomba.
-5. **Alur Publikasi Fleksibel (FR-05):** Opsi simpan sebagai `Draft` (hanya terlihat oleh publisher) atau langsung terbitkan (`Published`).
-6. **Jadwal Statis Kuliah (FR-06):** Penyajian jadwal terstruktur per hari (Senin-Sabtu) per semester tanpa kompleksitas recurrence kalender dinamis.
+1. **Akses Publik Tamu (FR-01, FR-07):** Akses baca tanpa login ke Jadwal Kuliah Statis (`schedule`) dan Event / Berita & Lomba (`event`) berstatus `Published`.
+2. **Gated Task Khusus Anggota Kelas (FR-01):** Akses halaman tugas wajib login akun anggota kelas (`role = member`). Pengunjung tanpa login ditolak dengan HTTP 401 dan diarahkan ke login.
+3. **Otentikasi & Otorisasi Berbasis Peran (FR-02):** Login menggunakan nama anggota (`name`) dan `password` hash dengan 3 tingkat hak akses (`member`, `pj`, `ketua_kelas`).
+4. **Manajemen Tugas Terstruktur (FR-03):** Input, update, dan hapus tugas dengan relasi master `course`, tenggat waktu (`due_date`), instruksi (`description`), dan link pengumpulan (`submission_url`).
+5. **Manajemen Event & Info Simpel (FR-04):** Satu format entri ringan untuk event akademik, berita kampus, dan info lomba (`event`) dengan dukungan gambar poster via ImageKit.io.
+6. **Alur Publikasi Fleksibel (FR-05):** Opsi simpan sebagai `Draft` (hanya terlihat oleh publisher) atau langsung terbitkan (`Published`).
+7. **Jadwal Statis Kuliah (FR-06):** Penyajian jadwal terstruktur per hari (Senin-Sabtu) per semester dengan jam mulai–selesai dan ruangan.
 
 ### 1.3 Status Tech Stack & Opsi Database
-Arsitektur awal Gate 3 menggunakan **Opsi A (Supabase)**, dan pada **v1.3** diputuskan mengadopsi **Opsi B (Turso + ImageKit.io)** sebagai stack implementasi backend & media storage (dengan Opsi A tetap terdokumentasi sebagai referensi alternatif pada Section 14.1):
+Arsitektur database mengadopsi **Opsi B (Turso + ImageKit.io)** sebagai stack aktif implementasi:
 - **Framework:** Next.js (App Router, TypeScript, React 19)
 - **Styling & UI Library:** Tailwind CSS + shadcn/ui + Lucide React
-- **Backend, Database, & Media Storage:**
-  - **Opsi B (Stack Aktif v1.3):** Turso (Edge SQLite / libSQL + Drizzle ORM), App-level Auth & Authorization di Next.js, serta **ImageKit.io** untuk penyimpanan & CDN poster
-  - **Opsi A (Alternatif Reference):** Supabase (Managed PostgreSQL, Supabase Auth, Row Level Security / RLS, Supabase Storage)
+- **Backend & Database:** Turso (Edge SQLite / libSQL + Drizzle ORM)
+- **Otentikasi & Sesi:** Session berbasis signed HTTP-only cookie + password hash (`bcryptjs`) di tabel `account`
+- **Penyimpanan Media & CDN Poster:** ImageKit.io (Forever Free 3 GB storage, 20 GB bandwidth/bulan)
 - **Deployment Platform:** Vercel (Auto-deploy dari GitHub)
 
 ---
@@ -48,9 +50,10 @@ Arsitektur awal Gate 3 menggunakan **Opsi A (Supabase)**, dan pada **v1.3** dipu
 
 | Aktor | Deskripsi | Hak Akses Utama |
 |---|---|---|
-| **Mahasiswa Kelas (Guest / Public)** | Mahasiswa aktif di kelas pilot yang membutuhkan kepastian info kuliah harian. | - Membaca konten berstatus `Published` pada tab Tugas, Info & Kampus, dan Jadwal.<br>- Mencari dan memfilter tugas atau info berdasarkan mata kuliah dan kategori.<br>- Membuka tautan pengumpulan tugas atau sumber resmi info. |
-| **PJ Mata Kuliah (Publisher)** | Mahasiswa yang ditunjuk mengoordinasikan satu atau lebih mata kuliah tertentu. | - Hak akses publik penuh.<br>- Login ke dashboard publisher.<br>- Membuat konten tugas, pengumuman, dan jadwal.<br>- Menyimpan konten sebagai `Draft` atau langsung `Published`.<br>- Mengedit dan menghapus konten buatannya sendiri. |
-| **Ketua Kelas (Lead Publisher / Admin)** | Koordinator utama kelas pilot yang memegang tanggung jawab kelancaran informasi seluruh kelas. | - Seluruh hak akses PJ Mata Kuliah.<br>- Hak edit dan hapus darurat (*fallback moderator*) untuk seluruh konten kelas jika PJ berhalangan.<br>- Menambah atau memperbarui slot jadwal kuliah statis kelas. |
+| **Pengunjung Publik (Guest / Tamu)** | Siapa saja yang membuka website tanpa login (dosen, teman luar kelas, mahasiswa belum login). | - Membaca Jadwal Kuliah Statis (`schedule`) berstatus `Published`.<br>- Membaca Event (`event`) berstatus `Published`.<br>- Mencari dan memfilter jadwal & event.<br>- **DITOLAK (HTTP 401)** bila mengakses halaman atau data Tugas. |
+| **Anggota Kelas (Member)** | Teman sekelas yang terdaftar dan login dengan akun kelas (`role = member`). | - Seluruh hak akses Pengunjung Publik.<br>- Membuka dan membaca daftar serta detail Tugas Kuliah (`task`) berstatus `Published`.<br>- Mengakses tautan pengumpulan (Google Drive / LMS).<br>- Berstatus **Read-Only** (tidak dapat menambah, mengubah, atau menghapus konten). |
+| **PJ Mata Kuliah (Publisher)** | Mahasiswa yang ditunjuk mengoordinasikan satu atau lebih mata kuliah (`role = pj`). | - Seluruh hak akses Anggota Kelas.<br>- Login ke dashboard publisher.<br>- Membuat, mengedit, dan menghapus tugas dan event binaannya.<br>- Menyimpan konten sebagai `Draft` atau langsung `Published`. |
+| **Ketua Kelas (Lead Publisher / Admin)** | Koordinator utama kelas pilot (`role = ketua_kelas`). | - Seluruh hak akses PJ Mata Kuliah.<br>- Hak moderasi darurat (*fallback moderator*) untuk seluruh konten kelas.<br>- Menambah atau memperbarui slot jadwal kuliah statis kelas. |
 
 ---
 
@@ -58,45 +61,56 @@ Arsitektur awal Gate 3 menggunakan **Opsi A (Supabase)**, dan pada **v1.3** dipu
 
 ```mermaid
 flowchart LR
-    Guest([Mahasiswa Kelas / Guest])
+    Guest([Pengunjung Publik / Tamu])
+    Member([Anggota Kelas / Member])
     PJ([PJ Mata Kuliah / Publisher])
     Ketua([Ketua Kelas / Admin])
 
     subgraph SYS["Chosenwan Web Application"]
-        UC1(Lihat Daftar Tugas Publik)
-        UC2(Lihat Detail & Link Tugas)
-        UC3(Lihat Pengumuman & Info Simpel)
-        UC4(Lihat Jadwal Kuliah Statis)
-        UC5(Filter & Cari Konten)
-        UC6(Login Publisher)
+        UC1(Lihat Jadwal Kuliah Statis)
+        UC2(Lihat Event & Info Lomba/Berita)
+        UC3(Login Akun Kelas / Publisher)
+        UC4(Lihat Daftar Tugas Privat)
+        UC5(Lihat Detail & Link GDrive Tugas)
+        UC6(Filter & Cari Konten)
         UC7(Kelola Tugas: Buat/Edit/Hapus)
-        UC8(Kelola Pengumuman: Buat/Edit/Hapus)
+        UC8(Kelola Event: Buat/Edit/Hapus & Upload Poster)
         UC9(Kelola Jadwal Statis)
         UC10(Simpan Draft Konten)
         UC11(Terbitkan Konten Langsung)
-        UC12(Moderasi Konten Kelas Fallback)
+        UC12(Moderasi Konten Kelas Darurat)
     end
 
     Guest --- UC1
     Guest --- UC2
-    Guest --- UC3
-    Guest --- UC4
-    Guest --- UC5
+    Guest --- UC6
 
-    PJ --- UC6
+    Member --- UC1
+    Member --- UC2
+    Member --- UC3
+    Member --- UC4
+    Member --- UC5
+    Member --- UC6
+
+    PJ --- UC3
+    PJ --- UC4
+    PJ --- UC5
     PJ --- UC7
     PJ --- UC8
     PJ --- UC9
     PJ --- UC10
     PJ --- UC11
 
-    Ketua --- UC6
+    Ketua --- UC3
+    Ketua --- UC4
+    Ketua --- UC5
     Ketua --- UC7
     Ketua --- UC8
     Ketua --- UC9
     Ketua --- UC10
     Ketua --- UC11
     Ketua --- UC12
+```
 
     UC7 -. include .-> UC10
     UC7 -. include .-> UC11
@@ -269,142 +283,144 @@ sequenceDiagram
 
 ```mermaid
 erDiagram
-    PROFILES ||--o{ TASKS : "membuat / mengedit"
-    PROFILES ||--o{ ANNOUNCEMENTS : "membuat / mengedit"
-    PROFILES ||--o{ SCHEDULES : "memperbarui"
-    COURSES ||--o{ TASKS : "memiliki"
-    COURSES ||--o{ ANNOUNCEMENTS : "opsional terkait"
-    COURSES ||--o{ SCHEDULES : "dijadwalkan pada"
+    account ||--o{ task : "membuat (id_acc)"
+    account ||--o{ event : "membuat (id_acc)"
+    account ||--o{ schedule : "memperbarui (id_acc)"
+    course ||--o{ task : "memiliki (id_course)"
+    course ||--o{ schedule : "dijadwalkan (id_course)"
+    course ||--o{ event : "opsional terkait (id_course)"
 
-    PROFILES {
+    account {
         uuid id PK
-        string email UK
-        string full_name
-        string role "pj_matkul | ketua_kelas"
+        string name UK "username login unik"
+        string password "hash bcrypt"
+        string role "member | pj | ketua_kelas"
         datetime created_at
     }
 
-    COURSES {
+    course {
         uuid id PK
-        string code UK
-        string name
-        string lecturer_name
+        string name UK "nama mata kuliah unik"
+        string lecturer "dosen pengampu"
         datetime created_at
     }
 
-    TASKS {
+    task {
         uuid id PK
-        uuid course_id FK
-        uuid created_by FK
-        string title
-        text instructions
-        integer week_number "opsional"
-        datetime due_date
-        string submission_url "opsional"
+        uuid id_course FK "relasi ke course.id"
+        uuid id_acc FK "relasi ke account.id pembuat"
+        string title "nama / judul tugas"
+        text description "instruksi & rincian tugas"
+        datetime due_date "tenggat pengumpulan"
+        string submission_url "opsional link GDrive / LMS"
         string status "DRAFT | PUBLISHED"
         datetime created_at
         datetime updated_at
     }
 
-    ANNOUNCEMENTS {
+    event {
         uuid id PK
-        uuid course_id FK "opsional"
-        uuid created_by FK
-        string title
-        string category_type "ACADEMIC | CAMPUS_NEWS | COMPETITION"
-        text content
-        string source_url "opsional link eksternal"
+        uuid id_acc FK "relasi ke account.id pembuat"
+        uuid id_course FK "opsional relasi ke course.id"
+        string category "ACADEMIC | CAMPUS_NEWS | COMPETITION"
+        string title "nama event / pengumuman"
+        text description "rincian isi info / pengumuman"
+        datetime event_date "tanggal pelaksanaan / info"
+        string source_url "opsional link web / sosmed"
+        string poster_url "opsional URL CDN ImageKit"
+        string poster_file_id "opsional fileId ImageKit untuk delete"
         string status "DRAFT | PUBLISHED"
         datetime created_at
         datetime updated_at
     }
 
-    SCHEDULES {
+    schedule {
         uuid id PK
-        uuid course_id FK
-        uuid updated_by FK
+        uuid id_course FK "relasi ke course.id"
+        uuid id_acc FK "opsional pembuat/updater (nullable jika scraping)"
         integer day_of_week "1 (Senin) - 6 (Sabtu)"
-        time start_time
-        time end_time
-        string room
-        string lecturer_name
+        time start_time "jam kuliah mulai (HH:MM)"
+        time end_time "jam kuliah selesai (HH:MM)"
+        string room "ruang kuliah / laboratorium"
         datetime updated_at
     }
 ```
 
 ### 7.2 Rincian Spesifikasi Tabel dan Field
 
-#### Tabel: `profiles`
-Menyimpan identitas publisher yang memiliki akses tulis ke dalam portal.
+#### 1. Tabel: `account` (Autentikasi & Otorisasi Pengguna)
+Menyimpan kredensial seluruh pengguna kelas terdaftar (anggota kelas biasa maupun pengurus publisher).
 
-| Nama Kolom | Tipe Data | Constraint | Keterangan |
+| Nama Kolom | Tipe Data (SQLite / PG) | Constraint | Keterangan |
 |---|---|---|---|
-| `id` | `UUID` | PK, references `auth.users` | ID unik publisher (terhubung dengan engine otentikasi). |
-| `email` | `VARCHAR(255)` | Unique, Not Null | Alamat email terdaftar. |
-| `full_name` | `VARCHAR(150)` | Not Null | Nama lengkap publisher (contoh: "Andi (PJ Pemrograman Web)"). |
-| `role` | `VARCHAR(30)` | Not Null, Check in (`pj_matkul`, `ketua_kelas`) | Penentu hak otorisasi moderasi konten. |
-| `created_at` | `TIMESTAMP WITH TIME ZONE` | Default `NOW()` | Waktu pembuatan akun publisher. |
+| `id` | `UUID` / `TEXT` | PK, Default UUID v4 | ID unik akun. |
+| `name` | `VARCHAR(100)` / `TEXT` | Unique, Not Null | Nama/username unik untuk login (contoh: `andi`, `budi_pj`). |
+| `password` | `TEXT` | Not Null | Password terenkripsi (hash `bcrypt` / `argon2`), bukan teks asli. |
+| `role` | `VARCHAR(20)` / `TEXT` | Not Null, Default `'member'` | Peran akses: `'member'` (read-only tugas), `'pj'`, `'ketua_kelas'`. |
+| `created_at` | `TIMESTAMP` / `TEXT` | Default `NOW()` / ISO-8601 | Waktu pendaftaran/pembuatan akun. |
 
-#### Tabel: `courses`
-Daftar mata kuliah aktif kelas pilot untuk mencegah duplikasi penulisan nama mata kuliah.
+#### 2. Tabel: `course` (Master Data Mata Kuliah & Dosen)
+Menjadi sumber tunggal data mata kuliah dan dosen pengampu untuk mencegah redudansi dan inkonsistensi. Disiapkan juga untuk menerima *upsert* dari proses scraping di masa depan via constraint unik `name`.
 
-| Nama Kolom | Tipe Data | Constraint | Keterangan |
+| Nama Kolom | Tipe Data (SQLite / PG) | Constraint | Keterangan |
 |---|---|---|---|
-| `id` | `UUID` | PK, Default `uuid_generate_v4()` | ID unik mata kuliah. |
-| `code` | `VARCHAR(20)` | Unique, Not Null | Kode mata kuliah (contoh: `IF2140`, `MK-01`). |
-| `name` | `VARCHAR(150)` | Not Null | Nama lengkap mata kuliah. |
-| `lecturer_name` | `VARCHAR(150)` | Nullable | Dosen pengampu utama. |
-| `created_at` | `TIMESTAMP WITH TIME ZONE` | Default `NOW()` | Waktu penambahan mata kuliah. |
+| `id` | `UUID` / `TEXT` | PK, Default UUID v4 | ID unik mata kuliah. |
+| `name` | `VARCHAR(150)` / `TEXT` | Unique, Not Null | Nama resmi mata kuliah (contoh: "Pemrograman Web"). |
+| `lecturer` | `VARCHAR(150)` / `TEXT` | Nullable | Nama dosen pengampu mata kuliah. |
+| `created_at` | `TIMESTAMP` / `TEXT` | Default `NOW()` / ISO-8601 | Timestamp penambahan data. |
 
-#### Tabel: `tasks`
-Entitas tugas terstruktur untuk mahasiswa.
+#### 3. Tabel: `task` (Informasi Tugas Kelas — Area Privat Login)
+Menyimpan tugas perkuliahan beserta tenggat dan tautan pengumpulan. Dibatasi secara ketat dan hanya dapat dibaca oleh pengguna yang telah login (`member`, `pj`, `ketua_kelas`).
 
-| Nama Kolom | Tipe Data | Constraint | Keterangan |
+| Nama Kolom | Tipe Data (SQLite / PG) | Constraint | Keterangan |
 |---|---|---|---|
-| `id` | `UUID` | PK, Default `uuid_generate_v4()` | ID unik tugas. |
-| `course_id` | `UUID` | FK -> `courses.id`, Not Null | Relasi ke mata kuliah terkait. |
-| `created_by` | `UUID` | FK -> `profiles.id`, Not Null | ID publisher pembuat konten. |
-| `title` | `VARCHAR(200)` | Not Null | Judul tugas (contoh: "Tugas 3: ERD Sistem Kasir"). |
-| `instructions` | `TEXT` | Not Null | Deskripsi rincian dan instruksi tugas. |
-| `week_number` | `INTEGER` | Nullable | Indikator pertemuan/minggu ke-*n*. |
-| `due_date` | `TIMESTAMP WITH TIME ZONE` | Not Null, Index | Waktu tenggat pengumpulan tugas. |
-| `submission_url` | `VARCHAR(500)` | Nullable | Tautan pengumpulan (Google Classroom/Drive/LMS). |
-| `status` | `VARCHAR(20)` | Not Null, Default `'PUBLISHED'`, Index | Status: `'DRAFT'` atau `'PUBLISHED'`. |
-| `created_at` | `TIMESTAMP WITH TIME ZONE` | Default `NOW()` | Timestamp pembuatan entri. |
-| `updated_at` | `TIMESTAMP WITH TIME ZONE` | Default `NOW()` | Timestamp pengeditan terakhir. |
+| `id` | `UUID` / `TEXT` | PK, Default UUID v4 | ID unik tugas. |
+| `id_course` | `UUID` / `TEXT` | FK -> `course.id`, On Delete Restrict, Not Null | Relasi ke mata kuliah (nama matkul & dosen diambil via join). |
+| `id_acc` | `UUID` / `TEXT` | FK -> `account.id`, On Delete Set Null, Nullable | Akun publisher pembuat/pengelola tugas. |
+| `title` | `VARCHAR(200)` / `TEXT` | Not Null | Judul tugas (contoh: "Tugas 3: ERD Sistem Kasir"). |
+| `description` | `TEXT` | Not Null | Instruksi dan rincian pengerjaan tugas. |
+| `due_date` | `TIMESTAMP` / `TEXT` | Not Null, Index | Waktu tenggat pengumpulan tugas. |
+| `submission_url` | `VARCHAR(500)` / `TEXT` | Nullable | Tautan pengumpulan privat (Google Drive / Forms / LMS). |
+| `status` | `VARCHAR(20)` / `TEXT` | Not Null, Default `'PUBLISHED'`, Index | Status visibilitas: `'DRAFT'` atau `'PUBLISHED'`. |
+| `created_at` | `TIMESTAMP` / `TEXT` | Default `NOW()` / ISO-8601 | Timestamp pembuatan entri. |
+| `updated_at` | `TIMESTAMP` / `TEXT` | Default `NOW()` / ISO-8601 | Timestamp pembaruan entri. |
 
-#### Tabel: `announcements`
-Entitas tunggal multi-kategori untuk pengumuman dosen, perubahan jadwal insidental, berita kampus, dan info lomba.
+*Catatan Normalisasi:* Sesuai rekomendasi Bagian 7.1 Dokumen Desain ERD, kolom redundan `dosen` dan `matkul` dihilangkan dari tabel `task` karena sudah sepenuhnya terelasi ke `course.id`.
 
-| Nama Kolom | Tipe Data | Constraint | Keterangan |
+#### 4. Tabel: `event` (Event, Berita Kampus, & Info Lomba — Area Publik)
+Entitas multi-kategori untuk informasi kegiatan kelas, pengumuman dosen, berita kampus, dan info lomba yang dapat diakses publik.
+
+| Nama Kolom | Tipe Data (SQLite / PG) | Constraint | Keterangan |
 |---|---|---|---|
-| `id` | `UUID` | PK, Default `uuid_generate_v4()` | ID unik pengumuman. |
-| `course_id` | `UUID` | FK -> `courses.id`, Nullable | Opsional; terisi jika pengumuman terkait matkul tertentu. |
-| `created_by` | `UUID` | FK -> `profiles.id`, Not Null | ID publisher pembuat pengumuman. |
-| `title` | `VARCHAR(250)` | Not Null | Judul pengumuman / berita / nama lomba. |
-| `category_type` | `VARCHAR(30)` | Not Null, Index | Enum: `'ACADEMIC'`, `'CAMPUS_NEWS'`, `'COMPETITION'`. |
-| `content` | `TEXT` | Not Null | Isi ringkas pengumuman atau rincian lomba/berita. |
-| `source_url` | `VARCHAR(500)` | Nullable | Link sumber resmi (Instagram kampus, website lomba). |
-| `poster_url` | `VARCHAR(500)` | Nullable | Tautan/path gambar poster untuk kategori Info Lomba & Berita Kampus (CDN ImageKit.io / URL eksternal). |
-| `poster_file_id` | `VARCHAR(150)` | Nullable | ID file dari ImageKit.io untuk pembersihan (*delete*) poster lama saat diganti atau dihapus. |
-| `status` | `VARCHAR(20)` | Not Null, Default `'PUBLISHED'`, Index | Status: `'DRAFT'` atau `'PUBLISHED'`. |
-| `created_at` | `TIMESTAMP WITH TIME ZONE` | Default `NOW()` | Timestamp publikasi. |
-| `updated_at` | `TIMESTAMP WITH TIME ZONE` | Default `NOW()` | Timestamp pengeditan terakhir. |
+| `id` | `UUID` / `TEXT` | PK, Default UUID v4 | ID unik event/pengumuman. |
+| `id_acc` | `UUID` / `TEXT` | FK -> `account.id`, On Delete Set Null, Nullable | Akun publisher pembuat event. |
+| `id_course` | `UUID` / `TEXT` | FK -> `course.id`, On Delete Set Null, Nullable | Opsional; terisi jika event terkait mata kuliah spesifik. |
+| `category` | `VARCHAR(30)` / `TEXT` | Not Null, Index | Enum kategori: `'ACADEMIC'`, `'CAMPUS_NEWS'`, `'COMPETITION'`. |
+| `title` | `VARCHAR(250)` / `TEXT` | Not Null | Judul informasi / nama event / nama lomba. |
+| `description` | `TEXT` | Not Null | Rincian lengkap isi pengumuman atau lomba. |
+| `event_date` | `DATE` / `TIMESTAMP` / `TEXT` | Not Null | Tanggal kegiatan / tenggat pendaftaran lomba. |
+| `source_url` | `VARCHAR(500)` / `TEXT` | Nullable | Link sumber resmi eksternal (Instagram / website kampus). |
+| `poster_url` | `VARCHAR(500)` / `TEXT` | Nullable | URL gambar poster teroptimasi dari CDN ImageKit.io. |
+| `poster_file_id` | `VARCHAR(150)` / `TEXT` | Nullable | File ID ImageKit.io untuk pembersihan (*delete*) otomatis. |
+| `status` | `VARCHAR(20)` / `TEXT` | Not Null, Default `'PUBLISHED'`, Index | Status: `'DRAFT'` atau `'PUBLISHED'`. |
+| `created_at` | `TIMESTAMP` / `TEXT` | Default `NOW()` / ISO-8601 | Timestamp publikasi. |
+| `updated_at` | `TIMESTAMP` / `TEXT` | Default `NOW()` / ISO-8601 | Timestamp pengeditan terakhir. |
 
-#### Tabel: `schedules`
-Jadwal kuliah statis per semester.
+#### 5. Tabel: `schedule` (Jadwal Kuliah Statis — Area Publik)
+Jadwal kuliah mingguan kelas pilot per semester.
 
-| Nama Kolom | Tipe Data | Constraint | Keterangan |
+| Nama Kolom | Tipe Data (SQLite / PG) | Constraint | Keterangan |
 |---|---|---|---|
-| `id` | `UUID` | PK, Default `uuid_generate_v4()` | ID unik slot jadwal. |
-| `course_id` | `UUID` | FK -> `courses.id`, Not Null | Relasi ke mata kuliah. |
-| `updated_by` | `UUID` | FK -> `profiles.id`, Not Null | Publisher terakhir yang memperbarui jadwal. |
+| `id` | `UUID` / `TEXT` | PK, Default UUID v4 | ID unik slot jadwal. |
+| `id_course` | `UUID` / `TEXT` | FK -> `course.id`, On Delete Restrict, Not Null | Relasi ke master mata kuliah. |
+| `id_acc` | `UUID` / `TEXT` | FK -> `account.id`, On Delete Set Null, Nullable | Publisher pengelola jadwal (boleh `NULL` untuk scraper otomatis). |
 | `day_of_week` | `INTEGER` | Not Null, Check (1-6), Index | `1` = Senin, `2` = Selasa, ..., `6` = Sabtu. |
-| `start_time` | `TIME` | Not Null | Jam kuliah dimulai (format `HH:MM`). |
-| `end_time` | `TIME` | Not Null | Jam kuliah berakhir (format `HH:MM`). |
-| `room` | `VARCHAR(50)` | Not Null | Nomor ruangan / laboratorium (contoh: "Lab Komputer 3"). |
-| `lecturer_name` | `VARCHAR(150)` | Nullable | Dosen pengampu pada slot tersebut. |
-| `updated_at` | `TIMESTAMP WITH TIME ZONE` | Default `NOW()` | Timestamp pembaruan. |
+| `start_time` | `TIME` / `VARCHAR(10)` | Not Null | Jam mulai kuliah (format `HH:MM`, misal `08:00`). |
+| `end_time` | `TIME` / `VARCHAR(10)` | Not Null | Jam selesai kuliah (format `HH:MM`, misal `10:30`). |
+| `room` | `VARCHAR(50)` / `TEXT` | Not Null | Ruangan / laboratorium kuliah (contoh: "Lab Komputer 3"). |
+| `updated_at` | `TIMESTAMP` / `TEXT` | Default `NOW()` / ISO-8601 | Timestamp pembaruan terakhir. |
+
+*Catatan Normalisasi:* Kolom redundan `course` dan `lecturer` dihapus dari `schedule`; data diambil dinamis lewat `JOIN course`. Kolom `id_acc` bersifat `Nullable` agar skrip proses scraping terjadwal dapat meng-insert data tanpa gagal constraint foreign key.
 
 ---
 
@@ -443,35 +459,56 @@ stateDiagram-v2
 
 ## 9. API & Interface Contract
 
-Format API ditulis dalam pola RESTful standar (dapat diimplementasikan via REST Endpoints, Next.js Server Actions, atau Supabase Client SDK sesuai keputusan stack).
+Format API ditulis dalam pola RESTful standar (diimplementasikan via Next.js Server Actions dan Route Handlers tervalidasi).
 
 ### 9.1 Ringkasan Endpoint
 
 | Method | Endpoint Path | Autentikasi | Deskripsi Singkat | Use Case Terkait |
 |---|---|---|---|---|
-| `GET` | `/api/v1/tasks` | Public (Tanpa Auth) | Mengambil daftar tugas `status = PUBLISHED` | UC-01, UC-05 |
-| `GET` | `/api/v1/tasks/:id` | Public (Tanpa Auth) | Mengambil detail spesifik satu tugas | UC-02 |
-| `GET` | `/api/v1/announcements` | Public (Tanpa Auth) | Mengambil pengumuman & berita publik | UC-03, UC-05 |
-| `GET` | `/api/v1/schedules` | Public (Tanpa Auth) | Mengambil jadwal statis kuliah per hari | UC-04 |
-| `GET` | `/api/v1/courses` | Public (Tanpa Auth) | Mengambil master mata kuliah untuk filter | UC-05 |
-| `POST` | `/api/v1/auth/login` | Public | Otentikasi email dan password publisher | UC-06 |
-| `POST` | `/api/v1/auth/logout` | Publisher Session | Mengakhiri sesi login publisher | UC-06 |
-| `GET` | `/api/v1/publisher/contents` | Publisher Session | Mengambil seluruh konten milik publisher (Draft + Published) | UC-07, UC-08 |
-| `POST` | `/api/v1/tasks` | Publisher Session | Membuat entri tugas baru (Draft / Published) | UC-07, UC-10, UC-11 |
-| `PUT` | `/api/v1/tasks/:id` | Publisher Session | Memperbarui entri tugas | UC-07 |
-| `DELETE` | `/api/v1/tasks/:id` | Publisher Session | Menghapus entri tugas | UC-07, UC-12 |
-| `POST` | `/api/v1/announcements` | Publisher Session | Membuat pengumuman / info simpel baru | UC-08, UC-10, UC-11 |
-| `PUT` | `/api/v1/announcements/:id` | Publisher Session | Memperbarui pengumuman | UC-08 |
-| `DELETE` | `/api/v1/announcements/:id` | Publisher Session | Menghapus pengumuman | UC-08, UC-12 |
-| `PUT` | `/api/v1/schedules/:id` | Publisher Session | Memperbarui data jadwal statis | UC-09 |
+| `GET` | `/api/v1/schedules` | Public (Tanpa Auth) | Mengambil jadwal statis kuliah per hari | UC-01 |
+| `GET` | `/api/v1/events` | Public (Tanpa Auth) | Mengambil event, berita kampus, dan info lomba (`status = PUBLISHED`) | UC-02, UC-06 |
+| `GET` | `/api/v1/courses` | Public (Tanpa Auth) | Mengambil master mata kuliah untuk filter | UC-06 |
+| `POST` | `/api/v1/auth/login` | Public | Otentikasi nama anggota (`name`) dan `password` | UC-03 |
+| `POST` | `/api/v1/auth/logout` | Session Aktif | Mengakhiri sesi login | UC-03 |
+| `GET` | `/api/v1/tasks` | **Member / Publisher Session** | Mengambil daftar tugas kelas (`status = PUBLISHED`). Menolak publik (HTTP 401) | UC-04, UC-06 |
+| `GET` | `/api/v1/tasks/:id` | **Member / Publisher Session** | Mengambil detail spesifik tugas dan link pengumpulan GDrive | UC-05 |
+| `GET` | `/api/v1/publisher/contents` | Publisher Session (`pj`/`ketua_kelas`) | Mengambil seluruh konten milik publisher (Draft + Published) | UC-07, UC-08 |
+| `POST` | `/api/v1/tasks` | Publisher Session (`pj`/`ketua_kelas`) | Membuat entri tugas baru (Draft / Published) | UC-07, UC-10, UC-11 |
+| `PUT` | `/api/v1/tasks/:id` | Publisher Session (`pj`/`ketua_kelas`) | Memperbarui entri tugas | UC-07 |
+| `DELETE` | `/api/v1/tasks/:id` | Publisher Session (`pj`/`ketua_kelas`) | Menghapus entri tugas | UC-07, UC-12 |
+| `POST` | `/api/v1/events` | Publisher Session (`pj`/`ketua_kelas`) | Membuat event / info simpel / upload poster | UC-08, UC-10, UC-11 |
+| `PUT` | `/api/v1/events/:id` | Publisher Session (`pj`/`ketua_kelas`) | Memperbarui event | UC-08 |
+| `DELETE` | `/api/v1/events/:id` | Publisher Session (`pj`/`ketua_kelas`) | Menghapus event (membersihkan poster ImageKit) | UC-08, UC-12 |
+| `PUT` | `/api/v1/schedules/:id` | Admin Session (`ketua_kelas`) | Memperbarui data jadwal statis | UC-09 |
 
 ---
 
 ### 9.2 Skema Request dan Response Kunci
 
-#### 1. `GET /api/v1/tasks` (Akses Publik)
+#### 1. `POST /api/v1/auth/login`
+- **Request Body:**
+```json
+{
+  "name": "andi",
+  "password": "password123"
+}
+```
+- **Response `200 OK` (Berhasil):**
+```json
+{
+  "success": true,
+  "user": {
+    "id": "e5b7b6c2-4e2b-4835-97e3-0d5b78b5e28a",
+    "name": "andi",
+    "role": "member"
+  }
+}
+```
+
+#### 2. `GET /api/v1/tasks` (Akses Privat Anggota Kelas)
+- **Headers:** Memerlukan Cookie Sesi Aktif (`session_token`)
 - **Query Params:**
-  - `course_id` (opsional): filter ID mata kuliah.
+  - `id_course` (opsional): filter ID mata kuliah.
   - `filter` (opsional): `all` | `upcoming` | `past`.
 - **Response `200 OK`:**
 ```json
@@ -483,31 +520,39 @@ Format API ditulis dalam pola RESTful standar (dapat diimplementasikan via REST 
       "course": {
         "id": "c1a9f0e1-7d3a-4428-b80c-235882f0df71",
         "name": "Interaksi Manusia dan Komputer",
-        "code": "IF2140"
+        "lecturer": "Dr. Eng. Budi"
       },
       "title": "Tugas 3: Perancangan UI Mobile High-Fidelity",
-      "instructions": "Buat 4 frame aplikasi mobile menggunakan Figma. Kumpulkan file link sebelum batas waktu.",
-      "week_number": 6,
+      "description": "Buat 4 frame aplikasi mobile menggunakan Figma. Kumpulkan file link sebelum batas waktu.",
       "due_date": "2026-11-20T23:59:00+07:00",
-      "submission_url": "https://classroom.google.com/c/example",
+      "submission_url": "https://drive.google.com/drive/folders/example",
       "status": "PUBLISHED",
       "created_at": "2026-11-17T08:00:00+07:00"
     }
   ]
 }
 ```
-
-#### 2. `POST /api/v1/tasks` (Publisher Action)
-- **Headers:** `Authorization: Bearer <token>`
-- **Request Body:**
+- **Response `401 Unauthorized` (Jika diakses publik tanpa login):**
 ```json
 {
-  "course_id": "c1a9f0e1-7d3a-4428-b80c-235882f0df71",
-  "title": "Tugas 4: Usability Testing Report",
-  "instructions": "Uji prototipe ke 3 rekan kelas dan buat ringkasan temuan dalam bentuk PDF.",
-  "week_number": 7,
-  "due_date": "2026-11-27T17:00:00+07:00",
-  "submission_url": "https://forms.gle/example-link",
+  "success": false,
+  "error": "UNAUTHORIZED",
+  "message": "Halaman tugas hanya dapat diakses oleh anggota kelas yang sudah login."
+}
+```
+
+#### 3. `POST /api/v1/events` (Publisher Action)
+- **Request Body (Contoh: Info Lomba dengan Poster ImageKit):**
+```json
+{
+  "id_course": null,
+  "category": "COMPETITION",
+  "title": "Gemastik 2026 Divisi UX Design",
+  "description": "Pendaftaran babak penyisihan dibuka sampai akhir bulan. Hadiah total puluhan juta rupiah.",
+  "event_date": "2026-12-15",
+  "source_url": "https://pusatprestasinasional.kemdikbud.go.id/gemastik",
+  "poster_url": "https://ik.imagekit.io/chosenwan/posters/gemastik_xyz.jpg",
+  "poster_file_id": "file_xyz12345",
   "status": "PUBLISHED"
 }
 ```
@@ -515,43 +560,13 @@ Format API ditulis dalam pola RESTful standar (dapat diimplementasikan via REST 
 ```json
 {
   "success": true,
-  "message": "Tugas berhasil diterbitkan",
+  "message": "Event berhasil diterbitkan",
   "data": {
-    "id": "f8a123bc-9921-42cb-bca1-92318049ad52",
+    "id": "a901842e-128a-4efb-8871-3382901a88b1",
     "status": "PUBLISHED"
   }
 }
 ```
-- **Response `400 Bad Request` (Error Validasi Form):**
-```json
-{
-  "success": false,
-  "error": "VALIDATION_ERROR",
-  "details": [
-    { "field": "title", "message": "Judul tugas tidak boleh kosong" },
-    { "field": "due_date", "message": "Batas waktu tugas wajib diisi" }
-  ]
-}
-```
-
-#### 3. `POST /api/v1/announcements` (Publisher Action)
-- **Request Body (Contoh: Info Lomba):**
-```json
-{
-  "course_id": null,
-  "title": "Gemastik 2026 Divisi UX Design",
-  "category_type": "COMPETITION",
-  "content": "Pendaftaran babak penyisihan dibuka sampai akhir bulan. Hadiah total puluhan juta rupiah.",
-  "source_url": "https://pusatprestasinasional.kemdikbud.go.id/gemastik",
-  "status": "PUBLISHED"
-}
-```
-- **Response `201 Created`:**
-```json
-{
-  "success": true,
-  "message": "Info berhasil diterbitkan",
-  "data": {
     "id": "a901842e-128a-4efb-8871-3382901a88b1",
     "category_type": "COMPETITION",
     "status": "PUBLISHED"
@@ -720,10 +735,10 @@ chosenwan-app/
 
 ---
 
-#### Opsi B — Turso (libSQL / Edge SQLite) + ImageKit.io *(Stack Aktif v1.3)*
+#### Opsi B — Turso (libSQL / Edge SQLite) + ImageKit.io *(Stack Aktif v1.4)*
 - **Frontend & Fullstack API:** Next.js (App Router, TypeScript)
 - **Database & Query Layer:** Turso (`@libsql/client` + Drizzle ORM dengan skema SQLite)
-- **Auth & Session:** Dikelola di server Next.js (signed HTTP-only cookie + hash `bcryptjs` di tabel `profiles`, atau *Better Auth* / *Auth.js*)
+- **Auth & Session:** Dikelola di server Next.js (signed HTTP-only cookie + hash `bcryptjs` di tabel `account`)
 - **Media Storage & CDN Poster:** **ImageKit.io** (Forever Free: **3 GB storage**, **20 GB bandwidth/bulan**, tanpa wajib kartu kredit, optimasi CDN & resize URL otomatis)
 
 **Perbandingan Singkat (Supabase vs Turso + ImageKit.io untuk Chosenwan):**
@@ -733,34 +748,36 @@ chosenwan-app/
 | **Engine DB** | PostgreSQL terkelola | libSQL (fork open-source SQLite) di edge |
 | **Free Tier DB** | 2 project, 500 MB DB, 5 GB egress | 100 database, 5 GB storage, 500 juta row reads/bln, 10 juta row writes/bln |
 | **Risiko Auto-Pause** | Auto-pause jika 7 hari tidak ada aktivitas | Tidak kena auto-pause mingguan |
-| **Auth & Session** | Bawaan (`Supabase Auth`) | Dikelola di Next.js server (session cookie + password hash) |
-| **Isolasi Draft / Role** | PostgreSQL RLS otomatis di level tabel | Dijaga di Next.js Server Actions / API Route Handlers |
+| **Auth & Session** | Bawaan (`Supabase Auth`) | Dikelola di Next.js server (session cookie + password hash di tabel `account`) |
+| **Isolasi Draft / Role** | PostgreSQL RLS otomatis di level tabel | Dijaga di Next.js Server Actions / API Route Handlers (`member`, `pj`, `ketua_kelas`) |
 | **Upload & CDN Poster** | Bawaan (`Supabase Storage`, 1 GB) | **ImageKit.io** (3 GB storage, 20 GB bandwidth/bln, CDN + resize URL, tanpa kartu kredit) |
 | **Kesiapan Skema** | Tipe native `UUID`, `TIMESTAMPTZ`, `TIME` | Penyesuaian minor ke tipe SQLite (`TEXT` ISO-8601, `INTEGER` check 1–6) |
 
 **Catatan Implementasi Stack Turso + ImageKit.io:**
 1. **Jangan Ekspos Secret ke Browser:** Token Turso dan `IMAGEKIT_PRIVATE_KEY` hanya boleh berada di server (`.env.local`). Seluruh query DB maupun upload/hapus file ImageKit harus melewati Next.js Server Components, Server Actions, atau Route Handlers yang tervalidasi.
-2. **Guard Query Publik Mutlak:** Endpoint/loader publik wajib selalu menyertakan `WHERE status = 'PUBLISHED'`; mutasi edit/hapus wajib memverifikasi `session.user.role === 'ketua_kelas' || record.created_by === session.user.id`.
-3. **Alur Poster ImageKit.io:** Gambar hasil kompresi client (`compressPosterImage`) dikirim ke endpoint/Server Action Next.js terautentikasi untuk di-upload ke ImageKit (folder `/chosenwan/posters`), lalu `response.url` disimpan ke `poster_url` dan `response.fileId` ke `poster_file_id`. Bila poster diganti atau pengumuman dihapus, server menghapus file lama memakai `poster_file_id` agar kuota 3 GB tetap bersih dari *orphan files*.
+2. **Guard Query Privat Tugas Mutlak:** Endpoint/loader tugas (`task`) wajib memverifikasi sesi login pengguna (role `member`, `pj`, atau `ketua_kelas`). Pengunjung publik tanpa sesi login langsung ditolak dengan status HTTP 401.
+3. **Guard Query Publik Event & Jadwal:** Endpoint/loader publik untuk `event` dan `schedule` menyertakan `WHERE status = 'PUBLISHED'`; mutasi edit/hapus wajib memverifikasi hak publisher (`role in ('pj', 'ketua_kelas')`).
+4. **Alur Poster ImageKit.io:** Gambar hasil kompresi client (`compressPosterImage`) dikirim ke endpoint/Server Action Next.js terautentikasi untuk di-upload ke ImageKit (folder `/chosenwan/posters`), lalu `response.url` disimpan ke `poster_url` dan `response.fileId` ke `poster_file_id`. Bila poster diganti atau event dihapus, server menghapus file lama memakai `poster_file_id` agar kuota 3 GB tetap bersih dari *orphan files*.
 
 ---
 
 ### 14.2 Daftar Asumsi dan Pertanyaan Terbuka (Open Questions)
 
-- `[PERTANYAAN]` **Mekanisme Pendaftaran Akun Publisher:** Apakah akun publisher (ketua kelas dan PJ) dibuat manual (*seeded / invited*) oleh tim pengelola di awal, atau disediakan halaman registrasi khusus dengan kode undangan (*invite code*) kelas?
-- `[ASUMSI]` Daftar mata kuliah kelas pilot dimasukkan ke database (*seeding*) pada awal peluncuran sistem agar pilihan dropdown konsisten dan tidak berantakan.
-- `[ASUMSI]` Tautan pengumpulan tugas diarahkan langsung ke platform eksternal (Google Classroom, Google Drive, atau Google Forms) tanpa penanganan upload file di server portal Chosenwan.
+- `[ASUMSI]` Akun anggota kelas (`member`) dibagikan/dibuatkan oleh ketua kelas atau tim pengelola dengan username unik (`name`) dan password standar.
+- `[ASUMSI]` Tautan pengumpulan tugas diarahkan langsung ke platform eksternal (Google Drive, Google Forms, atau Google Classroom) yang aman dan hanya dapat diakses oleh anggota kelas berwenang.
 
 ---
 
-## 15. Out of Scope (Tahap Selanjutnya)
+## 15. Out of Scope (Future Roadmap)
 
-Fitur-fitur berikut secara eksplisit berada di luar scope spesifikasi teknis MVP dan tidak diimplementasikan pada fase pilot ini:
-1. **Sistem Notifikasi Push / WhatsApp Gateway Otomatis:** Pengiriman notifikasi otomatis saat ada tugas baru dibuat.
-2. **Penyimpanan File Tugas Internal:** Pengunggahan file tugas langsung ke penyimpanan server Chosenwan.
-3. **Pelacakan Status Progres Mahasiswa:** Fitur checklist pribadi *"Tugas Selesai"* atau penghitungan persentase tugas.
-4. **Kalender Dinamis & Recurrence Engine:** Logika perhitungan libur nasional, jadwal pengganti otomatis, atau sinkronisasi dengan Google Calendar.
-5. **Portal Multi-Kelas / Multi-Jurusan:** Manajemen hak akses berjenjang untuk banyak kelas di kampus.
+Fitur-fitur berikut secara eksplisit berada di luar scope spesifikasi teknis MVP dan disiapkan untuk diimplementasikan pada tahap selanjutnya:
+1. **Scraping Otomatis Jadwal & Mata Kuliah:** Penarikan otomatis jadwal kuliah dan data dosen dari portal akademik kampus / SIAKAD secara terjadwal. Arsitektur tabel `course` (dengan constraint unik `name`) dan tabel `schedule` (dengan `id_acc` nullable) sudah disiapkan agar kompatibel menerima injeksi data scraper di masa depan tanpa mengubah skema tabel.
+2. **LLM / AI Chat Parser:** Fitur ekstraksi pesan chat WhatsApp (dari dosen/grup) langsung menjadi form tugas atau event. Arsitektur form berbasis Zod schema sudah siap menerima payload JSON terstruktur dari API Gemini / model bahasa di masa depan.
+3. **Sistem Notifikasi Push / WhatsApp Gateway Otomatis:** Pengiriman notifikasi otomatis saat ada tugas baru dibuat.
+4. **Penyimpanan File Tugas Internal:** Pengunggahan file tugas langsung ke penyimpanan server Chosenwan (tetap diarahkan ke Google Drive/LMS).
+5. **Pelacakan Status Progres Mahasiswa:** Fitur checklist pribadi *"Tugas Selesai"* atau penghitungan persentase tugas.
+6. **Kalender Dinamis & Recurrence Engine:** Logika perhitungan libur nasional atau sinkronisasi dengan Google Calendar.
+7. **Portal Multi-Kelas / Multi-Jurusan:** Manajemen hak akses berjenjang untuk banyak kelas di kampus.
 
 ---
 
@@ -772,3 +789,4 @@ Fitur-fitur berikut secara eksplisit berada di luar scope spesifikasi teknis MVP
 | **1.1** | 2026-11-17 | Status Approved (Gate 3). Tech stack resmi dikunci pada Opsi A: Next.js + Tailwind CSS + shadcn/ui + Supabase (Auth, PostgreSQL, RLS) + Vercel Deployment sesuai persetujuan Lead PM. |
 | **1.2** | 2026-11-20 | Menambahkan kolom `poster_url` pada tabel `announcements` serta menambahkan **Opsi B: Turso (libSQL / SQLite)** beserta tabel perbandingan dan catatan implementasi di Section 1.3 dan Section 14.1. |
 | **1.3** | 2026-11-20 | Mengunci **Opsi B: Turso (libSQL / SQLite) + ImageKit.io** sebagai stack aktif backend & media storage poster, menambahkan kolom `poster_file_id` pada `announcements`, serta merinci alur upload/hapus poster ImageKit.io. |
+| **1.4** | 2026-11-24 | Menyelaraskan skema database dengan dokumen desain ERD serah-terima: mengadopsi 5 tabel standar (`account`, `course`, `schedule`, `task`, `event`), menghapus kolom redundan di `task` dan `schedule`, memproteksi halaman Tugas khusus anggota kelas yang login (`role = member` / HTTP 401 jika publik), serta mencatat arsitektur fitur Scraping dan LLM Parser ke Out of Scope (Future Roadmap). |
