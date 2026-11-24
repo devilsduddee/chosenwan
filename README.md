@@ -24,8 +24,6 @@
 - [Tentang Proyek](#tentang-proyek)
 - [Fitur Utama](#fitur-utama)
 - [Tech Stack](#tech-stack)
-- [Akun Pengguna Uji Coba](#akun-pengguna-uji-coba)
-- [Jadwal Resmi Kelas 3IA01](#jadwal-resmi-kelas-3ia01)
 - [Struktur Direktori](#struktur-direktori)
 - [Panduan Instalasi Lokal](#panduan-instalasi-lokal)
 - [Konfigurasi Environment Variables (Vercel)](#konfigurasi-environment-variables-vercel)
@@ -70,36 +68,6 @@ Dengan Chosenwan:
 | **Styling** | Tailwind CSS v4 + shadcn/ui | Desain visual Playful Bento, token warna pastel, dan komponen modular berbasis Radix UI. |
 | **Ikon** | Lucide React | Set ikon outline seragam (stroke 1.75px). |
 | **Validasi** | Zod + React Hook Form | Validasi skema input pada batas klien (*client*) dan server (*Server Actions*). |
-
----
-
-## Akun Pengguna Uji Coba
-
-Database telah dilengkapi dengan akun bawaan untuk pengujian hak akses:
-
-| Peran | Username | Password | Hak Akses & Kemampuan |
-| :--- | :--- | :--- | :--- |
-| **Ketua Kelas** | `ketua` | `ketua123` | **Admin / Moderator Penuh:** Kelola jadwal statis, moderasi seluruh tugas/event kelas, pin pengumuman, dan publikasi konten. |
-| **PJ Mata Kuliah** | `pj` | `pj12345` | **Editor Konten Mandiri:** Buat, perbarui, atau hapus tugas & event miliknya sendiri; pin info terkait matkul. |
-| **Anggota Kelas** | `member` | `member123` | **Mahasiswa Terverifikasi:** Membaca daftar tugas kelas dan membuka tautan pengumpulan Google Drive/LMS. |
-| **Pengunjung Publik** | *(Tanpa Login)* | *(Tanpa Password)* | **Publik / Tamu:** Membaca jadwal kuliah statis dan feed pengumuman publik (Tab Tugas digembok). |
-
----
-
-## Jadwal Resmi Kelas 3IA01
-
-Data jadwal kuliah statis yang aktif di sistem:
-
-| Hari | Jam Ke- | Waktu (WIB) | Mata Kuliah | Ruang | Dosen Pengampu |
-| :--- | :---: | :---: | :--- | :---: | :--- |
-| **Senin** | 3/4 | 09:30 – 11:30 | Pemrograman Web | G222 | Ega Hegarini |
-| **Senin** | 5/6 | 11:30 – 13:30 | Sistem Keamanan Komputer | G2410 | Bintang Eka Putera |
-| **Senin** | 7/8 | 13:30 – 15:30 | Kecerdasan Artificial | G2410 | Octaviani Hutapea |
-| **Selasa** | 1/2/3 | 07:30 – 10:30 | Grafik Komputer | D655 | Aries Muslim |
-| **Selasa** | 4/5/6 | 10:30 – 13:30 | Sistem Basis Data 1 | D655 | Jalinas / Elly Agustina Julisawati |
-| **Selasa** | 8/9/10 | 14:30 – 17:30 | Interaksi Manusia & Komputer | D132 | Tavipia Rumambi |
-| **Kamis** | 5/6/7 | 11:30 – 14:30 | Perancangan & Analisis Algoritma | G132 | Risma Rahmalia Fitriani |
-| **Kamis** | 8/9/10 | 14:30 – 17:30 | Jaringan Komputer | G132 | Mochammad Akbar Marwan / Dede Herman S |
 
 ---
 
