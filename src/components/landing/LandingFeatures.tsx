@@ -1,5 +1,5 @@
 import React from "react"
-import { Clock, Megaphone, Trophy, Calendar, ShieldCheck } from "lucide-react"
+import { Clock, Megaphone, Trophy, Calendar, ShieldCheck, Pin, Lock, ArrowUpRight } from "lucide-react"
 
 export function LandingFeatures() {
   const days = [
@@ -8,90 +8,91 @@ export function LandingFeatures() {
     { num: "03", label: "Rab", active: false },
     { num: "04", label: "Kam", active: false },
     { num: "05", label: "Jum", active: false },
+    { num: "06", label: "Sab", active: false },
   ]
 
   return (
     <section id="fitur" className="max-w-6xl mx-auto px-4 sm:px-6 py-12 sm:py-16 border-t border-[#E4E7F0]/80">
       <div className="max-w-2xl space-y-2 mb-8 sm:mb-10">
         <span className="text-[11px] font-bold uppercase tracking-wider text-[#6E7485]">
-          Isi Portal
+          Pilar Fungsional
         </span>
-        <h2 className="text-2xl sm:text-3xl font-extrabold text-[#111318] tracking-tight">
-          Tugas, info kampus, dan jadwal kuliah dipisah per tab.
+        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-[#111318] tracking-tight">
+          Akses jadwal publik instan, tugas kelas privat & terproteksi.
         </h2>
-        <p className="text-sm text-[#6E7485] leading-relaxed">
-          Setiap jenis informasi duduk di tabnya sendiri, jadi info lomba atau berita kampus tidak
-          menutupi deadline tugas minggu ini.
+        <p className="text-sm sm:text-base text-[#6E7485] leading-relaxed">
+          Dirancang sesuai PRD v1.6 dengan model dua lapis: jadwal dan info kampus terbuka untuk siapa saja,
+          sementara tugas dan tautan pengumpulan diamankan khusus bagi anggota kelas.
         </p>
       </div>
 
       {/* Bento Feature Grid */}
       <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
-        {/* Card 1: Dark Anchor - Tugas & Deadline */}
-        <div className="md:col-span-2 bg-[#111318] text-white rounded-[24px] p-6 flex flex-col justify-between gap-6">
+        {/* Card 1: Dark Anchor - Tugas Kelas Privat & Gated */}
+        <div className="md:col-span-2 bg-[#111318] text-white rounded-[24px] p-6 flex flex-col justify-between gap-6 shadow-sm hover:-translate-y-0.5 transition-transform duration-200">
           <div className="flex items-center justify-between">
-            <div className="w-10 h-10 rounded-xl bg-[#F6C866] text-[#111318] flex items-center justify-center">
-              <Clock className="w-5 h-5" strokeWidth={2} />
+            <div className="w-10 h-10 rounded-xl bg-[#F6C866] text-[#111318] flex items-center justify-center shadow-2xs">
+              <Lock className="w-5 h-5" strokeWidth={2} />
             </div>
-            <span className="text-[10px] font-bold uppercase tracking-wider bg-[#F05252] text-white px-2.5 py-1 rounded-full">
-              Prioritas
+            <span className="inline-flex items-center gap-1 text-[10px] font-extrabold uppercase tracking-wider bg-[#F05252] text-white px-2.5 py-1 rounded-full">
+              Khusus Anggota
             </span>
           </div>
           <div className="space-y-2">
             <h3 className="text-base font-bold leading-snug">
-              Daftar tugas urut deadline
+              Daftar tugas & tautan pengumpulan privat
             </h3>
             <p className="text-xs text-white/75 leading-relaxed">
-              Tugas dengan tenggat paling dekat muncul paling atas. Lengkap dengan minggu
-              pertemuan, instruksi dosen, dan link pengumpulan.
+              Instruksi pengerjaan dan link Google Drive/LMS diamankan di balik login kelas agar
+              kerahasiaan tugas dan link pengumpulan kelas tidak diakses pihak luar.
             </p>
           </div>
         </div>
 
-        {/* Card 2: Periwinkle - Info Akademik & Perubahan Jadwal */}
-        <div className="md:col-span-2 bg-[#A8C0FF] text-[#111318] rounded-[24px] p-6 flex flex-col justify-between gap-6">
+        {/* Card 2: Periwinkle - Info Akademik & Sematkan Info Penting */}
+        <div className="md:col-span-2 bg-[#A8C0FF] text-[#111318] rounded-[24px] p-6 flex flex-col justify-between gap-6 hover:-translate-y-0.5 transition-transform duration-200">
           <div className="flex items-center justify-between">
             <div className="w-10 h-10 rounded-xl bg-white text-[#111318] flex items-center justify-center shadow-2xs">
-              <Megaphone className="w-5 h-5" strokeWidth={2} />
+              <Pin className="w-5 h-5 text-[#111318]" strokeWidth={2} />
             </div>
-            <span className="text-[10px] font-bold uppercase tracking-wider bg-white/90 text-[#111318] px-2.5 py-1 rounded-full">
-              Akademik
+            <span className="inline-flex items-center gap-1 text-[10px] font-extrabold uppercase tracking-wider bg-white/90 text-[#111318] px-2.5 py-1 rounded-full shadow-2xs">
+              Pin & Akademik
             </span>
           </div>
           <div className="space-y-2">
             <h3 className="text-base font-bold leading-snug">
-              Pengumuman dosen dan pindah ruang
+              Pengumuman dosen & sematkan info UTS
             </h3>
-            <p className="text-xs text-[#111318]/80 leading-relaxed">
-              Info pindah ruangan, kelas pengganti, atau kuliah online dipisah dari obrolan grup
-              supaya gampang dicari ulang.
+            <p className="text-xs text-[#111318]/85 leading-relaxed">
+              Info pindah ruang, kelas pengganti, atau pengumuman darurat dapat disematkan (*pin*)
+              di posisi teratas feed agar langsung terlihat oleh seluruh mahasiswa.
             </p>
           </div>
         </div>
 
-        {/* Card 3: Orchid Lilac - Berita Kampus & Lomba */}
-        <div className="md:col-span-2 bg-[#EA9DFB] text-[#111318] rounded-[24px] p-6 flex flex-col justify-between gap-6">
+        {/* Card 3: Orchid Lilac - Berita Kampus & Info Lomba */}
+        <div className="md:col-span-2 bg-[#EA9DFB] text-[#111318] rounded-[24px] p-6 flex flex-col justify-between gap-6 hover:-translate-y-0.5 transition-transform duration-200">
           <div className="flex items-center justify-between">
             <div className="w-10 h-10 rounded-xl bg-white text-[#111318] flex items-center justify-center shadow-2xs">
-              <Trophy className="w-5 h-5" strokeWidth={2} />
+              <Trophy className="w-5 h-5 text-[#111318]" strokeWidth={2} />
             </div>
-            <span className="text-[10px] font-bold uppercase tracking-wider bg-white/90 text-[#111318] px-2.5 py-1 rounded-full">
-              Kampus & Lomba
+            <span className="inline-flex items-center gap-1 text-[10px] font-extrabold uppercase tracking-wider bg-white/90 text-[#111318] px-2.5 py-1 rounded-full shadow-2xs">
+              Poster Visual CDN
             </span>
           </div>
           <div className="space-y-2">
             <h3 className="text-base font-bold leading-snug">
-              Berita kampus dan info lomba
+              Berita kampus & info lomba berposter
             </h3>
-            <p className="text-xs text-[#111318]/80 leading-relaxed">
-              Info kompetisi dan pengumuman kampus punya tab sendiri, disertai tautan ke sumber
-              resmi IG atau situs kampus.
+            <p className="text-xs text-[#111318]/85 leading-relaxed">
+              Info kompetisi dan kabar kampus dilengkapi poster visual beresolusi tinggi yang
+              dioptimasi via ImageKit CDN dan tautan ke sumber resmi Instagram/portal kampus.
             </p>
           </div>
         </div>
 
-        {/* Card 4: White - Jadwal Kuliah Statis */}
-        <div className="md:col-span-3 bg-white border border-[#E4E7F0] text-[#111318] rounded-[24px] p-6 flex flex-col justify-between gap-5 shadow-2xs">
+        {/* Card 4: White - Jadwal Kuliah Statis Publik */}
+        <div className="md:col-span-3 bg-white border border-[#E4E7F0] text-[#111318] rounded-[24px] p-6 flex flex-col justify-between gap-5 shadow-2xs hover:-translate-y-0.5 transition-transform duration-200">
           <div className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-2.5">
               <div className="w-10 h-10 rounded-xl bg-[#EEF1F6] text-[#111318] flex items-center justify-center">
@@ -102,6 +103,9 @@ export function LandingFeatures() {
                 <p className="text-xs text-[#6E7485]">Daftar jadwal tetap per semester</p>
               </div>
             </div>
+            <span className="text-[10px] font-extrabold uppercase tracking-wider bg-[#4CD98B]/20 text-[#111318] px-2.5 py-1 rounded-full border border-[#4CD98B]/40">
+              Bebas Login
+            </span>
           </div>
 
           {/* Mini Authentic Day Strip */}
@@ -120,19 +124,19 @@ export function LandingFeatures() {
           </div>
 
           <p className="text-xs text-[#6E7485] leading-relaxed">
-            Cek jam mulai, kode mata kuliah, ruangan, dan nama dosen rutin per hari tanpa harus
-            tanya ulang di grup kelas.
+            Cek jam mulai, kode mata kuliah, ruangan, dan nama dosen rutin per semester langsung
+            dari browser ponsel tanpa hambatan login.
           </p>
         </div>
 
-        {/* Card 5: Warm Honey Amber - Publisher Draft & Publish */}
-        <div className="md:col-span-3 bg-[#F6C866] text-[#111318] rounded-[24px] p-6 flex flex-col justify-between gap-5">
+        {/* Card 5: Warm Honey Amber - Multi-Peran & Opsi Draft */}
+        <div className="md:col-span-3 bg-[#F6C866] text-[#111318] rounded-[24px] p-6 flex flex-col justify-between gap-5 hover:-translate-y-0.5 transition-transform duration-200">
           <div className="flex items-center justify-between">
             <div className="w-10 h-10 rounded-xl bg-white text-[#111318] flex items-center justify-center shadow-2xs">
               <ShieldCheck className="w-5 h-5" strokeWidth={2} />
             </div>
-            <span className="text-[10px] font-bold uppercase tracking-wider bg-[#111318] text-white px-2.5 py-1 rounded-full">
-              Draft vs Terbit
+            <span className="text-[10px] font-extrabold uppercase tracking-wider bg-[#111318] text-white px-2.5 py-1 rounded-full">
+              Multi-Peran RBAC
             </span>
           </div>
 
@@ -140,9 +144,9 @@ export function LandingFeatures() {
             <h3 className="text-base font-bold leading-snug">
               Simpan draft atau terbitkan langsung
             </h3>
-            <p className="text-xs text-[#111318]/80 leading-relaxed">
-              PJ mata kuliah dan ketua kelas tidak perlu menunggu antrean persetujuan. Simpan sebagai
-              draft bila perlu dicek dulu, atau langsung terbitkan ke halaman mahasiswa.
+            <p className="text-xs text-[#111318]/85 leading-relaxed">
+              Anggota kelas berstatus *read-only*. PJ matkul dan ketua kelas bisa meracik informasi
+              sebagai draft untuk dicek terlebih dahulu, atau langsung menerbitkan tanpa birokrasi approval.
             </p>
           </div>
         </div>

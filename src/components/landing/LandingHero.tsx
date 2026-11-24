@@ -14,7 +14,7 @@ import {
   ArrowUpRight,
   User,
   Smartphone,
-  Sparkles,
+  Lock,
 } from "lucide-react"
 
 export function LandingHero() {
@@ -43,8 +43,8 @@ export function LandingHero() {
 
           {/* Subtitle */}
           <p className="text-sm sm:text-base lg:text-[17px] text-[#6E7485] leading-relaxed max-w-xl font-normal">
-            Mahasiswa langsung cek deadline tugas, info pindah ruang, berita kampus, dan info lomba
-            tanpa login. Ketua kelas dan PJ mata kuliah bisa simpan draft atau langsung terbitkan.
+            Cek jadwal kuliah dan info kampus seketika tanpa login. Akses tugas serta tautan
+            pengumpulan diamankan khusus untuk mahasiswa kelas 3IA01.
           </p>
 
           {/* Action CTAs & Secondary Links */}
@@ -81,7 +81,12 @@ export function LandingHero() {
                 <ArrowRight className="w-3 h-3" />
               </a>
               <span className="text-[#D3D8E2]">·</span>
-              <span>Tanpa login mahasiswa</span>
+              <span className="font-semibold text-[#111318]">Jadwal Publik</span>
+              <span className="text-[#D3D8E2]">·</span>
+              <span className="inline-flex items-center gap-1 text-[#111318]/90">
+                <Lock className="w-3 h-3 text-[#6E7485]" />
+                Tugas Privat Kelas
+              </span>
               {!isStandalone && (
                 <>
                   <span className="text-[#D3D8E2]">·</span>
@@ -186,9 +191,15 @@ export function LandingHero() {
             {/* Urgent Task Card (Dark Anchor) */}
             <div className="bg-[#111318] text-white rounded-[20px] p-3.5 space-y-2.5 hover:-translate-y-0.5 transition-transform duration-200">
               <div className="flex items-center justify-between gap-2">
-                <span className="text-[10px] font-extrabold bg-[#A8C0FF] text-[#111318] px-2 py-0.5 rounded-full">
-                  IMK
-                </span>
+                <div className="flex items-center gap-1.5">
+                  <span className="text-[10px] font-extrabold bg-[#A8C0FF] text-[#111318] px-2 py-0.5 rounded-full">
+                    IMK
+                  </span>
+                  <span className="inline-flex items-center gap-1 text-[9px] font-bold text-white/75 bg-white/10 px-2 py-0.5 rounded-full">
+                    <Lock className="w-2.5 h-2.5 text-white/60" />
+                    Khusus Anggota
+                  </span>
+                </div>
                 <span className="inline-flex items-center gap-1 bg-[#F05252] text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
                   <Clock className="w-2.5 h-2.5" strokeWidth={2.5} />
                   Hari Ini
