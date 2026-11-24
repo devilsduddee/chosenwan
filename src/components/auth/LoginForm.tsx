@@ -3,7 +3,7 @@
 import React, { useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { useForm, useWatch } from "react-hook-form"
+import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { loginFormSchema, LoginFormValues } from "@/lib/validations"
 import { useMockStore } from "@/lib/mock-store"
@@ -20,14 +20,7 @@ import {
   Home,
   LogOut,
   ShieldCheck,
-  UserCheck,
 } from "lucide-react"
-
-const SEED_ACCOUNTS = [
-  { name: "ketua", label: "Ketua Kelas", pass: "ketua123", desc: "Moderator Penuh" },
-  { name: "pj", label: "PJ Matkul", pass: "pj12345", desc: "Editor Tugas & Info" },
-  { name: "member", label: "Anggota Kelas", pass: "member123", desc: "Lihat Tugas Privat" },
-]
 
 export function LoginForm() {
   const router = useRouter()
@@ -43,8 +36,6 @@ export function LoginForm() {
       password: "",
     },
   })
-
-  const currentName = useWatch({ control: form.control, name: "name" })
 
   const onSubmit = async (values: LoginFormValues) => {
     setLoginError(null)
@@ -68,12 +59,6 @@ export function LoginForm() {
     } finally {
       setIsSubmitting(false)
     }
-  }
-
-  const handleQuickFill = (name: string, password: string) => {
-    setLoginError(null)
-    form.setValue("name", name, { shouldValidate: true })
-    form.setValue("password", password, { shouldValidate: true })
   }
 
   return (
@@ -240,42 +225,6 @@ export function LoginForm() {
             <ArrowRight className="w-4 h-4 ml-1.5" />
           </Button>
         </form>
-
-        {/* Quick Fill Database Seed Accounts */}
-        <div className="pt-4 border-t border-[#E4E7F0]/80 space-y-2.5">
-          <div className="flex items-center justify-between gap-2">
-            <span className="text-[11px] font-bold text-[#6E7485]">
-              Akun Resmi Database (Pilih Cepat)
-            </span>
-            <span className="text-[10px] font-semibold text-[#6E7485]">Tap untuk isi</span>
-          </div>
-
-          <div className="grid grid-cols-3 gap-1.5">
-            {SEED_ACCOUNTS.map((acc) => {
-              const isSelected = currentName?.trim().toLowerCase() === acc.name.toLowerCase()
-              return (
-                <button
-                  key={acc.name}
-                  type="button"
-                  onClick={() => handleQuickFill(acc.name, acc.pass)}
-                  className={`p-2.5 rounded-[16px] border text-left flex flex-col justify-center gap-0.5 transition-all active:scale-[0.97] cursor-pointer ${
-                    isSelected
-                      ? "bg-[#EEF1F6] border-[#111318] shadow-2xs"
-                      : "bg-[#F6F7FB] border-[#E4E7F0] hover:border-[#111318]/40"
-                  }`}
-                >
-                  <span className="inline-flex items-center gap-1 text-[11px] font-bold text-[#111318]">
-                    <UserCheck className="w-3 h-3 shrink-0" strokeWidth={2} />
-                    <span className="truncate">{acc.label}</span>
-                  </span>
-                  <span className="text-[9px] text-[#6E7485] truncate w-full">
-                    {acc.name}
-                  </span>
-                </button>
-              )
-            })}
-          </div>
-        </div>
       </div>
     </div>
   )
