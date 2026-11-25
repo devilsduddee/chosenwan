@@ -2,7 +2,7 @@
 
 import React from "react"
 import { Task } from "@/types"
-import { useMockStore } from "@/lib/mock-store"
+import { usePortalStore } from "@/lib/portal-store"
 import { useCurrentTime } from "@/lib/use-current-time"
 import { formatIndonesianTime } from "@/lib/date-utils"
 import { Clock, ArrowRight } from "lucide-react"
@@ -12,7 +12,7 @@ interface UrgentTaskCardProps {
 }
 
 export function UrgentTaskCard({ task }: UrgentTaskCardProps) {
-  const { setSelectedTaskForDetail } = useMockStore()
+  const { setSelectedTaskForDetail } = usePortalStore()
   const { now, mounted } = useCurrentTime()
 
   // Calculate remaining hours
@@ -31,7 +31,7 @@ export function UrgentTaskCard({ task }: UrgentTaskCardProps) {
     <button
       type="button"
       onClick={() => setSelectedTaskForDetail(task)}
-      className="w-full text-left bg-[#111318] text-white rounded-[22px] p-4.5 sm:p-5 border border-[#111318] shadow-md relative overflow-hidden transition-all active:scale-[0.98] cursor-pointer group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F6C866] focus-visible:ring-offset-2"
+      className="w-full text-left bg-[#111318] text-white rounded-[22px] p-4.5 sm:p-5 border border-[#111318] shadow-md relative overflow-hidden transition-transform duration-150 active:scale-[0.98] cursor-pointer group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F6C866] focus-visible:ring-offset-2"
     >
       {/* Top Header Row */}
       <div className="flex items-center justify-between gap-2 flex-wrap mb-2.5">
@@ -39,11 +39,6 @@ export function UrgentTaskCard({ task }: UrgentTaskCardProps) {
           <span className="text-[11px] font-bold bg-[#A8C0FF] text-[#111318] px-2.5 py-0.5 rounded-full shrink-0">
             {task.course?.code || "TUGAS"}
           </span>
-          {task.week_number && (
-            <span className="text-[11px] font-medium text-white/70">
-              Minggu {task.week_number}
-            </span>
-          )}
         </div>
 
         <div className="flex items-center gap-1.5 bg-[#F05252] text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-xs shrink-0">

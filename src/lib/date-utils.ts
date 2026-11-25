@@ -88,6 +88,40 @@ export function formatIndonesianTime(dateInput: string | Date | number): string 
   return `${hours}:${minutes}`
 }
 
+/**
+ * Memformat tanggal ke string lokal "YYYY-MM-DDTHH:mm" untuk input datetime-local
+ * tanpa mengonversi ke UTC (mencegah pergeseran -7 jam di WIB saat mode edit).
+ */
+export function formatDateTimeLocalInput(dateInput: string | Date | number): string {
+  const d =
+    typeof dateInput === "string" || typeof dateInput === "number"
+      ? new Date(dateInput)
+      : dateInput
+
+  if (!d || isNaN(d.getTime())) return ""
+
+  const year = d.getFullYear()
+  const month = String(d.getMonth() + 1).padStart(2, "0")
+  const day = String(d.getDate()).padStart(2, "0")
+  const hours = String(d.getHours()).padStart(2, "0")
+  const minutes = String(d.getMinutes()).padStart(2, "0")
+  return `${year}-${month}-${day}T${hours}:${minutes}`
+}
+
+export function formatDateInputValue(dateInput: string | Date | number): string {
+  const d =
+    typeof dateInput === "string" || typeof dateInput === "number"
+      ? new Date(dateInput)
+      : dateInput
+
+  if (!d || isNaN(d.getTime())) return ""
+
+  const year = d.getFullYear()
+  const month = String(d.getMonth() + 1).padStart(2, "0")
+  const day = String(d.getDate()).padStart(2, "0")
+  return `${year}-${month}-${day}`
+}
+
 export const URGENT_WINDOW_MS = 24 * 3600 * 1000
 
 export function isTaskUrgent(dueDate: string | Date, nowMs: number): boolean {

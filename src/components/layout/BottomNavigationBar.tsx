@@ -1,12 +1,12 @@
 "use client"
 
 import React from "react"
-import { useMockStore } from "@/lib/mock-store"
+import { usePortalStore } from "@/lib/portal-store"
 import { ActiveTab } from "@/types"
 import { CheckSquare, Megaphone, Calendar, SlidersHorizontal } from "lucide-react"
 
 export function BottomNavigationBar() {
-  const { activeTab, setActiveTab, userRole } = useMockStore()
+  const { activeTab, setActiveTab, userRole } = usePortalStore()
 
   const navItems: { id: ActiveTab; label: string; icon: React.ElementType }[] = [
     { id: "tasks", label: "Tugas", icon: CheckSquare },
@@ -14,7 +14,7 @@ export function BottomNavigationBar() {
     { id: "schedule", label: "Jadwal", icon: Calendar },
   ]
 
-  if (userRole === "ketua_kelas" || userRole === "pj" || userRole === "pj_matkul") {
+  if (userRole === "ketua_kelas" || userRole === "pj") {
     navItems.push({ id: "publisher", label: "Kelola", icon: SlidersHorizontal })
   }
 
@@ -33,7 +33,7 @@ export function BottomNavigationBar() {
               key={item.id}
               type="button"
               onClick={() => setActiveTab(item.id)}
-              className={`flex-1 min-w-0 min-h-[42px] h-[42px] flex items-center justify-center gap-1 sm:gap-1.5 px-2 py-1.5 rounded-full text-[11px] sm:text-xs font-bold transition-all duration-150 select-none cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#111318] ${
+              className={`flex-1 min-w-0 min-h-[44px] h-[44px] flex items-center justify-center gap-1 sm:gap-1.5 px-2 py-1.5 rounded-full text-[11px] sm:text-xs font-bold transition-[background-color,color,transform] duration-150 select-none cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#111318] ${
                 isActive
                   ? "bg-[#111318] text-white shadow-xs"
                   : "text-[#6E7485] hover:text-[#111318] hover:bg-[#EEF1F6]/80 active:scale-95"

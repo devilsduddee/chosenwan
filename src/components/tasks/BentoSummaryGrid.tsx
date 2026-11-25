@@ -1,7 +1,7 @@
 "use client"
 
 import React from "react"
-import { useMockStore } from "@/lib/mock-store"
+import { usePortalStore } from "@/lib/portal-store"
 import { useCurrentTime } from "@/lib/use-current-time"
 import { isTaskUrgent } from "@/lib/date-utils"
 import { TaskStatusFilter } from "@/types"
@@ -13,7 +13,7 @@ interface BentoSummaryGridProps {
 }
 
 export function BentoSummaryGrid({ currentStatusFilter = "ALL", onSelectStatusFilter }: BentoSummaryGridProps) {
-  const { tasks, announcements, setActiveTab, setSelectedCategoryFilter } = useMockStore()
+  const { tasks, announcements, setActiveTab, setSelectedCategoryFilter } = usePortalStore()
   const { now, mounted } = useCurrentTime()
 
   // Calculate statistics from published items

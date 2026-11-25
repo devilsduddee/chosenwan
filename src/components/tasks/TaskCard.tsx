@@ -2,7 +2,7 @@
 
 import React from "react"
 import { Task } from "@/types"
-import { useMockStore } from "@/lib/mock-store"
+import { usePortalStore } from "@/lib/portal-store"
 import { useCurrentTime } from "@/lib/use-current-time"
 import { formatIndonesianDate, formatIndonesianTime, isTaskPast, isTaskUrgent } from "@/lib/date-utils"
 import { Calendar, Link2, ChevronRight } from "lucide-react"
@@ -12,7 +12,7 @@ interface TaskCardProps {
 }
 
 export function TaskCard({ task }: TaskCardProps) {
-  const { setSelectedTaskForDetail } = useMockStore()
+  const { setSelectedTaskForDetail } = usePortalStore()
   const { now, mounted } = useCurrentTime()
 
   const dueDate = new Date(task.due_date)
@@ -52,7 +52,7 @@ export function TaskCard({ task }: TaskCardProps) {
     <button
       type="button"
       onClick={() => setSelectedTaskForDetail(task)}
-      className="w-full h-full flex flex-col justify-between text-left bg-white rounded-[22px] p-4 sm:p-5 border border-[#E4E7F0] shadow-2xs hover:border-[#111318]/30 transition-all cursor-pointer active:scale-[0.98] group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#111318]"
+      className="w-full h-full flex flex-col justify-between text-left bg-white rounded-[22px] p-4 sm:p-5 border border-[#E4E7F0] shadow-2xs hover:border-[#111318]/30 transition-[transform,border-color] duration-150 cursor-pointer active:scale-[0.98] group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#111318]"
     >
       <div>
         {/* Top Header Row */}
@@ -61,11 +61,6 @@ export function TaskCard({ task }: TaskCardProps) {
             <span className="text-[11px] font-bold bg-[#A8C0FF] text-[#111318] px-2 py-0.5 rounded-full">
               {task.course?.code || "MK"}
             </span>
-            {task.week_number && (
-              <span className="text-[11px] font-medium text-[#6E7485]">
-                Mgg {task.week_number}
-              </span>
-            )}
           </div>
           {statusBadge}
         </div>

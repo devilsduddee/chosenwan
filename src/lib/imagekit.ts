@@ -2,6 +2,14 @@ import ImageKit from "imagekit"
 
 let imagekitInstance: ImageKit | null = null
 
+export function isImageKitConfigured(): boolean {
+  return Boolean(
+    process.env.IMAGEKIT_PUBLIC_KEY &&
+      process.env.IMAGEKIT_PRIVATE_KEY &&
+      process.env.IMAGEKIT_URL_ENDPOINT
+  )
+}
+
 export function getImageKitClient(): ImageKit | null {
   const publicKey = process.env.IMAGEKIT_PUBLIC_KEY
   const privateKey = process.env.IMAGEKIT_PRIVATE_KEY

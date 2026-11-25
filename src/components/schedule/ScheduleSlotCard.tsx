@@ -18,7 +18,7 @@ export function ScheduleSlotCard({
   onDelete,
 }: ScheduleSlotCardProps) {
   return (
-    <div className="bg-white rounded-[22px] p-4 sm:p-5 border border-[#E4E7F0] shadow-2xs hover:border-[#111318]/30 transition-all h-full flex flex-col justify-between gap-3">
+    <div className="bg-white rounded-[22px] p-4 sm:p-5 border border-[#E4E7F0] shadow-2xs hover:border-[#111318]/30 transition-[border-color] duration-150 h-full flex flex-col justify-between gap-3">
       <div className="space-y-3">
         {/* Top Row: Time Range & Room Badge */}
         <div className="flex items-center justify-between gap-2 flex-wrap">
@@ -61,22 +61,24 @@ export function ScheduleSlotCard({
           )}
 
           {canManage && (
-            <div className="flex items-center gap-1 shrink-0">
+            <div className="flex items-center gap-0.5 shrink-0">
               <button
                 type="button"
                 onClick={onEdit}
-                className="p-1.5 rounded-lg text-[#6E7485] hover:text-[#111318] hover:bg-[#EEF1F6] transition-colors cursor-pointer"
+                className="w-11 h-11 rounded-xl flex items-center justify-center text-[#6E7485] hover:text-[#111318] hover:bg-[#EEF1F6] transition-colors cursor-pointer"
                 title="Edit Slot Jadwal"
+                aria-label="Edit Slot Jadwal"
               >
-                <Edit3 className="w-3.5 h-3.5" />
+                <Edit3 className="w-4 h-4" />
               </button>
               <button
                 type="button"
                 onClick={onDelete}
-                className="p-1.5 rounded-lg text-[#6E7485] hover:text-[#F05252] hover:bg-[#F05252]/10 transition-colors cursor-pointer"
+                className="w-11 h-11 rounded-xl flex items-center justify-center text-[#6E7485] hover:text-[#F05252] hover:bg-[#F05252]/10 transition-colors cursor-pointer"
                 title="Hapus Slot Jadwal"
+                aria-label="Hapus Slot Jadwal"
               >
-                <Trash2 className="w-3.5 h-3.5" />
+                <Trash2 className="w-4 h-4" />
               </button>
             </div>
           )}

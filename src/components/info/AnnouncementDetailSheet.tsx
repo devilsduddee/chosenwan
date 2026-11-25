@@ -20,7 +20,7 @@ import { ImageLightbox } from "@/components/ui/image-lightbox"
 import { Button } from "@/components/ui/button"
 import { toast } from "sonner"
 import { Calendar, Check, ExternalLink, Maximize2, Share2, Pin } from "lucide-react"
-import { useMockStore } from "@/lib/mock-store"
+import { usePortalStore } from "@/lib/portal-store"
 
 interface AnnouncementDetailSheetProps {
   announcement: Announcement | null
@@ -31,7 +31,7 @@ export function AnnouncementDetailSheet({
   announcement,
   onClose,
 }: AnnouncementDetailSheetProps) {
-  const { userRole, togglePinAnnouncement } = useMockStore()
+  const { userRole, togglePinAnnouncement } = usePortalStore()
   const [copied, setCopied] = useState(false)
   const [isPinning, setIsPinning] = useState(false)
   const [isPosterZoomOpen, setIsPosterZoomOpen] = useState(false)

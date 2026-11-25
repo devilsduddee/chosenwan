@@ -45,7 +45,8 @@ function getServerMountedSnapshot() {
 function getDaySnapshot() {
   if (typeof window === "undefined") return 1
   const d = new Date().getDay()
-  return d === 0 ? 1 : d > 5 ? 1 : d
+  // Minggu (0) fallback ke Senin (1); Senin (1) s.d. Sabtu (6) sesuai rentang jadwal kuliah
+  return d === 0 || d > 6 ? 1 : d
 }
 
 function getServerDaySnapshot() {

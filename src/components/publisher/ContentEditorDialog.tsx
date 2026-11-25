@@ -9,7 +9,8 @@ import {
   announcementFormSchema,
   AnnouncementFormValues,
 } from "@/lib/validations"
-import { useMockStore } from "@/lib/mock-store"
+import { usePortalStore } from "@/lib/portal-store"
+import { formatDateInputValue, formatDateTimeLocalInput } from "@/lib/date-utils"
 import { Task, Announcement } from "@/types"
 import { TaskFormFields } from "@/components/publisher/TaskFormFields"
 import { AnnouncementFormFields } from "@/components/publisher/AnnouncementFormFields"
@@ -21,8 +22,7 @@ import {
   SheetDescription,
 } from "@/components/ui/sheet"
 import { Button } from "@/components/ui/button"
-import { toast } from "sonner"
-import { CheckSquare, Megaphone, Send, Bookmark } from "lucide-react"
+import { CheckSquare, Megaphone, Send, Bookmark, Loader2 } from "lucide-react"
 
 export function ContentEditorDialog() {
   const {
@@ -36,19 +36,19 @@ export function ContentEditorDialog() {
     updateTask,
     addAnnouncement,
     updateAnnouncement,
-  } = useMockStore()
+  } = usePortalStore()
 
   const [selectedType, setSelectedType] = useState<"task" | "announcement">("task")
+  const [submittingStatus, setSubmittingStatus] = useState<"DRAFT" | "PUBLISHED" | null>(null)
   const contentType = editingContent ? editingContent.type : selectedType
+  const isSubmitting = submittingStatus !== null
 
-  // Forms
   const taskForm = useForm<TaskFormValues>({
     resolver: zodResolver(taskFormSchema),
     defaultValues: {
       course_id: "",
       title: "",
       instructions: "",
-      week_number: "",
       due_date: "",
       submission_url: "",
     },
@@ -61,24 +61,24 @@ export function ContentEditorDialog() {
       course_id: "",
       title: "",
       content: "",
+      event_date: "",
       source_url: "",
       poster_url: "",
+      is_pinned: false,
     },
   })
 
-  // Pre-fill fields when modal opens or editingContent changes
   useEffect(() => {
     if (!isEditorOpen) return
 
     if (editingContent) {
       if (editingContent.type === "task") {
         const t = editingContent.data as Task
-        const dateStr = t.due_date ? new Date(t.due_date).toISOString().slice(0, 16) : ""
+        const dateStr = t.due_date ? formatDateTimeLocalInput(t.due_date) : ""
         taskForm.reset({
           course_id: t.course_id || "",
           title: t.title || "",
           instructions: t.instructions || "",
-          week_number: t.week_number ? String(t.week_number) : "",
           due_date: dateStr,
           submission_url: t.submission_url || "",
         })
@@ -89,6 +89,7 @@ export function ContentEditorDialog() {
           course_id: a.course_id || "",
           title: a.title || "",
           content: a.content || "",
+          event_date: a.event_date ? formatDateInputValue(a.event_date) : "",
           source_url: a.source_url || "",
           poster_url: a.poster_url || "",
           is_pinned: Boolean(a.is_pinned),
@@ -99,7 +100,6 @@ export function ContentEditorDialog() {
         course_id: "",
         title: "",
         instructions: "",
-        week_number: "",
         due_date: "",
         submission_url: "",
       })
@@ -108,6 +108,7 @@ export function ContentEditorDialog() {
         course_id: "",
         title: "",
         content: "",
+        event_date: formatDateInputValue(new Date()),
         source_url: "",
         poster_url: "",
         is_pinned: false,
@@ -116,56 +117,70 @@ export function ContentEditorDialog() {
   }, [editingContent, isEditorOpen, taskForm, announcementForm])
 
   const handleClose = () => {
+    if (isSubmitting) return
     setIsEditorOpen(false)
     setEditingContent(null)
   }
 
-  // Handle Submission with status ('DRAFT' or 'PUBLISHED')
   const handleSubmitContent = (status: "DRAFT" | "PUBLISHED") => {
-    if (contentType === "task") {
-      taskForm.handleSubmit((values) => {
-        const payload = {
-          course_id: values.course_id,
-          title: values.title,
-          instructions: values.instructions,
-          week_number: values.week_number ? Number(values.week_number) : undefined,
-          due_date: new Date(values.due_date).toISOString(),
-          submission_url: values.submission_url || undefined,
-          status,
-          created_by: currentUser.id,
-        }
+    if (isSubmitting) return
 
-        if (editingContent && editingContent.type === "task") {
-          updateTask(editingContent.data.id, payload)
-          toast.success(`Tugas berhasil diperbarui (${status === "DRAFT" ? "Draft" : "Terbit"})`)
-        } else {
-          addTask(payload)
-          toast.success(`Tugas berhasil ${status === "DRAFT" ? "disimpan sebagai draft" : "diterbitkan"}!`)
+    if (contentType === "task") {
+      taskForm.handleSubmit(async (values) => {
+        setSubmittingStatus(status)
+        try {
+          const payload = {
+            course_id: values.course_id,
+            title: values.title,
+            instructions: values.instructions,
+            due_date: new Date(values.due_date).toISOString(),
+            submission_url: values.submission_url || undefined,
+            status,
+            created_by: currentUser.id,
+          }
+
+          if (editingContent && editingContent.type === "task") {
+            await updateTask(editingContent.data.id, payload)
+          } else {
+            await addTask(payload)
+          }
+          setIsEditorOpen(false)
+          setEditingContent(null)
+        } catch {
+          // Toast error ditampilkan oleh store; dialog tetap terbuka agar input tidak hilang
+        } finally {
+          setSubmittingStatus(null)
         }
-        handleClose()
       })()
     } else {
-      announcementForm.handleSubmit((values) => {
-        const payload = {
-          category_type: values.category_type,
-          course_id: values.course_id || undefined,
-          title: values.title,
-          content: values.content,
-          source_url: values.source_url || undefined,
-          poster_url: values.poster_url || null,
-          is_pinned: Boolean(values.is_pinned),
-          status,
-          created_by: currentUser.id,
-        }
+      announcementForm.handleSubmit(async (values) => {
+        setSubmittingStatus(status)
+        try {
+          const payload = {
+            category_type: values.category_type,
+            course_id: values.course_id || undefined,
+            title: values.title,
+            content: values.content,
+            event_date: values.event_date || undefined,
+            source_url: values.source_url || undefined,
+            poster_url: values.poster_url || null,
+            is_pinned: Boolean(values.is_pinned),
+            status,
+            created_by: currentUser.id,
+          }
 
-        if (editingContent && editingContent.type === "announcement") {
-          updateAnnouncement(editingContent.data.id, payload)
-          toast.success(`Info berhasil diperbarui (${status === "DRAFT" ? "Draft" : "Terbit"})`)
-        } else {
-          addAnnouncement(payload)
-          toast.success(`Info berhasil ${status === "DRAFT" ? "disimpan sebagai draft" : "diterbitkan"}!`)
+          if (editingContent && editingContent.type === "announcement") {
+            await updateAnnouncement(editingContent.data.id, payload)
+          } else {
+            await addAnnouncement(payload)
+          }
+          setIsEditorOpen(false)
+          setEditingContent(null)
+        } catch {
+          // Toast error ditampilkan oleh store; dialog tetap terbuka agar input tidak hilang
+        } finally {
+          setSubmittingStatus(null)
         }
-        handleClose()
       })()
     }
   }
@@ -181,17 +196,17 @@ export function ContentEditorDialog() {
             {editingContent ? "Edit Konten" : "Posting Informasi Kelas"}
           </SheetTitle>
           <SheetDescription className="text-xs text-[#6E7485]">
-            Publisher: <strong className="text-[#111318]">{currentUser.full_name}</strong>
+            Publisher: <strong className="text-[#111318]">{currentUser.full_name || currentUser.name}</strong>
           </SheetDescription>
         </SheetHeader>
 
-        {/* Content Type Toggle (only active if creating new) */}
         {!editingContent && (
           <div className="grid grid-cols-2 gap-1.5 p-1 bg-[#EEF1F6] rounded-2xl border border-[#E4E7F0] mt-3">
             <button
               type="button"
+              disabled={isSubmitting}
               onClick={() => setSelectedType("task")}
-              className={`min-h-[40px] rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+              className={`min-h-[40px] rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-colors cursor-pointer disabled:opacity-60 ${
                 contentType === "task"
                   ? "bg-[#111318] text-white shadow-xs"
                   : "text-[#6E7485] hover:text-[#111318]"
@@ -202,8 +217,9 @@ export function ContentEditorDialog() {
             </button>
             <button
               type="button"
+              disabled={isSubmitting}
               onClick={() => setSelectedType("announcement")}
-              className={`min-h-[40px] rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+              className={`min-h-[40px] rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-colors cursor-pointer disabled:opacity-60 ${
                 contentType === "announcement"
                   ? "bg-[#111318] text-white shadow-xs"
                   : "text-[#6E7485] hover:text-[#111318]"
@@ -215,7 +231,6 @@ export function ContentEditorDialog() {
           </div>
         )}
 
-        {/* Form Body */}
         <div className="mt-4 flex-1">
           {contentType === "task" ? (
             <TaskFormFields form={taskForm} courses={courses} />
@@ -224,25 +239,34 @@ export function ContentEditorDialog() {
           )}
         </div>
 
-        {/* Fixed Dual Action Buttons */}
         <div className="mt-6 pt-3 border-t border-[#E4E7F0] grid grid-cols-2 gap-2.5">
           <Button
             type="button"
             variant="secondary"
+            disabled={isSubmitting}
             onClick={() => handleSubmitContent("DRAFT")}
-            className="min-h-[44px] rounded-full bg-[#EEF1F6] hover:bg-[#E4E7F0] text-[#111318] text-xs font-bold flex items-center justify-center gap-1.5"
+            className="min-h-[44px] rounded-full bg-[#EEF1F6] hover:bg-[#E4E7F0] text-[#111318] text-xs font-bold flex items-center justify-center gap-1.5 disabled:opacity-60"
           >
-            <Bookmark className="w-3.5 h-3.5" />
-            <span>Simpan Draft</span>
+            {submittingStatus === "DRAFT" ? (
+              <Loader2 className="w-3.5 h-3.5 animate-spin" />
+            ) : (
+              <Bookmark className="w-3.5 h-3.5" />
+            )}
+            <span>{submittingStatus === "DRAFT" ? "Menyimpan..." : "Simpan Draft"}</span>
           </Button>
 
           <Button
             type="button"
+            disabled={isSubmitting}
             onClick={() => handleSubmitContent("PUBLISHED")}
-            className="min-h-[44px] rounded-full bg-[#111318] hover:bg-[#111318]/90 text-white text-xs font-bold shadow-sm flex items-center justify-center gap-1.5"
+            className="min-h-[44px] rounded-full bg-[#111318] hover:bg-[#111318]/90 text-white text-xs font-bold shadow-sm flex items-center justify-center gap-1.5 disabled:opacity-60"
           >
-            <Send className="w-3.5 h-3.5" />
-            <span>Terbitkan</span>
+            {submittingStatus === "PUBLISHED" ? (
+              <Loader2 className="w-3.5 h-3.5 animate-spin" />
+            ) : (
+              <Send className="w-3.5 h-3.5" />
+            )}
+            <span>{submittingStatus === "PUBLISHED" ? "Menerbitkan..." : "Terbitkan"}</span>
           </Button>
         </div>
       </SheetContent>

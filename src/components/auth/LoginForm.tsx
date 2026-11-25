@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { loginFormSchema, LoginFormValues } from "@/lib/validations"
-import { useMockStore } from "@/lib/mock-store"
+import { usePortalStore } from "@/lib/portal-store"
 import { BrandLogo } from "@/components/layout/BrandLogo"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
@@ -24,7 +24,7 @@ import {
 
 export function LoginForm() {
   const router = useRouter()
-  const { userRole, currentUser, loginPublisher, logoutPublisher, setActiveTab } = useMockStore()
+  const { userRole, currentUser, loginPublisher, logoutPublisher, setActiveTab } = usePortalStore()
   const [showPassword, setShowPassword] = useState(false)
   const [loginError, setLoginError] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -109,7 +109,7 @@ export function LoginForm() {
                   <strong className="text-[#111318]">
                     {userRole === "ketua_kelas"
                       ? "Ketua Kelas"
-                      : userRole === "pj" || userRole === "pj_matkul"
+                      : userRole === "pj"
                       ? "PJ Matkul"
                       : "Anggota Kelas"}
                   </strong>
@@ -121,7 +121,7 @@ export function LoginForm() {
               <Button
                 type="button"
                 onClick={() => {
-                  if (userRole === "ketua_kelas" || userRole === "pj" || userRole === "pj_matkul") {
+                  if (userRole === "ketua_kelas" || userRole === "pj") {
                     setActiveTab("publisher")
                   } else {
                     setActiveTab("tasks")

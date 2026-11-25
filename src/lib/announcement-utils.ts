@@ -1,4 +1,7 @@
 import { Announcement } from "@/types"
+import { isSafeHttpUrl } from "@/lib/url-safety"
+
+export { isSafeHttpUrl }
 
 export function getAnnouncementCategoryMeta(cat: string) {
   switch (cat) {
@@ -26,39 +29,6 @@ export function getAnnouncementCategoryMeta(cat: string) {
         bgClass: "bg-[#EEF1F6]",
         textColor: "text-[#111318]",
       }
-  }
-}
-
-function isPrivateOrReservedHost(hostname: string): boolean {
-  const host = hostname.toLowerCase().trim()
-  if (
-    host === "localhost" ||
-    host === "127.0.0.1" ||
-    host === "0.0.0.0" ||
-    host === "::1" ||
-    host === "169.254.169.254" ||
-    host.endsWith(".local") ||
-    host.endsWith(".internal") ||
-    host.endsWith(".localhost")
-  ) {
-    return true
-  }
-  if (/^10\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(host)) return true
-  if (/^192\.168\.\d{1,3}\.\d{1,3}$/.test(host)) return true
-  if (/^169\.254\.\d{1,3}\.\d{1,3}$/.test(host)) return true
-  if (/^172\.(1[6-9]|2\d|3[0-1])\.\d{1,3}\.\d{1,3}$/.test(host)) return true
-  return false
-}
-
-export function isSafeHttpUrl(url?: string | null): boolean {
-  if (!url) return false
-  try {
-    const parsed = new URL(url)
-    if (parsed.protocol !== "http:" && parsed.protocol !== "https:") return false
-    if (isPrivateOrReservedHost(parsed.hostname)) return false
-    return true
-  } catch {
-    return false
   }
 }
 

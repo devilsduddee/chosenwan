@@ -67,7 +67,7 @@ export function ImageLightbox({
       role="dialog"
       aria-modal="true"
       aria-label={title || "Tampilan gambar penuh"}
-      className="fixed inset-0 z-[100] bg-[#111318]/95 backdrop-blur-md flex flex-col select-none touch-none animate-in fade-in duration-150"
+      className="fixed inset-0 z-[100] bg-[#111318]/95 backdrop-blur-md flex flex-col select-none animate-in fade-in duration-150"
     >
       {/* Top Bar Header */}
       <div className="w-full px-4 py-3 sm:py-3.5 pt-[calc(0.75rem+env(safe-area-inset-top,0px))] flex items-center justify-between gap-3 bg-[#111318]/80 border-b border-white/10 shrink-0 z-10">
@@ -133,7 +133,7 @@ export function ImageLightbox({
       </div>
 
       {/* Bottom Floating Zoom Controls */}
-      <div className="w-full pb-4 sm:pb-6 pb-[calc(1rem+env(safe-area-inset-bottom,0px))] flex items-center justify-center shrink-0 z-10 pointer-events-none">
+      <div className="w-full pb-[calc(1rem+env(safe-area-inset-bottom,0px))] sm:pb-6 flex items-center justify-center shrink-0 z-10 pointer-events-none">
         <div className="pointer-events-auto bg-[#111318]/90 backdrop-blur-md border border-white/15 rounded-full px-3 py-1.5 flex items-center gap-2 sm:gap-3 shadow-xl">
           <button
             type="button"

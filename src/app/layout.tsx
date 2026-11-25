@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from "next"
 import "./globals.css"
 import { Plus_Jakarta_Sans } from "next/font/google"
 import { cn } from "@/lib/utils"
-import { MockStoreProvider } from "@/lib/mock-store"
+import { PortalStoreProvider } from "@/lib/portal-store"
 import { PwaProvider } from "@/lib/pwa-context"
 import { Toaster } from "@/components/ui/sonner"
 import { PwaInstallModal } from "@/components/layout/PwaInstallModal"
@@ -58,11 +58,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="id" className={cn("font-sans antialiased", plusJakartaSans.variable)}>
       <body className="bg-[#F6F7FB] min-h-dvh text-[#111318]">
         <PwaProvider>
-          <MockStoreProvider>
+          <PortalStoreProvider>
             {children}
             <PwaInstallModal />
             <Toaster position="top-center" richColors />
-          </MockStoreProvider>
+          </PortalStoreProvider>
         </PwaProvider>
       </body>
     </html>

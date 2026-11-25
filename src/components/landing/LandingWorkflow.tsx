@@ -97,7 +97,7 @@ export function LandingWorkflow() {
                 <span className="w-5 h-5 rounded-full bg-white text-[#111318] text-[11px] font-extrabold flex items-center justify-center shrink-0 mt-0.5 shadow-2xs">
                   3
                 </span>
-                <span>Buka tautan pengumpulan Google Drive/LMS kelas secara aman (*read-only*).</span>
+                <span>Buka tautan pengumpulan Google Drive/LMS kelas secara aman (<em>read-only</em>).</span>
               </li>
             </ol>
           </div>
@@ -143,7 +143,7 @@ export function LandingWorkflow() {
                 <span className="w-5 h-5 rounded-full bg-[#EEF1F6] text-[#111318] text-[11px] font-extrabold flex items-center justify-center shrink-0 mt-0.5">
                   3
                 </span>
-                <span>Sematkan (*pin*) info genting/UTS, simpan draft, atau langsung terbitkan.</span>
+                <span>Sematkan (pin) info genting/UTS, simpan draft, atau langsung terbitkan.</span>
               </li>
             </ol>
           </div>

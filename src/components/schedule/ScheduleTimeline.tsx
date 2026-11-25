@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useState } from "react"
-import { useMockStore } from "@/lib/mock-store"
+import { usePortalStore } from "@/lib/portal-store"
 import { useCurrentTime } from "@/lib/use-current-time"
 import { Schedule } from "@/types"
 import { DaySelectorStrip } from "@/components/schedule/DaySelectorStrip"
@@ -11,7 +11,7 @@ import { DeleteConfirmDialog } from "@/components/publisher/DeleteConfirmDialog"
 import { Calendar, Coffee, Plus } from "lucide-react"
 
 export function ScheduleTimeline() {
-  const { schedules, userRole, deleteSchedule } = useMockStore()
+  const { schedules, userRole, deleteSchedule } = usePortalStore()
   const { currentDay } = useCurrentTime()
 
   // If user hasn't manually selected a day, default to currentDay
@@ -22,8 +22,7 @@ export function ScheduleTimeline() {
   const [editingSchedule, setEditingSchedule] = useState<Schedule | null>(null)
   const [deleteTarget, setDeleteTarget] = useState<Schedule | null>(null)
 
-  const canManageSchedule =
-    userRole === "ketua_kelas" || userRole === "pj" || userRole === "pj_matkul"
+  const canManageSchedule = userRole === "ketua_kelas" || userRole === "pj"
 
   const dayNames = ["", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"]
 
@@ -74,7 +73,7 @@ export function ScheduleTimeline() {
           <button
             type="button"
             onClick={handleOpenCreate}
-            className="min-h-[38px] px-3.5 rounded-full bg-[#111318] hover:bg-[#111318]/90 text-white text-xs font-bold inline-flex items-center gap-1.5 shrink-0 transition-all active:scale-95 cursor-pointer"
+            className="min-h-[44px] px-4 rounded-full bg-[#111318] hover:bg-[#111318]/90 text-white text-xs font-bold inline-flex items-center gap-1.5 shrink-0 transition-transform active:scale-95 cursor-pointer"
           >
             <Plus className="w-3.5 h-3.5" strokeWidth={2} />
             <span>Tambah Jadwal</span>

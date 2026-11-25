@@ -1,7 +1,7 @@
 "use client"
 
 import React from "react"
-import { useMockStore } from "@/lib/mock-store"
+import { usePortalStore } from "@/lib/portal-store"
 import { TaskStatusFilter } from "@/types"
 import { Search, X } from "lucide-react"
 
@@ -24,7 +24,7 @@ export function TaskFilterBar({ statusFilter, setStatusFilter }: TaskFilterBarPr
     setSearchQuery,
     selectedCourseFilter,
     setSelectedCourseFilter,
-  } = useMockStore()
+  } = usePortalStore()
 
   return (
     <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2.5 sm:gap-3">
@@ -39,16 +39,16 @@ export function TaskFilterBar({ statusFilter, setStatusFilter }: TaskFilterBarPr
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Cari tugas atau MK..."
-            className="w-full h-11 pl-10 pr-8 rounded-[14px] bg-white border border-[#E4E7F0] text-sm sm:text-xs text-[#111318] placeholder:text-[#6E7485] focus:outline-none focus:border-[#111318] transition-colors shadow-2xs [&::-webkit-search-cancel-button]:hidden"
+            className="w-full h-11 pl-10 pr-11 rounded-[14px] bg-white border border-[#E4E7F0] text-base sm:text-xs text-[#111318] placeholder:text-[#6E7485] focus:outline-none focus:border-[#111318] transition-colors shadow-2xs [&::-webkit-search-cancel-button]:hidden"
           />
           {searchQuery && (
             <button
               type="button"
               onClick={() => setSearchQuery("")}
-              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#6E7485] hover:text-[#111318] p-1"
+              className="absolute right-0 top-1/2 -translate-y-1/2 w-11 h-11 flex items-center justify-center text-[#6E7485] hover:text-[#111318] cursor-pointer"
               aria-label="Hapus pencarian"
             >
-              <X className="w-3.5 h-3.5" />
+              <X className="w-4 h-4" />
             </button>
           )}
         </div>
@@ -58,7 +58,7 @@ export function TaskFilterBar({ statusFilter, setStatusFilter }: TaskFilterBarPr
             value={selectedCourseFilter}
             onChange={(e) => setSelectedCourseFilter(e.target.value)}
             aria-label="Filter berdasarkan mata kuliah"
-            className="h-11 px-3 rounded-[14px] bg-[#EEF1F6] border border-[#E4E7F0] text-xs font-bold text-[#111318] focus:outline-none focus:border-[#111318] transition-colors cursor-pointer shadow-2xs"
+            className="h-11 px-3 rounded-[14px] bg-[#EEF1F6] border border-[#E4E7F0] text-sm sm:text-xs font-bold text-[#111318] focus:outline-none focus:border-[#111318] transition-colors cursor-pointer shadow-2xs"
           >
             <option value="ALL">Semua MK</option>
             {courses.map((c) => (
@@ -77,7 +77,7 @@ export function TaskFilterBar({ statusFilter, setStatusFilter }: TaskFilterBarPr
             key={pill.id}
             type="button"
             onClick={() => setStatusFilter(pill.id)}
-            className={`min-h-[38px] px-4 py-2 rounded-full text-xs font-semibold transition-all shrink-0 cursor-pointer ${
+            className={`min-h-[44px] md:min-h-[38px] px-4 py-2 rounded-full text-xs font-semibold transition-[transform,background-color,color] duration-150 shrink-0 cursor-pointer ${
               statusFilter === pill.id
                 ? "bg-[#111318] text-white shadow-xs font-bold"
                 : "bg-white text-[#6E7485] border border-[#E4E7F0] hover:text-[#111318] hover:bg-[#EEF1F6] active:scale-95"

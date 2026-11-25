@@ -1,4 +1,4 @@
-export type UserRole = "guest" | "member" | "pj" | "ketua_kelas" | "pj_matkul"
+export type UserRole = "guest" | "member" | "pj" | "ketua_kelas"
 
 export interface UserProfile {
   id: string
@@ -26,7 +26,6 @@ export interface Task {
   title: string
   instructions: string
   description?: string
-  week_number?: number
   due_date: string // ISO string
   submission_url?: string | null
   status: ContentStatus

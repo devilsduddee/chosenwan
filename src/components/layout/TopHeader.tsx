@@ -2,7 +2,7 @@
 
 import React from "react"
 import Link from "next/link"
-import { useMockStore } from "@/lib/mock-store"
+import { usePortalStore } from "@/lib/portal-store"
 import { BrandLogo } from "@/components/layout/BrandLogo"
 import { Button } from "@/components/ui/button"
 import {
@@ -25,7 +25,7 @@ export function TopHeader() {
     logoutPublisher,
     setIsEditorOpen,
     setEditingContent,
-  } = useMockStore()
+  } = usePortalStore()
 
   const desktopNavItems: { id: ActiveTab; label: string; icon: React.ElementType }[] = [
     { id: "tasks", label: "Tugas", icon: CheckSquare },
@@ -33,7 +33,8 @@ export function TopHeader() {
     { id: "schedule", label: "Jadwal", icon: Calendar },
   ]
 
-  if (userRole === "ketua_kelas" || userRole === "pj" || userRole === "pj_matkul") {
+  const isPublisher = userRole === "ketua_kelas" || userRole === "pj"
+  if (isPublisher) {
     desktopNavItems.push({ id: "publisher", label: "Kelola", icon: SlidersHorizontal })
   }
 
@@ -49,14 +50,11 @@ export function TopHeader() {
   const roleLabel =
     userRole === "ketua_kelas"
       ? "Ketua Kelas"
-      : userRole === "pj" || userRole === "pj_matkul"
+      : userRole === "pj"
       ? "PJ Matkul"
       : userRole === "member"
-      ? "Anggota Kelas"
+      ? "Anggota"
       : "Tamu"
-
-  const isPublisher =
-    userRole === "ketua_kelas" || userRole === "pj" || userRole === "pj_matkul"
 
   return (
     <header className="sticky top-0 z-40 bg-[#F6F7FB]/95 backdrop-blur-md border-b border-[#E4E7F0]/70 pt-[env(safe-area-inset-top,0px)]">
@@ -91,7 +89,7 @@ export function TopHeader() {
                 key={item.id}
                 type="button"
                 onClick={() => setActiveTab(item.id)}
-                className={`min-h-[34px] px-3.5 rounded-full text-xs font-bold inline-flex items-center gap-1.5 transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#111318] ${
+                className={`min-h-[38px] px-3.5 rounded-full text-xs font-bold inline-flex items-center gap-1.5 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#111318] ${
                   isActive
                     ? "bg-[#111318] text-white shadow-2xs"
                     : "text-[#6E7485] hover:text-[#111318] hover:bg-[#EEF1F6]"
@@ -104,14 +102,14 @@ export function TopHeader() {
           })}
         </nav>
 
-        {/* Right: Publisher Auth / Actions */}
+        {/* Right: Auth / Actions (>= 44px touch targets on mobile) */}
         <div className="flex items-center gap-1.5 shrink-0">
           {userRole === "guest" ? (
             <Link
               href="/login"
-              aria-label="Masuk Publisher"
-              title="Masuk Publisher"
-              className="flex items-center justify-center w-9 h-9 rounded-full bg-white hover:bg-[#EEF1F6] border border-[#E4E7F0]/80 text-[#6E7485] hover:text-[#111318] transition-all active:scale-95 shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#111318]"
+              aria-label="Masuk Akun Kelas"
+              title="Masuk Akun Kelas"
+              className="flex items-center justify-center w-11 h-11 rounded-full bg-white hover:bg-[#EEF1F6] border border-[#E4E7F0]/80 text-[#6E7485] hover:text-[#111318] transition-transform active:scale-95 shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#111318]"
             >
               <LogIn className="w-4 h-4" strokeWidth={1.75} />
             </Link>
@@ -121,7 +119,7 @@ export function TopHeader() {
                 <Button
                   size="sm"
                   onClick={handleCreateNew}
-                  className="h-[34px] rounded-full bg-[#111318] hover:bg-[#111318]/90 text-white text-xs font-semibold px-2.5 sm:px-3 shadow-2xs shrink-0 cursor-pointer"
+                  className="h-11 md:h-9 rounded-full bg-[#111318] hover:bg-[#111318]/90 text-white text-xs font-semibold px-3 shadow-2xs shrink-0 cursor-pointer"
                   title="Buat Konten Baru"
                 >
                   <Plus className="w-3.5 h-3.5 sm:mr-1" strokeWidth={2} />
@@ -131,14 +129,8 @@ export function TopHeader() {
 
               <button
                 type="button"
-                onClick={() => {
-                  if (isPublisher) {
-                    setActiveTab("publisher")
-                  } else {
-                    setActiveTab("tasks")
-                  }
-                }}
-                className="flex items-center gap-1.5 h-[34px] px-2.5 rounded-full bg-[#EEF1F6] hover:bg-[#E4E7F0] border border-[#E4E7F0] text-[11px] font-bold text-[#111318] transition-colors shrink-0 cursor-pointer"
+                onClick={() => setActiveTab(isPublisher ? "publisher" : "tasks")}
+                className="flex items-center gap-1.5 h-11 md:h-9 px-3 rounded-full bg-[#EEF1F6] hover:bg-[#E4E7F0] border border-[#E4E7F0] text-[11px] font-bold text-[#111318] transition-colors shrink-0 cursor-pointer"
                 title={isPublisher ? "Buka Dashboard Kelola" : "Sesi Anggota Aktif"}
               >
                 <ShieldCheck className="w-3.5 h-3.5 text-[#4CD98B] shrink-0" strokeWidth={2} />
@@ -150,9 +142,9 @@ export function TopHeader() {
                 onClick={handleLogout}
                 aria-label="Keluar dari sesi"
                 title="Keluar dari sesi"
-                className="flex items-center justify-center w-[34px] h-[34px] rounded-full bg-white hover:bg-[#F05252]/10 border border-[#E4E7F0] text-[#6E7485] hover:text-[#F05252] transition-colors shrink-0 cursor-pointer"
+                className="flex items-center justify-center w-11 h-11 md:w-9 md:h-9 rounded-full bg-white hover:bg-[#F05252]/10 border border-[#E4E7F0] text-[#6E7485] hover:text-[#F05252] transition-colors shrink-0 cursor-pointer"
               >
-                <LogOut className="w-3.5 h-3.5" strokeWidth={2} />
+                <LogOut className="w-4 h-4" strokeWidth={2} />
               </button>
             </>
           )}

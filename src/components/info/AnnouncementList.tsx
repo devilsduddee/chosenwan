@@ -2,14 +2,14 @@
 
 import React, { useMemo, useState } from "react"
 import { Announcement } from "@/types"
-import { useMockStore } from "@/lib/mock-store"
+import { usePortalStore } from "@/lib/portal-store"
 import { CategoryFilterPills } from "@/components/info/CategoryFilterPills"
 import { AnnouncementCard } from "@/components/info/AnnouncementCard"
 import { AnnouncementDetailSheet } from "@/components/info/AnnouncementDetailSheet"
 import { Inbox } from "lucide-react"
 
 export function AnnouncementList() {
-  const { announcements, selectedCategoryFilter } = useMockStore()
+  const { announcements, selectedCategoryFilter } = usePortalStore()
   const [selectedAnnouncement, setSelectedAnnouncement] = useState<Announcement | null>(null)
 
   const filtered = useMemo(() => {

@@ -104,7 +104,7 @@ export function AnnouncementFormFields({ form, courses }: AnnouncementFormFields
           </label>
           <select
             {...register("course_id")}
-            className="w-full h-10 px-3 rounded-xl bg-[#EEF1F6] border border-[#E4E7F0] text-xs font-semibold text-[#111318] focus:outline-none focus:border-[#111318]"
+            className="w-full h-11 px-3 rounded-xl bg-[#EEF1F6] border border-[#E4E7F0] text-sm sm:text-xs font-semibold text-[#111318] focus:outline-none focus:border-[#111318]"
           >
             <option value="">Pengumuman Umum (Bukan Matkul Tertentu)</option>
             {courses.map((c) => (
@@ -116,19 +116,35 @@ export function AnnouncementFormFields({ form, courses }: AnnouncementFormFields
         </div>
       )}
 
-      {/* Announcement Title */}
-      <div className="space-y-1">
-        <label className="text-xs font-bold text-[#111318]">
-          Judul Informasi <span className="text-[#F05252]">*</span>
-        </label>
-        <Input
-          placeholder="Contoh: Perubahan Ruangan Kuliah Kamis"
-          {...register("title")}
-          className="h-10 rounded-xl bg-[#EEF1F6] border-[#E4E7F0] text-xs"
-        />
-        {errors.title && (
-          <p className="text-[11px] text-[#F05252]">{errors.title.message}</p>
-        )}
+      {/* Announcement Title & Event Date */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+        <div className="sm:col-span-2 space-y-1">
+          <label className="text-xs font-bold text-[#111318]">
+            Judul Informasi <span className="text-[#F05252]">*</span>
+          </label>
+          <Input
+            placeholder="Contoh: Perubahan Ruangan Kuliah Kamis"
+            {...register("title")}
+            className="h-11 rounded-xl bg-[#EEF1F6] border-[#E4E7F0] text-base sm:text-xs"
+          />
+          {errors.title && (
+            <p className="text-[11px] text-[#F05252]">{errors.title.message}</p>
+          )}
+        </div>
+
+        <div className="space-y-1">
+          <label className="text-xs font-bold text-[#111318]">
+            Tanggal Acara / Info
+          </label>
+          <Input
+            type="date"
+            {...register("event_date")}
+            className="h-11 rounded-xl bg-[#EEF1F6] border-[#E4E7F0] text-base sm:text-xs"
+          />
+          {errors.event_date && (
+            <p className="text-[11px] text-[#F05252]">{errors.event_date.message}</p>
+          )}
+        </div>
       </div>
 
       {/* Content Body */}
@@ -140,7 +156,7 @@ export function AnnouncementFormFields({ form, courses }: AnnouncementFormFields
           rows={3}
           placeholder="Tuliskan detail pengumuman yang jelas dan ringkas..."
           {...register("content")}
-          className="rounded-xl bg-[#EEF1F6] border-[#E4E7F0] text-xs resize-none"
+          className="rounded-xl bg-[#EEF1F6] border-[#E4E7F0] text-base sm:text-xs resize-none"
         />
         {errors.content && (
           <p className="text-[11px] text-[#F05252]">{errors.content.message}</p>
@@ -178,9 +194,9 @@ export function AnnouncementFormFields({ form, courses }: AnnouncementFormFields
                 onClick={handleClearPoster}
                 aria-label="Hapus poster"
                 title="Hapus poster"
-                className="absolute top-2 right-2 w-7 h-7 rounded-full bg-[#111318]/85 hover:bg-[#F05252] text-white flex items-center justify-center transition-colors cursor-pointer"
+                className="absolute top-1.5 right-1.5 w-11 h-11 rounded-full bg-[#111318]/85 hover:bg-[#F05252] text-white flex items-center justify-center transition-colors cursor-pointer"
               >
-                <X className="w-3.5 h-3.5" />
+                <X className="w-4 h-4" />
               </button>
             </div>
           )}
@@ -190,7 +206,7 @@ export function AnnouncementFormFields({ form, courses }: AnnouncementFormFields
               type="button"
               disabled={isProcessingPoster}
               onClick={() => fileInputRef.current?.click()}
-              className="min-h-[38px] px-3.5 rounded-xl bg-white hover:bg-[#EEF1F6] border border-[#E4E7F0] text-xs font-bold text-[#111318] inline-flex items-center gap-1.5 shrink-0 transition-colors cursor-pointer disabled:opacity-60"
+              className="min-h-[44px] px-3.5 rounded-xl bg-white hover:bg-[#EEF1F6] border border-[#E4E7F0] text-xs font-bold text-[#111318] inline-flex items-center gap-1.5 shrink-0 transition-colors cursor-pointer disabled:opacity-60"
             >
               <ImagePlus className="w-3.5 h-3.5" strokeWidth={2} />
               <span>{isProcessingPoster ? "Memproses..." : posterUrl ? "Ganti File" : "Upload Poster"}</span>
@@ -204,7 +220,7 @@ export function AnnouncementFormFields({ form, courses }: AnnouncementFormFields
               placeholder="atau tempel link gambar (https://...)"
               value={posterUrl?.startsWith("data:") ? "" : posterUrl || ""}
               onChange={(e) => setValue("poster_url", e.target.value, { shouldValidate: true })}
-              className="h-[38px] rounded-xl bg-white border-[#E4E7F0] text-xs"
+              className="h-11 rounded-xl bg-white border-[#E4E7F0] text-base sm:text-xs"
             />
           </div>
 
@@ -226,7 +242,7 @@ export function AnnouncementFormFields({ form, courses }: AnnouncementFormFields
           autoCorrect="off"
           placeholder="https://instagram.com/p/... atau website lomba"
           {...register("source_url")}
-          className="h-10 rounded-xl bg-[#EEF1F6] border-[#E4E7F0] text-xs"
+          className="h-11 rounded-xl bg-[#EEF1F6] border-[#E4E7F0] text-base sm:text-xs"
         />
         {errors.source_url && (
           <p className="text-[11px] text-[#F05252]">{errors.source_url.message}</p>

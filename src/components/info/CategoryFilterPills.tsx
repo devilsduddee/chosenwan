@@ -1,11 +1,11 @@
 "use client"
 
 import React from "react"
-import { useMockStore } from "@/lib/mock-store"
+import { usePortalStore } from "@/lib/portal-store"
 import { Sparkles, BookOpen, Megaphone, Trophy } from "lucide-react"
 
 export function CategoryFilterPills() {
-  const { selectedCategoryFilter, setSelectedCategoryFilter } = useMockStore()
+  const { selectedCategoryFilter, setSelectedCategoryFilter } = usePortalStore()
 
   const categories = [
     { id: "ALL", label: "Semua Info", icon: Sparkles },

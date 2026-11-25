@@ -1,4 +1,5 @@
 import { Task, Announcement, Course, Schedule, UserRole, UserProfile, ActiveTab } from "@/types"
+import type { InitialPortalPayload } from "@/lib/actions/portal"
 
 export interface LoginResult {
   ok: boolean
@@ -6,7 +7,7 @@ export interface LoginResult {
   user?: UserProfile
 }
 
-export interface MockStoreContextType {
+export interface PortalStoreContextType {
   // Navigation & Role / Auth
   activeTab: ActiveTab
   setActiveTab: (tab: ActiveTab) => void
@@ -17,13 +18,16 @@ export interface MockStoreContextType {
   canManageContent: (createdBy?: string) => boolean
   isTasksGated: boolean
 
-  // Data
+  // Data & Network Status
   courses: Course[]
   tasks: Task[]
   announcements: Announcement[]
   schedules: Schedule[]
   isLoading: boolean
+  hasError: boolean
+  errorMessage: string | null
   refreshData: () => Promise<void>
+  hydrateInitialData: (payload: InitialPortalPayload) => void
 
   // Filtering & Search
   searchQuery: string
@@ -58,6 +62,4 @@ export interface MockStoreContextType {
   addSchedule: (schedule: Omit<Schedule, "id">) => Promise<void>
   updateSchedule: (id: string, schedule: Partial<Schedule>) => Promise<void>
   deleteSchedule: (id: string) => Promise<void>
-
-  resetToDefaults: () => void
 }

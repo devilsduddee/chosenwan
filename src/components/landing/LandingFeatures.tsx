@@ -1,14 +1,14 @@
 import React from "react"
-import { Clock, Megaphone, Trophy, Calendar, ShieldCheck, Pin, Lock, ArrowUpRight } from "lucide-react"
+import { Trophy, Calendar, ShieldCheck, Pin, Lock } from "lucide-react"
 
 export function LandingFeatures() {
   const days = [
-    { label: "Sen", slots: "2 mk", active: false },
+    { label: "Sen", slots: "3 mk", active: false },
     { label: "Sel", slots: "3 mk", active: true },
-    { label: "Rab", slots: "2 mk", active: false },
-    { label: "Kam", slots: "3 mk", active: false },
-    { label: "Jum", slots: "1 mk", active: false },
-    { label: "Sab", slots: "2 mk", active: false },
+    { label: "Rab", slots: "0 mk", active: false },
+    { label: "Kam", slots: "2 mk", active: false },
+    { label: "Jum", slots: "0 mk", active: false },
+    { label: "Sab", slots: "0 mk", active: false },
   ]
 
   return (
@@ -64,7 +64,7 @@ export function LandingFeatures() {
               Pengumuman dosen & sematkan info UTS
             </h3>
             <p className="text-xs text-[#111318]/85 leading-relaxed">
-              Info pindah ruang, kelas pengganti, atau pengumuman darurat dapat disematkan (*pin*)
+              Info pindah ruang, kelas pengganti, atau pengumuman darurat dapat disematkan (pin)
               di posisi teratas feed agar langsung terlihat oleh seluruh mahasiswa.
             </p>
           </div>
@@ -93,7 +93,6 @@ export function LandingFeatures() {
 
         {/* Card 4: White - Jadwal Kuliah Statis Publik */}
         <div className="md:col-span-3 bg-white border border-[#E4E7F0] text-[#111318] rounded-[22px] sm:rounded-[24px] p-4.5 sm:p-6 flex flex-col justify-between gap-4 sm:gap-5 shadow-2xs hover:-translate-y-0.5 transition-transform duration-200">
-          {/* Header */}
           <div className="flex items-start sm:items-center justify-between gap-2.5">
             <div className="flex items-center gap-2.5 min-w-0">
               <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-[#EEF1F6] text-[#111318] flex items-center justify-center shrink-0">
@@ -111,9 +110,7 @@ export function LandingFeatures() {
             </span>
           </div>
 
-          {/* Authentic Mini Schedule View */}
           <div className="space-y-2">
-            {/* Day selector row */}
             <div className="grid grid-cols-6 gap-1 bg-[#F6F7FB] p-1 rounded-xl border border-[#E4E7F0]/70">
               {days.map((d) => (
                 <div
@@ -128,10 +125,9 @@ export function LandingFeatures() {
               ))}
             </div>
 
-            {/* Active Class Preview Card */}
             <div className="bg-[#F6F7FB] p-2.5 rounded-xl border border-[#E4E7F0]/70 flex items-center justify-between gap-2">
               <div className="min-w-0">
-                <p className="text-[10px] font-bold text-[#6E7485] truncate">08:30 – 10:30 WIB · Ruang D421</p>
+                <p className="text-[10px] font-bold text-[#6E7485] truncate">14:30 – 17:30 WIB · Ruang D132</p>
                 <p className="text-xs font-extrabold text-[#111318] truncate mt-0.5">Interaksi Manusia & Komputer</p>
               </div>
               <span className="shrink-0 text-[10px] font-bold text-[#111318] bg-white border border-[#E4E7F0] px-2 py-0.5 rounded-full shadow-2xs">
@@ -162,8 +158,8 @@ export function LandingFeatures() {
               Simpan draft atau terbitkan langsung
             </h3>
             <p className="text-xs text-[#111318]/85 leading-relaxed">
-              Anggota kelas berstatus *read-only*. PJ matkul dan ketua kelas bisa meracik informasi
-              sebagai draft untuk dicek terlebih dahulu, atau langsung menerbitkan tanpa birokrasi approval.
+              Anggota kelas memiliki akses baca saja (<em>read-only</em>). PJ matkul dan ketua kelas bisa meracik informasi
+              sebagai draft untuk dicek terlebih dahulu, atau langsung menerbitkan tanpa birokrasi persetujuan.
             </p>
           </div>
         </div>

@@ -4,6 +4,7 @@ import { db } from "@/db"
 import { courses, schedules, tasks, events } from "@/db/schema"
 import { eq, desc } from "drizzle-orm"
 import { getSession } from "@/lib/auth"
+import { deriveCourseCode } from "@/lib/course-utils"
 import { Task, Announcement, Course, Schedule, UserProfile } from "@/types"
 
 export interface InitialPortalPayload {
@@ -13,6 +14,16 @@ export interface InitialPortalPayload {
   announcements: Announcement[]
   tasks: Task[]
   isTasksGated: boolean
+}
+
+function mapCourse(c: typeof courses.$inferSelect): Course {
+  return {
+    id: c.id,
+    name: c.name,
+    lecturer: c.lecturer,
+    lecturer_name: c.lecturer,
+    code: deriveCourseCode(c.name),
+  }
 }
 
 /**
@@ -27,19 +38,10 @@ export async function getInitialPortalData(): Promise<InitialPortalPayload> {
     (session.role === "member" || session.role === "pj" || session.role === "ketua_kelas")
   const isPublisher = session && (session.role === "pj" || session.role === "ketua_kelas")
 
-  // 1. Ambil Master Mata Kuliah
   const dbCourses = await db.select().from(courses).all()
-  const courseMap = new Map(dbCourses.map((c) => [c.id, c]))
+  const mappedCourses = dbCourses.map(mapCourse)
+  const courseMap = new Map(mappedCourses.map((c) => [c.id, c]))
 
-  const mappedCourses: Course[] = dbCourses.map((c) => ({
-    id: c.id,
-    name: c.name,
-    lecturer: c.lecturer,
-    lecturer_name: c.lecturer,
-    code: c.name.slice(0, 3).toUpperCase(),
-  }))
-
-  // 2. Ambil Jadwal Kuliah Statis
   const dbSchedules = await db.select().from(schedules).all()
   const mappedSchedules: Schedule[] = dbSchedules.map((s) => {
     const c = courseMap.get(s.idCourse)
@@ -54,29 +56,18 @@ export async function getInitialPortalData(): Promise<InitialPortalPayload> {
       end_time: s.endTime,
       room: s.room,
       lecturer_name: c?.lecturer || undefined,
-      course: c
-        ? {
-            id: c.id,
-            name: c.name,
-            lecturer: c.lecturer,
-            code: c.name.slice(0, 3).toUpperCase(),
-          }
-        : undefined,
+      course: c,
     }
   })
 
-  // 3. Ambil Event / Pengumuman
-  let dbEvents
-  if (isPublisher) {
-    dbEvents = await db.select().from(events).orderBy(desc(events.createdAt)).all()
-  } else {
-    dbEvents = await db
-      .select()
-      .from(events)
-      .where(eq(events.status, "PUBLISHED"))
-      .orderBy(desc(events.createdAt))
-      .all()
-  }
+  const dbEvents = isPublisher
+    ? await db.select().from(events).orderBy(desc(events.createdAt)).all()
+    : await db
+        .select()
+        .from(events)
+        .where(eq(events.status, "PUBLISHED"))
+        .orderBy(desc(events.createdAt))
+        .all()
 
   const mappedAnnouncements: Announcement[] = dbEvents.map((e) => {
     const c = e.idCourse ? courseMap.get(e.idCourse) : undefined
@@ -97,34 +88,23 @@ export async function getInitialPortalData(): Promise<InitialPortalPayload> {
       status: e.status,
       created_at: e.createdAt,
       updated_at: e.updatedAt,
-      course: c
-        ? {
-            id: c.id,
-            name: c.name,
-            lecturer: c.lecturer,
-            code: c.name.slice(0, 3).toUpperCase(),
-          }
-        : undefined,
+      course: c,
     }
   })
 
-  // 4. Ambil Tugas (TASK) — GATED PRIVAT
   let mappedTasks: Task[] = []
   let isTasksGated = true
 
   if (isMemberOrPublisher) {
     isTasksGated = false
-    let dbTasks
-    if (isPublisher) {
-      dbTasks = await db.select().from(tasks).orderBy(desc(tasks.createdAt)).all()
-    } else {
-      dbTasks = await db
-        .select()
-        .from(tasks)
-        .where(eq(tasks.status, "PUBLISHED"))
-        .orderBy(desc(tasks.createdAt))
-        .all()
-    }
+    const dbTasks = isPublisher
+      ? await db.select().from(tasks).orderBy(desc(tasks.createdAt)).all()
+      : await db
+          .select()
+          .from(tasks)
+          .where(eq(tasks.status, "PUBLISHED"))
+          .orderBy(desc(tasks.createdAt))
+          .all()
 
     mappedTasks = dbTasks.map((t) => {
       const c = courseMap.get(t.idCourse)
@@ -142,14 +122,7 @@ export async function getInitialPortalData(): Promise<InitialPortalPayload> {
         status: t.status,
         created_at: t.createdAt,
         updated_at: t.updatedAt,
-        course: c
-          ? {
-              id: c.id,
-              name: c.name,
-              lecturer: c.lecturer,
-              code: c.name.slice(0, 3).toUpperCase(),
-            }
-          : undefined,
+        course: c,
       }
     })
   }

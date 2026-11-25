@@ -2,7 +2,7 @@
 
 import React, { useMemo, useState } from "react"
 import Link from "next/link"
-import { useMockStore } from "@/lib/mock-store"
+import { usePortalStore } from "@/lib/portal-store"
 import { useCurrentTime } from "@/lib/use-current-time"
 import { isTaskPast, isTaskUrgent } from "@/lib/date-utils"
 import { TaskStatusFilter } from "@/types"
@@ -16,7 +16,7 @@ import { CheckCircle2, Lock, ArrowRight, Sparkles, Calendar, Megaphone } from "l
 
 export function TaskList() {
   const { tasks, searchQuery, selectedCourseFilter, userRole, isTasksGated, setActiveTab } =
-    useMockStore()
+    usePortalStore()
   const { now, mounted } = useCurrentTime()
   const [statusFilter, setStatusFilter] = useState<TaskStatusFilter>("ALL")
 

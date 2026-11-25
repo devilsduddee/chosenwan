@@ -33,7 +33,7 @@ export function AnnouncementCard({ announcement, onSelect }: AnnouncementCardPro
     <button
       type="button"
       onClick={() => onSelect(announcement)}
-      className={`w-full h-full flex flex-col justify-between text-left bg-white rounded-[22px] p-4 sm:p-5 border shadow-2xs transition-all cursor-pointer active:scale-[0.98] group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#111318] ${
+      className={`w-full h-full flex flex-col justify-between text-left bg-white rounded-[22px] p-4 sm:p-5 border shadow-2xs transition-[transform,border-color] duration-150 cursor-pointer active:scale-[0.98] group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#111318] ${
         announcement.is_pinned
           ? "border-[#111318] ring-1 ring-[#111318]/10"
           : "border-[#E4E7F0] hover:border-[#111318]/30"

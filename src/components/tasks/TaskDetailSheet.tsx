@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useState } from "react"
-import { useMockStore } from "@/lib/mock-store"
+import { usePortalStore } from "@/lib/portal-store"
 import { useCurrentTime } from "@/lib/use-current-time"
 import { formatIndonesianDate, formatIndonesianTime } from "@/lib/date-utils"
 import {
@@ -21,7 +21,7 @@ import {
 } from "lucide-react"
 
 export function TaskDetailSheet() {
-  const { selectedTaskForDetail, setSelectedTaskForDetail } = useMockStore()
+  const { selectedTaskForDetail, setSelectedTaskForDetail } = usePortalStore()
   const { now, mounted } = useCurrentTime()
   const [copied, setCopied] = useState(false)
 
@@ -41,7 +41,6 @@ export function TaskDetailSheet() {
   const handleCopyWhatsApp = () => {
     const text = `📢 *TUGAS KELAS: ${task.course?.name || task.course?.code}*\n` +
       `📌 *Judul:* ${task.title}\n` +
-      (task.week_number ? `🗓 *Minggu ke:* ${task.week_number}\n` : "") +
       `⏰ *Deadline:* ${formattedDate}, ${formattedTime} WIB\n` +
       `📝 *Instruksi:*\n${task.instructions}\n` +
       (task.submission_url ? `🔗 *Link Pengumpulan:* ${task.submission_url}\n` : "") +
@@ -68,11 +67,6 @@ export function TaskDetailSheet() {
             <span className="text-xs font-bold bg-[#A8C0FF] text-[#111318] px-3 py-1 rounded-full">
               {task.course?.code} · {task.course?.name}
             </span>
-            {task.week_number && (
-              <span className="text-xs font-semibold bg-[#EEF1F6] text-[#6E7485] px-2.5 py-1 rounded-full">
-                Pertemuan {task.week_number}
-              </span>
-            )}
             {isPast ? (
               <span className="text-xs font-bold bg-[#EEF1F6] text-[#6E7485] px-2.5 py-1 rounded-full">
                 Tenggat Lewat

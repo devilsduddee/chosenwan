@@ -5,6 +5,8 @@ import { db } from "@/db"
 import { accounts } from "@/db/schema"
 import { eq } from "drizzle-orm"
 import { createSession, destroySession, getSession } from "@/lib/auth"
+import { checkRateLimit } from "@/lib/rate-limit"
+import { loginFormSchema } from "@/lib/validations"
 import { UserProfile } from "@/types"
 
 export async function loginAction(
@@ -12,9 +14,23 @@ export async function loginAction(
   passwordRaw: string
 ): Promise<{ ok: boolean; error?: string; user?: UserProfile }> {
   try {
-    const trimmedName = name.trim()
-    if (!trimmedName || !passwordRaw) {
-      return { ok: false, error: "Nama pengguna dan kata sandi wajib diisi." }
+    const parsed = loginFormSchema.safeParse({ name, password: passwordRaw })
+    if (!parsed.success) {
+      const firstError = parsed.error.issues[0]?.message || "Nama pengguna dan kata sandi wajib diisi."
+      return { ok: false, error: firstError }
+    }
+
+    const trimmedName = parsed.data.name
+    const throttle = checkRateLimit(`login-account:${trimmedName.toLowerCase()}`, {
+      limit: 10,
+      windowMs: 15 * 60_000,
+    })
+
+    if (!throttle.allowed) {
+      return {
+        ok: false,
+        error: `Terlalu banyak percobaan login gagal. Coba lagi dalam ${Math.ceil(throttle.retryAfterSeconds / 60)} menit.`,
+      }
     }
 
     const account = await db
@@ -27,7 +43,7 @@ export async function loginAction(
       return { ok: false, error: "Nama pengguna atau kata sandi salah." }
     }
 
-    const isValid = await bcrypt.compare(passwordRaw, account.password)
+    const isValid = await bcrypt.compare(parsed.data.password, account.password)
     if (!isValid) {
       return { ok: false, error: "Nama pengguna atau kata sandi salah." }
     }

@@ -225,30 +225,29 @@ flowchart TD
 ### Aturan Bisnis Terkait Publikasi:
 1. **Self-Publishing Rights:** PJ mata kuliah dan ketua kelas memiliki hak terbit langsung tanpa antrean persetujuan (*no approval bottleneck*).
 2. **Karantina Draft:** Konten dengan status `DRAFT` secara mutlak tidak boleh dikembalikan oleh query publik.
-3. **Validasi Wajib Tugas:** Form tugas wajib mengisi `course_id`, `title`, dan `due_date`. Field `week_number`, `submission_url`, dan `notes` bersifat opsional.
+3. **Validasi Wajib Tugas:** Form tugas wajib mengisi `course_id`, `title`, `instructions`, dan `due_date`. Field `submission_url` bersifat opsional (`http(s)` publik).
 4. **Validasi Wajib Info Simpel:** Form info simpel wajib mengisi `title`, `category_type` (`ACADEMIC`, `CAMPUS_NEWS`, atau `COMPETITION`), dan `content`. Khusus kategori `ACADEMIC`, field `course_id` opsional tetapi disarankan. Field link sumber eksternal (`source_url`) opsional namun disarankan untuk berita dan lomba.
 
 ---
 
 ## 6. Sequence Diagram
 
-### 6.1 Konsumsi Feed Publik oleh Mahasiswa (Guest)
+### 6.1 Konsumsi Feed Publik oleh Tamu (Non-Login)
 
 ```mermaid
 sequenceDiagram
     actor M as Mahasiswa (Browser)
     participant FE as Frontend Client
-    participant API as API / Data Layer
-    participant DB as Database
+    participant SA as Server Actions (Next.js)
+    participant DB as Turso (libSQL)
 
-    M->>FE: Buka Halaman Tugas / Pengumuman
-    FE->>API: GET /api/v1/tasks?status=published (atau Supabase public query)
-    Note over API: Query hanya memfilter status = 'PUBLISHED'
-    API->>DB: SELECT * FROM tasks WHERE status = 'PUBLISHED' ORDER BY due_date ASC
-    DB-->>API: Data tasks (array)
-    API-->>FE: HTTP 200 OK (JSON Data)
-    FE->>FE: Hitung status kedekatan deadline (Urgent / Aman)
-    FE-->>M: Tampilkan Bento Cards & List Tugas
+    M->>FE: Buka Halaman Portal (/portal)
+    FE->>SA: getInitialPortalData() (SSR / Refresh)
+    Note over SA: Cek cookie sesi PASETO v3.local; tamu hanya menerima schedule & event PUBLISHED
+    SA->>DB: SELECT schedules & events WHERE status = 'PUBLISHED'
+    DB-->>SA: Data publik (tanpa tasks & tanpa DRAFT)
+    SA-->>FE: PortalInitialData (role = 'guest', tasks = [])
+    FE-->>M: Tampilkan Tab Jadwal & Info (Tab Tugas terkunci untuk non-login)
 ```
 
 ### 6.2 Mutasi Pembuatan Tugas oleh Publisher
@@ -257,21 +256,21 @@ sequenceDiagram
 sequenceDiagram
     actor P as Publisher (PJ/Ketua)
     participant FE as Frontend Client
-    participant API as API / Data Layer
-    participant DB as Database
+    participant SA as Server Actions (Next.js)
+    participant DB as Turso (libSQL)
 
     P->>FE: Klik "Terbitkan" pada Form Tugas
     FE->>FE: Validasi skema input form (Zod Client)
-    FE->>API: POST /api/v1/tasks (Payload + Auth Bearer Token / Cookie)
-    API->>API: Verifikasi Auth Token & Ambil User Role
+    FE->>SA: createTaskAction(payload) + HTTP-only PASETO Cookie
+    SA->>SA: Verifikasi Token PASETO v3.local, Role, & Zod Server Schema
     alt Token Tidak Valid / Expired
-        API-->>FE: HTTP 401 Unauthorized
-        FE-->>P: Tampilkan Toast "Sesi berakhir, silakan login ulang"
+        SA-->>FE: Error Terstruktur ("Unauthorized: Sesi berakhir")
+        FE-->>P: Tampilkan Toast Error & pertahankan input form
     else Token Valid & Role Diizinkan
-        API->>DB: INSERT INTO tasks (title, course_id, due_date, status, created_by, ...)
-        DB-->>API: Record baru berhasil dibuat
-        API-->>FE: HTTP 201 Created (Data Task)
-        FE-->>P: Tampilkan Toast Sukses & Alihkan ke Daftar Konten
+        SA->>DB: INSERT INTO tasks (id_course, id_acc, title, description, deadline, status, ...)
+        DB-->>SA: Record baru berhasil dibuat
+        SA-->>FE: Data Task Baru + revalidatePath("/portal")
+        FE-->>P: Tutup Modal, Tampilkan Toast Sukses & Perbarui Daftar Konten
     end
 ```
 
@@ -458,122 +457,32 @@ stateDiagram-v2
 
 ---
 
-## 9. API & Interface Contract
+## 9. Server Actions & Interface Contract
 
-Format API ditulis dalam pola RESTful standar (diimplementasikan via Next.js Server Actions dan Route Handlers tervalidasi).
+Komunikasi client-server diimplementasikan melalui **Next.js Server Actions** tervalidasi Zod (`src/lib/actions/*`) yang terhubung langsung ke **Turso (libSQL + Drizzle ORM)** serta sesi terenkripsi **PASETO `v3.local`**.
 
-### 9.1 Ringkasan Endpoint
+### 9.1 Ringkasan Server Actions
 
-| Method | Endpoint Path | Autentikasi | Deskripsi Singkat | Use Case Terkait |
+| Server Action | Lokasi Modul | Autentikasi & Otorisasi | Deskripsi Singkat | Use Case Terkait |
 |---|---|---|---|---|
-| `GET` | `/api/v1/schedules` | Public (Tanpa Auth) | Mengambil jadwal statis kuliah per hari | UC-01 |
-| `GET` | `/api/v1/events` | Public (Tanpa Auth) | Mengambil event, berita kampus, dan info lomba (`status = PUBLISHED`) | UC-02, UC-06 |
-| `GET` | `/api/v1/courses` | Public (Tanpa Auth) | Mengambil master mata kuliah untuk filter | UC-06 |
-| `POST` | `/api/v1/auth/login` | Public | Otentikasi nama anggota (`name`) dan `password` | UC-03 |
-| `POST` | `/api/v1/auth/logout` | Session Aktif | Mengakhiri sesi login | UC-03 |
-| `GET` | `/api/v1/tasks` | **Member / Publisher Session** | Mengambil daftar tugas kelas (`status = PUBLISHED`). Menolak publik (HTTP 401) | UC-04, UC-06 |
-| `GET` | `/api/v1/tasks/:id` | **Member / Publisher Session** | Mengambil detail spesifik tugas dan link pengumpulan GDrive | UC-05 |
-| `GET` | `/api/v1/publisher/contents` | Publisher Session (`pj`/`ketua_kelas`) | Mengambil seluruh konten milik publisher (Draft + Published) | UC-07, UC-08 |
-| `POST` | `/api/v1/tasks` | Publisher Session (`pj`/`ketua_kelas`) | Membuat entri tugas baru (Draft / Published) | UC-07, UC-10, UC-11 |
-| `PUT` | `/api/v1/tasks/:id` | Publisher Session (`pj`/`ketua_kelas`) | Memperbarui entri tugas | UC-07 |
-| `DELETE` | `/api/v1/tasks/:id` | Publisher Session (`pj`/`ketua_kelas`) | Menghapus entri tugas | UC-07, UC-12 |
-| `POST` | `/api/v1/events` | Publisher Session (`pj`/`ketua_kelas`) | Membuat event / info simpel / upload poster | UC-08, UC-10, UC-11 |
-| `PUT` | `/api/v1/events/:id` | Publisher Session (`pj`/`ketua_kelas`) | Memperbarui event | UC-08 |
-| `DELETE` | `/api/v1/events/:id` | Publisher Session (`pj`/`ketua_kelas`) | Menghapus event (membersihkan poster ImageKit) | UC-08, UC-12 |
-| `PUT` | `/api/v1/schedules/:id` | Admin Session (`ketua_kelas`) | Memperbarui data jadwal statis | UC-09 |
+| `getInitialPortalData()` | `src/lib/actions/portal.ts` | Publik / Member / Publisher | Memuat `courses`, `schedules`, `events` (`PUBLISHED` untuk publik/member; semua untuk publisher), serta `tasks` hanya jika sesi valid (`isTasksGated: true` untuk tamu) | UC-01, UC-02, UC-04, UC-06 |
+| `loginAction(name, password)` | `src/lib/actions/auth.ts` | Publik (Rate-Limited per IP & per username) | Memverifikasi `bcrypt` hash dari tabel `account` dan menyetel cookie PASETO `v3.local` HTTP-only | UC-03 |
+| `logoutAction()` | `src/lib/actions/auth.ts` | Session Aktif | Menghapus cookie sesi | UC-03 |
+| `createTaskAction`, `updateTaskAction`, `deleteTaskAction` | `src/lib/actions/tasks.ts` | Publisher (`pj` pemilik / `ketua_kelas`) | Mutasi entri tugas (`DRAFT`/`PUBLISHED`) dengan validasi Zod server-side | UC-07, UC-10, UC-11, UC-12 |
+| `createEventAction`, `updateEventAction`, `togglePinEventAction`, `deleteEventAction` | `src/lib/actions/events.ts` | Publisher (`pj` pemilik / `ketua_kelas`) | Mutasi event, pin pengumuman penting, serta upload & cleanup poster CDN ImageKit.io | UC-08, UC-10, UC-11, UC-12 |
+| `createScheduleAction`, `updateScheduleAction`, `deleteScheduleAction` | `src/lib/actions/schedules.ts` | Publisher (`pj` & `ketua_kelas`) | Menambah, memperbarui, atau menghapus slot jadwal kuliah statis per hari | UC-09 |
+| `listClassAccountsAction`, `upsertCourseAction`, `createClassAccountAction`, `resetClassAccountPasswordAction` | `src/lib/actions/admin.ts` | Khusus `ketua_kelas` | Mengelola master mata kuliah/dosen serta membuat atau mereset kata sandi akun anggota/PJ | Admin Operasional |
 
----
+### 9.2 Contoh Kontrak Payload Server Action Kunci
 
-### 9.2 Skema Request dan Response Kunci
-
-#### 1. `POST /api/v1/auth/login`
-- **Request Body:**
-```json
-{
-  "name": "andi",
-  "password": "password123"
-}
-```
-- **Response `200 OK` (Berhasil):**
-```json
-{
-  "success": true,
-  "user": {
-    "id": "e5b7b6c2-4e2b-4835-97e3-0d5b78b5e28a",
-    "name": "andi",
-    "role": "member"
-  }
-}
-```
-
-#### 2. `GET /api/v1/tasks` (Akses Privat Anggota Kelas)
-- **Headers:** Memerlukan Cookie Sesi Aktif (`session_token`)
-- **Query Params:**
-  - `id_course` (opsional): filter ID mata kuliah.
-  - `filter` (opsional): `all` | `upcoming` | `past`.
-- **Response `200 OK`:**
-```json
-{
-  "success": true,
-  "data": [
-    {
-      "id": "e5b7b6c2-4e2b-4835-97e3-0d5b78b5e28a",
-      "course": {
-        "id": "c1a9f0e1-7d3a-4428-b80c-235882f0df71",
-        "name": "Interaksi Manusia dan Komputer",
-        "lecturer": "Dr. Eng. Budi"
-      },
-      "title": "Tugas 3: Perancangan UI Mobile High-Fidelity",
-      "description": "Buat 4 frame aplikasi mobile menggunakan Figma. Kumpulkan file link sebelum batas waktu.",
-      "due_date": "2026-11-20T23:59:00+07:00",
-      "submission_url": "https://drive.google.com/drive/folders/example",
-      "status": "PUBLISHED",
-      "created_at": "2026-11-17T08:00:00+07:00"
-    }
-  ]
-}
-```
-- **Response `401 Unauthorized` (Jika diakses publik tanpa login):**
-```json
-{
-  "success": false,
-  "error": "UNAUTHORIZED",
-  "message": "Halaman tugas hanya dapat diakses oleh anggota kelas yang sudah login."
-}
-```
-
-#### 3. `POST /api/v1/events` (Publisher Action)
-- **Request Body (Contoh: Info Lomba dengan Poster ImageKit):**
-```json
-{
-  "id_course": null,
-  "category": "COMPETITION",
-  "title": "Gemastik 2026 Divisi UX Design",
-  "description": "Pendaftaran babak penyisihan dibuka sampai akhir bulan. Hadiah total puluhan juta rupiah.",
-  "event_date": "2026-12-15",
-  "source_url": "https://pusatprestasinasional.kemdikbud.go.id/gemastik",
-  "poster_url": "https://ik.imagekit.io/chosenwan/posters/gemastik_xyz.jpg",
-  "poster_file_id": "file_xyz12345",
-  "status": "PUBLISHED"
-}
-```
-- **Response `201 Created`:**
-```json
-{
-  "success": true,
-  "message": "Event berhasil diterbitkan",
-  "data": {
-    "id": "a901842e-128a-4efb-8871-3382901a88b1",
-    "status": "PUBLISHED"
-  }
-}
-```
-    "id": "a901842e-128a-4efb-8871-3382901a88b1",
-    "category_type": "COMPETITION",
-    "status": "PUBLISHED"
-  }
-}
-```
+1. **`loginAction(name, password)`:**
+   - Validasi input memakai `loginFormSchema` + rate limit per akun (`10` percobaan / `15` menit) dan per IP di `src/proxy.ts`.
+   - Mengembalikan `{ ok: true, user: { id, name, role } }` atau `{ ok: false, error }`.
+2. **`getInitialPortalData()` (SSR Hydration di `/portal`):**
+   - Jika tamu (`session === null`), mengembalikan `tasks: []`, `isTasksGated: true`, serta `announcements` dan `schedules` berstatus `PUBLISHED`.
+   - Jika `member`, `pj`, atau `ketua_kelas`, mengembalikan daftar `tasks` sesuai izin status (`PUBLISHED` untuk `member`, `DRAFT` + `PUBLISHED` untuk publisher).
+3. **`createEventAction` / `updateEventAction`:**
+   - Poster berformat Data URL diunggah ke ImageKit.io (`/chosenwan/posters`), menyimpan `posterUrl` & `posterFileId`. Saat poster diganti, dihapus, atau event dihapus, file lama dibersihkan via `deletePosterFromImageKit`.
 
 ---
 
@@ -602,7 +511,7 @@ Sesuai preferensi arsitektur di `profile.md` bagian 9, antarmuka Chosenwan **tid
 ### 10.2 Struktur Hierarki Komponen UI (Component Tree)
 
 ```text
-AppContainer (max-w-md mx-auto, min-h-screen, bg-[#F6F7FB])
+AppContainer (max-w-5xl mx-auto, min-h-screen, bg-[#F6F7FB])
 ├── TopHeader (Identitas Kelas "Chosenwan Pilot", Tombol Masuk/Kelola Publisher)
 ├── MainContent (Dynamic View based on active tab)
 │   ├── TasksView (Tab: Tugas)
@@ -636,42 +545,46 @@ AppContainer (max-w-md mx-auto, min-h-screen, bg-[#F6F7FB])
 
 ---
 
-### 10.3 Struktur Folder Konvensional
-
-Struktur folder dirancang sederhana, modular, dan mengikuti konvensi standar agar ramah untuk debugging oleh manusia maupun AI coding agent:
+### 10.3 Struktur Folder Aktual
 
 ```text
-chosenwan-app/
-├── public/                     # Aset statis & favicon
+chosenwan/
+├── public/                     # Aset statis, ikon PWA & site.webmanifest
 ├── src/
-│   ├── app/                    # Routing halaman (misal Next.js App Router / Pages)
-│   │   ├── layout.tsx          # Root mobile container (max-w-md center)
-│   │   ├── page.tsx            # Halaman utama (Public Home / Tabs)
-│   │   ├── login/
-│   │   │   └── page.tsx        # Halaman autentikasi publisher
-│   │   └── publisher/
-│   │       └── page.tsx        # Dashboard publisher (Protected)
-│   │
+│   ├── app/
+│   │   ├── layout.tsx          # Root wrapper, font, PWA modal & PortalStoreProvider
+│   │   ├── page.tsx            # Landing page publik
+│   │   ├── login/page.tsx      # Halaman login anggota & publisher
+│   │   └── portal/
+│   │       ├── layout.tsx      # SSR hydrator (<Suspense>) + TopHeader + BottomNav
+│   │       └── page.tsx        # Portal tab Tugas, Info, Jadwal & Kelola
 │   ├── components/
-│   │   ├── ui/                 # Komponen dasar dari shadcn/ui (Button, Card, Badge, Dialog, etc.)
-│   │   ├── layout/             # TopHeader, BottomNav, MobileContainer
-│   │   ├── tasks/              # BentoGrid, UrgentTaskCard, TaskCard, TaskDetailSheet
-│   │   ├── info/               # AnnouncementCard, CategoryFilter
-│   │   ├── schedule/           # DaySelector, ScheduleSlotCard
-│   │   └── publisher/          # ContentEditorForm, ContentTable, DeleteDialog
-│   │
+│   │   ├── ui/                 # Komponen shadcn/ui & ImageLightbox
+│   │   ├── auth/               # LoginForm
+│   │   ├── landing/            # Komponen landing page
+│   │   ├── layout/             # TopHeader, BottomNavigationBar, PortalHydrator, PortalStatusBanner, PwaInstallModal
+│   │   ├── tasks/              # BentoSummaryGrid, UrgentTaskCard, TaskList, TaskCard, TaskDetailSheet
+│   │   ├── info/               # AnnouncementCard, AnnouncementList, AnnouncementDetailSheet, CategoryFilterPills
+│   │   ├── schedule/           # DaySelectorStrip, ScheduleSlotCard, ScheduleTimeline, ScheduleEditorDialog
+│   │   └── publisher/          # PublisherDashboard, ContentEditorDialog, AdminManageSheet, DeleteConfirmDialog
+│   ├── db/
+│   │   ├── index.ts            # Koneksi libSQL / Turso + Drizzle ORM
+│   │   ├── schema.ts           # Skema 5 tabel (account, course, schedule, task, event)
+│   │   └── seed.ts             # Seeder awal jadwal & akun kelas
 │   ├── lib/
-│   │   ├── db.ts               # Koneksi database / Supabase client instance
-│   │   ├── validations.ts      # Skema Zod untuk form tugas & pengumuman
-│   │   ├── utils.ts            # Helper formatting tanggal (date-fns / dayjs) & cn helper
-│   │   └── constants.ts        # Daftar hari, opsi kategori, badge colors
-│   │
-│   └── types/
-│       └── index.ts            # TypeScript interfaces (Task, Announcement, Schedule, Course, User)
+│   │   ├── actions/            # Server Actions: auth, portal, tasks, events, schedules, admin
+│   │   ├── __tests__/          # Unit test (node:test + tsx)
+│   │   ├── portal-store.tsx    # State client & mutasi portal
+│   │   ├── auth.ts             # Cookie sesi PASETO v3.local
+│   │   ├── session-token.ts    # Enkripsi/dekripsi PASETO v3.local
+│   │   ├── validations.ts      # Skema Zod client & server boundary
+│   │   ├── url-safety.ts       # Validasi tautan aman & anti-SSRF
+│   │   ├── course-utils.ts     # Generator kode mata kuliah
+│   │   └── date-utils.ts       # Formatting tanggal & waktu WIB
+│   └── types/                  # TypeScript interfaces (index.ts, store.ts)
 ├── .env.example                # Template environment variables
-├── package.json
-├── tailwind.config.ts          # Definisi color tokens Playful Bento dari 05-design.md
-└── tsconfig.json
+├── next.config.ts              # Konfigurasi Next.js + Header keamanan & CSP
+└── package.json
 ```
 
 ---
@@ -685,8 +598,8 @@ chosenwan-app/
 | **Koneksi internet terputus saat membuka portal** | Client gagal melakukan fetch data ke server. | Tampilkan banner kartu peringatan di atas: *"Gagal memuat info terbaru. Periksa koneksi internetmu."* + tombol *"Coba Lagi"*. |
 | **Double Submit form oleh publisher** | Cegah duplikasi pengiriman data saat tombol ditekan berkali-kali. | Disable tombol *"Terbitkan"* / *"Simpan Draft"* seketika setelah klik pertama, ganti teks tombol dengan spinner loading. |
 | **Input form tidak lengkap atau format URL salah** | Validasi client-side via Zod menolak submit form. | Highlight input yang bermasalah dengan garis merah tipis dan teks peringatan di bawah kolom (misal: *"Format tautan harus diawali https://"*). |
-| **Sesi login publisher habis (Token Expired)** | Mutasi data ke backend ditolak dengan status HTTP 401. | Tampilkan Toast: *"Sesi login berakhir. Silakan masuk kembali."* dan alihkan publisher secara halus ke form login tanpa kehilangan input bila memungkinkan. |
-| **Publisher non-ketua mencoba mengedit postingan orang lain** | Otorisasi di tingkat database / backend menolak query update. | HTTP 403 Forbidden. UI menampilkan pesan *"Kamu hanya dapat mengedit postingan yang kamu buat sendiri."* |
+| **Sesi login publisher habis (Token Expired)** | Mutasi data di Server Action menolak cookie sesi tidak valid (`getSession() === null`). | Tampilkan Toast error dari Server Action (*"Unauthorized: Sesi berakhir..."*) dan pertahankan modal/input user agar tidak hilang. |
+| **Publisher non-ketua mencoba mengedit postingan orang lain** | Guard ownership Server Action (`idAcc !== session.userId`) menolak mutasi untuk role `pj`. | UI menampilkan pesan error (*"Hanya ketua kelas atau pembuat asli..."*) dari Server Action. |
 | **Tautan pengumpulan tugas berupa teks biasa** | Dosen memberikan link Google Classroom tanpa skema protokol. | Helper otomatis menyematkan prefix `https://` atau menampilkan teks petunjuk jika format bukan URL yang dapat diklik. |
 
 ---
@@ -697,8 +610,8 @@ chosenwan-app/
    - Halaman publik pertama kali dibuka (*First Contentful Paint*) ditargetkan `< 1.8 detik` pada jaringan 4G standar ponsel mahasiswa.
    - Ukuran bundel JavaScript awal diminimalkan dengan memanfaatkan *code-splitting* bawaan framework modern.
 2. **Keamanan & Otorisasi:**
-   - Konten berstatus `DRAFT` dilindungi di tingkat query database (misalnya via *PostgreSQL Row-Level Security* / RLS), bukan sekadar difilter di sisi client JavaScript, sehingga data rahasia/draft tidak bocor melalui *Network Tab / DevTools*.
-   - Password publisher di-*hash* menggunakan algoritma kuat (misal `bcrypt` / `argon2`) bawaan engine auth standar.
+   - Konten berstatus `DRAFT` dan tabel `task` dilindungi langsung di sisi server (Server Action `getInitialPortalData` + verifikasi sesi PASETO `v3.local` di setiap Server Action mutasi), sehingga data privat/draft tidak pernah dikirim ke browser tanpa izin.
+   - Seluruh input mutasi divalidasi ulang dengan Zod di server (`src/lib/validations.ts`), password di-*hash* dengan `bcryptjs` (12 rounds), dan respons HTTP dilengkapi `Content-Security-Policy` serta `X-Frame-Options: DENY`.
 3. **Aksesibilitas & Kontras:**
    - Mengikuti aturan kontras di `05-design.md`: Seluruh teks di atas badge atau blok warna pastel (`#A8C0FF`, `#F6C866`, `#EA9DFB`) wajib menggunakan warna gelap **Deep Jet Charcoal (`#111318`)**, bukan putih.
    - Ukuran target ketukan jari (*touch targets*) untuk seluruh tombol dan tab minimal `44 × 44 px` agar nyaman ditekan jempol di layar ponsel.
@@ -707,15 +620,15 @@ chosenwan-app/
 
 ## 13. Matriks Ketertelusuran (Traceability Matrix)
 
-| Requirement PRD | Use Case | Komponen & Flow | Endpoint / Query Data | Entitas Database Terkait |
+| Requirement PRD | Use Case | Komponen & Flow | Server Action / Query Data | Entitas Database Terkait |
 |---|---|---|---|---|
-| **FR-01 (Akses Informasi Publik)** | UC-01, UC-03, UC-04 | TasksView, InfoView, SchedulesView | `GET /api/v1/tasks`, `GET /api/v1/announcements` | `tasks` (`status='PUBLISHED'`), `announcements` |
-| **FR-02 (Akses & Otorisasi Publisher)** | UC-06, UC-12 | LoginView, PublisherDashboard | `POST /api/v1/auth/login`, Middleware Auth | `profiles` (`role='pj_matkul'/'ketua_kelas'`) |
-| **FR-03 (Manajemen Tugas)** | UC-07, UC-02 | ContentEditorForm, TaskDetailSheet | `POST/PUT/DELETE /api/v1/tasks` | `tasks`, `courses` |
-| **FR-04 (Pengumuman & Info Simpel)** | UC-08, UC-03 | ContentEditorForm, InfoView | `POST/PUT/DELETE /api/v1/announcements` | `announcements` (`category_type`) |
-| **FR-05 (Publikasi Langsung & Draft)** | UC-10, UC-11 | FormActionsBar (`Simpan Draft` vs `Terbitkan`) | Payload field `status` (`DRAFT`/`PUBLISHED`) | `tasks.status`, `announcements.status` |
-| **FR-06 (Jadwal Kuliah Statis)** | UC-04, UC-09 | SchedulesView, DaySelectorStrip | `GET/PUT /api/v1/schedules` | `schedules`, `courses` |
-| **FR-07 (Pemisahan Tab & Filter)** | UC-05 | BottomNavigationBar, SearchAndFilterBar | Client-side search / filter queries | `tasks`, `announcements`, `courses` |
+| **FR-01 (Akses Publik & Gated Task)** | UC-01, UC-03, UC-04 | TaskList, AnnouncementList, ScheduleTimeline | `getInitialPortalData()` | `task` (`status='PUBLISHED'`, gated session), `event`, `schedule` |
+| **FR-02 (Otorisasi Multi-Peran)** | UC-06, UC-12 | LoginForm, PublisherDashboard, AdminManageSheet | `loginAction`, `getSession()`, `actions/admin.ts` | `account` (`role='member'/'pj'/'ketua_kelas'`) |
+| **FR-03 (Manajemen Tugas)** | UC-07, UC-02 | ContentEditorDialog, TaskDetailSheet | `createTaskAction`, `updateTaskAction`, `deleteTaskAction` | `task`, `course` |
+| **FR-04 (Event, Poster CDN & Pin)** | UC-08, UC-03 | ContentEditorDialog, AnnouncementList | `createEventAction`, `updateEventAction`, `togglePinEventAction`, `deleteEventAction` | `event` (`category`, `is_pinned`, `poster_file_id`) |
+| **FR-05 (Publikasi Langsung & Draft)** | UC-10, UC-11 | ContentEditorDialog (`Simpan Draft` vs `Terbitkan`) | Payload `status` (`DRAFT`/`PUBLISHED`) | `task.status`, `event.status` |
+| **FR-06 (Jadwal Kuliah Statis)** | UC-04, UC-09 | ScheduleTimeline, DaySelectorStrip, ScheduleEditorDialog | `createScheduleAction`, `updateScheduleAction`, `deleteScheduleAction` | `schedule`, `course` |
+| **FR-07 (Pemisahan Tab & Filter)** | UC-05 | BottomNavigationBar, TaskFilterBar, CategoryFilterPills | Client-side search / filter queries | `task`, `event`, `course` |
 
 ---
 
@@ -792,3 +705,4 @@ Fitur-fitur berikut secara eksplisit berada di luar scope spesifikasi teknis MVP
 | **1.3** | 2026-11-20 | Mengunci **Opsi B: Turso (libSQL / SQLite) + ImageKit.io** sebagai stack aktif backend & media storage poster, menambahkan kolom `poster_file_id` pada `announcements`, serta merinci alur upload/hapus poster ImageKit.io. |
 | **1.4** | 2026-11-24 | Menyelaraskan skema database dengan dokumen desain ERD serah-terima: mengadopsi 5 tabel standar (`account`, `course`, `schedule`, `task`, `event`), menghapus kolom redundan di `task` dan `schedule`, memproteksi halaman Tugas khusus anggota kelas yang login (`role = member` / HTTP 401 jika publik), serta mencatat arsitektur fitur Scraping dan LLM Parser ke Out of Scope (Future Roadmap). |
 | **1.5** | 2026-11-24 | Menambahkan kolom `is_pinned` pada tabel `event` dan hak akses publisher (`pj` dan `ketua_kelas`) untuk menyematkan pengumuman penting / Jadwal UTS di urutan teratas feed Info & Kampus. |
+| **1.6** | 2026-11-25 | Sinkronisasi kontrak Section 9 & 10 dengan implementasi **Next.js Server Actions + Turso (Drizzle) + PASETO `v3.local` murni + ImageKit.io** (menghapus legacy `jose` JWT fallback, menambahkan `src/lib/actions/admin.ts` untuk `ketua_kelas`, SSR hydration di `/portal`, serta validasi Zod & CSP headers). |

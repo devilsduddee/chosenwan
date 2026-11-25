@@ -4,13 +4,75 @@ import { db } from "@/db"
 import { events } from "@/db/schema"
 import { eq } from "drizzle-orm"
 import { getSession } from "@/lib/auth"
-import { uploadPosterToImageKit, deletePosterFromImageKit } from "@/lib/imagekit"
+import {
+  uploadPosterToImageKit,
+  deletePosterFromImageKit,
+  isImageKitConfigured,
+} from "@/lib/imagekit"
+import { serverEventCreateSchema, serverEventUpdateSchema } from "@/lib/validations"
+
+const MAX_LOCAL_DATA_URL_LENGTH = 512_000
+
+async function resolvePosterUpdate(
+  incomingPosterUrl: string | null | undefined,
+  existingPosterUrl: string | null,
+  existingPosterFileId: string | null
+): Promise<{ posterUrl: string | null; posterFileId: string | null }> {
+  // Tidak ada perubahan field poster
+  if (incomingPosterUrl === undefined) {
+    return { posterUrl: existingPosterUrl, posterFileId: existingPosterFileId }
+  }
+
+  const trimmed = incomingPosterUrl?.trim() || ""
+
+  // Poster dihapus oleh publisher
+  if (!trimmed) {
+    if (existingPosterFileId) {
+      await deletePosterFromImageKit(existingPosterFileId)
+    }
+    return { posterUrl: null, posterFileId: null }
+  }
+
+  // Upload poster baru dalam format data URL base64
+  if (trimmed.startsWith("data:image/")) {
+    if (isImageKitConfigured()) {
+      const uploaded = await uploadPosterToImageKit(trimmed, "poster")
+      if (!uploaded) {
+        throw new Error("Gagal mengunggah poster ke CDN ImageKit. Silakan coba lagi.")
+      }
+      if (existingPosterFileId) {
+        await deletePosterFromImageKit(existingPosterFileId)
+      }
+      return { posterUrl: uploaded.url, posterFileId: uploaded.fileId }
+    }
+
+    if (process.env.NODE_ENV === "production") {
+      throw new Error("Layanan CDN poster belum dikonfigurasi. Gunakan tautan gambar https://.")
+    }
+
+    if (trimmed.length > MAX_LOCAL_DATA_URL_LENGTH) {
+      throw new Error("Ukuran poster lokal terlalu besar tanpa CDN. Gunakan gambar lebih kecil.")
+    }
+
+    return { posterUrl: trimmed, posterFileId: null }
+  }
+
+  // Diganti dengan tautan URL eksternal baru
+  if (trimmed !== existingPosterUrl && existingPosterFileId) {
+    await deletePosterFromImageKit(existingPosterFileId)
+  }
+  return {
+    posterUrl: trimmed,
+    posterFileId: trimmed === existingPosterUrl ? existingPosterFileId : null,
+  }
+}
 
 export async function createEventAction(data: {
   category: "ACADEMIC" | "CAMPUS_NEWS" | "COMPETITION"
   title: string
   content: string
   course_id?: string | null
+  event_date?: string
   source_url?: string | null
   poster_url?: string | null
   poster_file_id?: string | null
@@ -22,31 +84,28 @@ export async function createEventAction(data: {
     throw new Error("Hanya publisher yang dapat membuat pengumuman/event.")
   }
 
-  let finalPosterUrl = data.poster_url || null
-  let finalPosterFileId = data.poster_file_id || null
-
-  if (finalPosterUrl && finalPosterUrl.startsWith("data:image/")) {
-    const uploaded = await uploadPosterToImageKit(finalPosterUrl, "poster")
-    if (uploaded) {
-      finalPosterUrl = uploaded.url
-      finalPosterFileId = uploaded.fileId
-    }
+  const parsed = serverEventCreateSchema.safeParse(data)
+  if (!parsed.success) {
+    throw new Error(parsed.error.issues[0]?.message || "Data pengumuman tidak valid.")
   }
+
+  const valid = parsed.data
+  const resolvedPoster = await resolvePosterUpdate(valid.poster_url, null, null)
 
   const [inserted] = await db
     .insert(events)
     .values({
       idAcc: session.userId,
-      idCourse: data.course_id || null,
-      category: data.category,
-      title: data.title,
-      description: data.content,
-      eventDate: new Date().toISOString().split("T")[0],
-      sourceUrl: data.source_url || null,
-      posterUrl: finalPosterUrl,
-      posterFileId: finalPosterFileId,
-      isPinned: Boolean(data.is_pinned),
-      status: data.status,
+      idCourse: valid.course_id || null,
+      category: valid.category,
+      title: valid.title,
+      description: valid.content,
+      eventDate: valid.event_date || new Date().toISOString().split("T")[0],
+      sourceUrl: valid.source_url || null,
+      posterUrl: resolvedPoster.posterUrl,
+      posterFileId: resolvedPoster.posterFileId,
+      isPinned: Boolean(valid.is_pinned),
+      status: valid.status,
     })
     .returning()
 
@@ -60,6 +119,7 @@ export async function updateEventAction(
     title: string
     content: string
     course_id?: string | null
+    event_date?: string
     source_url?: string | null
     poster_url?: string | null
     poster_file_id?: string | null
@@ -72,6 +132,11 @@ export async function updateEventAction(
     throw new Error("Hanya publisher yang berhak mengubah event.")
   }
 
+  const parsed = serverEventUpdateSchema.safeParse(data)
+  if (!parsed.success) {
+    throw new Error(parsed.error.issues[0]?.message || "Pembaruan pengumuman tidak valid.")
+  }
+
   const existing = await db.select().from(events).where(eq(events.id, id)).get()
   if (!existing) throw new Error("Event tidak ditemukan.")
 
@@ -79,33 +144,26 @@ export async function updateEventAction(
     throw new Error("Anda hanya dapat mengedit event yang Anda buat sendiri.")
   }
 
-  let finalPosterUrl = data.poster_url !== undefined ? data.poster_url : existing.posterUrl
-  let finalPosterFileId =
-    data.poster_file_id !== undefined ? data.poster_file_id : existing.posterFileId
-
-  if (data.poster_url && data.poster_url.startsWith("data:image/")) {
-    if (existing.posterFileId) {
-      await deletePosterFromImageKit(existing.posterFileId)
-    }
-    const uploaded = await uploadPosterToImageKit(data.poster_url, "poster")
-    if (uploaded) {
-      finalPosterUrl = uploaded.url
-      finalPosterFileId = uploaded.fileId
-    }
-  }
+  const valid = parsed.data
+  const resolvedPoster = await resolvePosterUpdate(
+    valid.poster_url,
+    existing.posterUrl,
+    existing.posterFileId
+  )
 
   const [updated] = await db
     .update(events)
     .set({
-      category: data.category ?? existing.category,
-      title: data.title ?? existing.title,
-      description: data.content ?? existing.description,
-      idCourse: data.course_id !== undefined ? data.course_id : existing.idCourse,
-      sourceUrl: data.source_url !== undefined ? data.source_url : existing.sourceUrl,
-      posterUrl: finalPosterUrl,
-      posterFileId: finalPosterFileId,
-      isPinned: data.is_pinned !== undefined ? Boolean(data.is_pinned) : existing.isPinned,
-      status: data.status ?? existing.status,
+      category: valid.category ?? existing.category,
+      title: valid.title ?? existing.title,
+      description: valid.content ?? existing.description,
+      idCourse: valid.course_id !== undefined ? valid.course_id || null : existing.idCourse,
+      eventDate: valid.event_date ?? existing.eventDate,
+      sourceUrl: valid.source_url !== undefined ? valid.source_url || null : existing.sourceUrl,
+      posterUrl: resolvedPoster.posterUrl,
+      posterFileId: resolvedPoster.posterFileId,
+      isPinned: valid.is_pinned !== undefined ? Boolean(valid.is_pinned) : existing.isPinned,
+      status: valid.status ?? existing.status,
       updatedAt: new Date().toISOString(),
     })
     .where(eq(events.id, id))
@@ -122,6 +180,10 @@ export async function togglePinEventAction(id: string) {
 
   const existing = await db.select().from(events).where(eq(events.id, id)).get()
   if (!existing) throw new Error("Pengumuman tidak ditemukan.")
+
+  if (session.role !== "ketua_kelas" && existing.idAcc !== session.userId) {
+    throw new Error("Anda hanya dapat menyematkan pengumuman yang Anda buat sendiri.")
+  }
 
   const newPinState = !existing.isPinned
   const [updated] = await db

@@ -2,7 +2,8 @@
 
 import React, { useEffect } from "react"
 import { useRouter } from "next/navigation"
-import { useMockStore } from "@/lib/mock-store"
+import { usePortalStore } from "@/lib/portal-store"
+import { PortalStatusBanner } from "@/components/layout/PortalStatusBanner"
 import { TaskList } from "@/components/tasks/TaskList"
 import { AnnouncementList } from "@/components/info/AnnouncementList"
 import { ScheduleTimeline } from "@/components/schedule/ScheduleTimeline"
@@ -12,7 +13,7 @@ import { ActiveTab } from "@/types"
 
 export default function PortalPage() {
   const router = useRouter()
-  const { activeTab, setActiveTab, userRole } = useMockStore()
+  const { activeTab, setActiveTab, userRole, isLoading, hasError } = usePortalStore()
 
   // Handle public tab shortcuts (?tab=tasks|info|schedule) and protect publisher tab
   useEffect(() => {
@@ -20,11 +21,13 @@ export default function PortalPage() {
     const tabParam = params.get("tab") as ActiveTab | null
 
     if (tabParam === "publisher") {
-      if (userRole === "guest") {
+      if (!isLoading && userRole === "guest") {
         router.replace("/login")
         return
       }
-      setActiveTab("publisher")
+      if (userRole === "pj" || userRole === "ketua_kelas") {
+        setActiveTab("publisher")
+      }
     } else if (tabParam && ["tasks", "info", "schedule"].includes(tabParam)) {
       setActiveTab(tabParam)
     } else if (!tabParam) {
@@ -34,21 +37,28 @@ export default function PortalPage() {
         setActiveTab("tasks")
       }
     }
-  }, [router, setActiveTab, userRole])
+  }, [router, setActiveTab, userRole, isLoading])
 
-  // Auth Guard: prevent unauthenticated guest from viewing Publisher Dashboard
+  // Auth Guard: prevent unauthenticated guest or member from viewing Publisher Dashboard
   useEffect(() => {
-    if (activeTab === "publisher" && userRole === "guest") {
-      router.replace("/login")
+    if (!isLoading && activeTab === "publisher" && userRole !== "pj" && userRole !== "ketua_kelas") {
+      router.replace(userRole === "guest" ? "/login" : "/portal")
     }
-  }, [activeTab, userRole, router])
+  }, [activeTab, userRole, isLoading, router])
 
   return (
     <>
-      {activeTab === "tasks" && <TaskList />}
-      {activeTab === "info" && <AnnouncementList />}
-      {activeTab === "schedule" && <ScheduleTimeline />}
-      {activeTab === "publisher" && userRole !== "guest" && <PublisherDashboard />}
+      <PortalStatusBanner />
+      {!isLoading && !hasError && (
+        <>
+          {activeTab === "tasks" && <TaskList />}
+          {activeTab === "info" && <AnnouncementList />}
+          {activeTab === "schedule" && <ScheduleTimeline />}
+          {activeTab === "publisher" && (userRole === "pj" || userRole === "ketua_kelas") && (
+            <PublisherDashboard />
+          )}
+        </>
+      )}
 
       {/* Global Content Editor Modal */}
       <ContentEditorDialog />

@@ -26,38 +26,39 @@ export function DaySelectorStrip({
     <div className="flex items-center justify-between gap-1 bg-white p-1.5 rounded-3xl border border-[#E4E7F0] shadow-xs">
       {days.map((d) => {
         const isActive = selectedDay === d.dayNumber
+        const count = classCounts?.[d.dayNumber] ?? 0
 
         return (
           <button
             key={d.dayNumber}
             type="button"
             onClick={() => onSelectDay(d.dayNumber)}
-            aria-label={`Pilih hari ${d.full}`}
-            className={`flex-1 min-h-[52px] py-2 px-0.5 rounded-2xl flex flex-col items-center justify-between transition-all duration-150 select-none cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#111318] active:scale-95 ${
+            aria-label={`Pilih hari ${d.full} (${count} kelas)`}
+            className={`flex-1 min-h-[52px] py-2 px-0.5 rounded-2xl flex flex-col items-center justify-between transition-[background-color,color,transform] duration-150 select-none cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#111318] active:scale-95 ${
               isActive
                 ? "bg-[#111318] text-white shadow-xs font-bold"
                 : "text-[#6E7485] hover:text-[#111318] hover:bg-[#EEF1F6]"
             }`}
           >
             <span
-              className={`text-[9px] uppercase font-bold tracking-wider leading-none ${
-                isActive ? "text-white/80" : "text-[#6E7485]"
+              className={`text-[10px] uppercase font-bold tracking-wider leading-none ${
+                isActive ? "text-white" : "text-[#111318]"
               }`}
             >
               {d.label}
             </span>
             <span
-              className={`text-xs sm:text-sm font-extrabold leading-none mt-1 ${
-                isActive ? "text-white" : "text-[#111318]"
+              className={`text-[10px] font-semibold leading-none mt-1 tabular-nums ${
+                isActive ? "text-white/80" : "text-[#6E7485]"
               }`}
             >
-              0{d.dayNumber}
+              {count} mk
             </span>
             <span
               className={`w-1.5 h-1.5 rounded-full mt-1 transition-colors ${
                 isActive
                   ? "bg-[#F6C866]"
-                  : (classCounts?.[d.dayNumber] ?? 0) > 0
+                  : count > 0
                   ? "bg-[#A8C0FF]"
                   : "bg-transparent"
               }`}

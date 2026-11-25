@@ -40,46 +40,58 @@ Dokumen ini adalah aturan wajib bagi coding agent (Antigravity atau coding agent
 ## 2. Tech Stack & Konvensi Arsitektur
 
 ### 2.1 Spesifikasi Stack
-- **Framework:** Next.js 15 (App Router, TypeScript, React 19)
+- **Framework:** Next.js 16 (App Router, TypeScript, React 19)
 - **Styling:** Tailwind CSS v4 + shadcn/ui
 - **Icons:** Lucide React
-- **Backend & Database:** Supabase (PostgreSQL, Supabase Auth, Row Level Security)
-- **Client & SSR Helper:** `@supabase/ssr`
-- **Validasi Form:** `react-hook-form` + `zod`
+- **Backend & Database:** Turso (libSQL / Edge SQLite) + Drizzle ORM
+- **Autentikasi & Sesi:** PASETO `v3.local` encrypted HTTP-only cookie (`src/lib/auth.ts` + `src/lib/session-token.ts`) & `bcryptjs`
+- **Media CDN:** ImageKit.io (`src/lib/imagekit.ts`)
+- **Validasi Form & Server Boundary:** `react-hook-form` + `zod`
 - **Deployment Platform:** Vercel
 
 ### 2.2 Struktur Folder Standar
 ```text
 src/
 ├── app/                        # App Router Pages & Layouts
-│   ├── layout.tsx              # Root mobile-first wrapper (max-w-md mx-auto)
-│   ├── page.tsx                # Halaman utama mahasiswa publik (RSC)
+│   ├── layout.tsx              # Root wrapper + PWA modal + PortalStoreProvider
+│   ├── page.tsx                # Landing page publik
 │   ├── login/
-│   │   └── page.tsx            # Halaman login email/password publisher
-│   └── publisher/
-│       ├── layout.tsx          # Auth protected layout middleware
-│       └── page.tsx            # Dashboard kelola konten (Draft & Published)
+│   │   └── page.tsx            # Halaman login username/password kelas & publisher
+│   └── portal/
+│       ├── layout.tsx          # SSR data hydrator (<Suspense>) + TopHeader + BottomNav
+│       └── page.tsx            # Halaman portal mahasiswa & dashboard publisher
 ├── components/
-│   ├── ui/                     # Komponen shadcn/ui murni
-│   ├── layout/                 # TopHeader, BottomNavigationBar
-│   ├── tasks/                  # BentoSummaryGrid, UrgentTaskCard, TaskList, TaskDetailSheet
-│   ├── info/                   # CategoryFilterPills, AnnouncementCard, AnnouncementList
-│   ├── schedule/               # DaySelectorStrip, ScheduleSlotCard
-│   └── publisher/              # ContentEditorForm, DeleteConfirmDialog
+│   ├── ui/                     # Komponen shadcn/ui & ImageLightbox
+│   ├── auth/                   # LoginForm
+│   ├── landing/                # LandingNavbar, LandingHero, LandingFeatures, LandingWorkflow, LandingFooter
+│   ├── layout/                 # TopHeader, BottomNavigationBar, PortalHydrator, PortalStatusBanner, PwaInstallModal
+│   ├── tasks/                  # BentoSummaryGrid, UrgentTaskCard, TaskList, TaskCard, TaskDetailSheet
+│   ├── info/                   # CategoryFilterPills, AnnouncementCard, AnnouncementList, AnnouncementDetailSheet
+│   ├── schedule/               # DaySelectorStrip, ScheduleSlotCard, ScheduleTimeline, ScheduleEditorDialog
+│   └── publisher/              # PublisherDashboard, ContentEditorDialog, AdminManageSheet, DeleteConfirmDialog
+├── db/
+│   ├── index.ts                # Koneksi libSQL / Turso + Drizzle ORM
+│   ├── schema.ts               # 5 tabel: account, course, schedule, task, event
+│   └── seed.ts                 # Seeder awal jadwal & akun 3IA01
 ├── lib/
-│   ├── supabase/
-│   │   ├── client.ts           # Browser Supabase client
-│   │   └── server.ts           # Server Component / Server Action Supabase client
-│   ├── actions/                # Next.js Server Actions (mutasi create/edit/delete)
-│   ├── validations/            # Zod schemas (taskSchema, announcementSchema)
-│   ├── utils.ts                # cn helper & date formatting (date-fns / Intl)
-│   └── constants.ts            # Token warna, label hari, kategori enum
+│   ├── actions/                # Next.js Server Actions (auth, portal, tasks, events, schedules, admin)
+│   ├── __tests__/              # Unit test suite via tsx --test (auth, validations, date/course utils, rate-limit)
+│   ├── portal-store.tsx        # Client state provider & mutasi terintegrasi Server Actions
+│   ├── auth.ts                 # Cookie HTTP-only sesi PASETO v3.local
+│   ├── session-token.ts        # Enkripsi/dekripsi token PASETO v3.local
+│   ├── imagekit.ts             # Upload & cleanup media poster ImageKit.io
+│   ├── rate-limit.ts           # Fixed-window limiter login per-IP & per-akun
+│   ├── validations.ts          # Zod schemas (client forms & server action boundaries)
+│   ├── url-safety.ts           # Validasi URL publik & anti-SSRF
+│   ├── course-utils.ts         # Generator kode singkatan mata kuliah deterministik
+│   └── date-utils.ts           # Formatting tanggal & waktu WIB deterministik
 └── types/
-    └── database.ts             # TypeScript types Supabase
+    ├── index.ts                # Domain interfaces (Task, Announcement, Schedule, Course, User)
+    └── store.ts                # PortalStoreContextType
 ```
 
 ### 2.3 Aturan Komponen & Styling
-- **Tampilan Mobile-First:** Kontainer utama selalu dibatasi lebar maksimal `max-w-md mx-auto` dengan background kanvas `#F6F7FB`.
+- **Tampilan Mobile-First:** Kontainer portal menggunakan pendekatan mobile-first (`max-w-5xl mx-auto` dengan grid responsif 1 kolom mobile → 2 kolom desktop) di atas background kanvas `#F6F7FB`.
 - **Token Warna Playful Bento (Wajib Ikuti `05-design.md`):**
   - Kanvas Utama: `#F6F7FB` | Kartu Putih: `#FFFFFF` | Kontainer Sekunder: `#EEF1F6`
   - Jangkar Gelap (Urgent / CTA Primer): `#111318` (Teks putih `#FFFFFF`)
@@ -89,27 +101,25 @@ src/
   - Status Aman: `#4CD98B` | Status Mendesak/Error: `#F05252`
 - **Aturan Kontras:** Dilarang menggunakan teks putih di atas blok pastel (`#A8C0FF`, `#F6C866`, `#EA9DFB`). Teks di atas warna pastel wajib menggunakan `#111318` agar tajam dan terbaca.
 
-### 2.4 Aturan Akses & Database (Supabase RLS)
-- **Publik Mahasiswa (Read-Only Tanpa Login):**
-  - Hanya dapat membaca data dengan kondisi `status = 'PUBLISHED'`.
-  - Jangan pernah mengekspos endpoint atau query yang mengembalikan data `status = 'DRAFT'` ke halaman publik.
-- **Publisher (Ketua Kelas & PJ):**
-  - Harus terautentikasi melalui Supabase Auth.
-  - Memiliki opsi mutasi data: simpan sebagai `DRAFT` atau langsung `PUBLISHED` (tanpa sistem approval bertingkat).
-  - PJ hanya boleh mengedit/menghapus konten yang dibuatnya sendiri (`created_by = auth.uid()`), sedangkan Ketua Kelas (`role = 'ketua_kelas'`) memiliki hak moderasi darurat untuk semua konten kelas.
+### 2.4 Aturan Akses & Database (Turso + Server Actions Guard)
+- **Area Publik (Tanpa Login):**
+  - Hanya dapat membaca `schedule` dan `event` dengan kondisi `status = 'PUBLISHED'`.
+  - Tugas (`task`) dan data berstatus `DRAFT` wajib disaring ketat di Server Action `getInitialPortalData()` agar tidak pernah dikirim ke browser tamu.
+- **Anggota Kelas (`role = 'member'`):**
+  - Terautentikasi PASETO `v3.local`; memiliki akses baca (*Read-Only*) untuk `task` (`PUBLISHED`), `event` (`PUBLISHED`), dan `schedule`.
+- **Publisher (`role = 'pj'` & `role = 'ketua_kelas'`):**
+  - Wajib terautentikasi PASETO `v3.local` dan memvalidasi input melalui schema Zod server-side di seluruh Server Actions (`src/lib/actions/*`).
+  - Memiliki opsi mutasi data: simpan sebagai `DRAFT` atau langsung `PUBLISHED` (tanpa approval bertingkat).
+  - `pj` hanya boleh mengedit/menghapus/menyematkan tugas & event yang dibuatnya sendiri (`id_acc = session.userId`), serta dapat mengelola slot jadwal statis. `ketua_kelas` memiliki hak moderasi penuh serta pengelolaan master `course` dan `account`.
 
 ---
 
-## 3. Alur Kerja Vibecoding Bertahap (Step-by-Step)
+## 3. Alur Kerja Bertahap
 
-Coding agent wajib mengeksekusi pembangunan aplikasi secara bertahap dan melakukan verifikasi di setiap langkah:
-
-1. **Langkah 1:** Setup awal Next.js + Tailwind + shadcn/ui + mobile container shell.
-2. **Langkah 2:** Setup database Supabase menggunakan `schema.sql` dan buat helper client/server.
-3. **Langkah 3:** Bangun antarmuka publik mahasiswa (Tab Tugas, Tab Info & Kampus, Tab Jadwal Statis).
-4. **Langkah 4:** Bangun alur autentikasi publisher (Login email/password) dan Dashboard publisher.
-5. **Langkah 5:** Bangun form create/edit konten (Tugas & Pengumuman) dengan aksi ganda Simpan Draft vs Terbitkan.
-6. **Langkah 6:** Uji kelengkapan kriteria penerimaan (Acceptance Criteria), verifikasi batas 500 baris kode per file, dan siapkan deployment ke Vercel.
+1. **Database & Auth:** Skema 5 tabel Drizzle ORM (`src/db/schema.ts`), koneksi Turso (`src/db/index.ts`), dan autentikasi PASETO `v3.local` (`src/lib/auth.ts`).
+2. **Server Actions & Validation:** Kontrak mutasi/query di `src/lib/actions/*` dengan validasi Zod server-side di setiap batas input.
+3. **Antarmuka Landing & Portal:** Mobile-first Playful Bento dengan SSR hydration (`/portal`), target sentuh minimal `44×44 px`, dan state error/retry eksplisit.
+4. **Verifikasi & Kualitas:** Lulus `npm run lint`, `npx tsc --noEmit`, `npm test`, `npm run build`, dan pemeriksaan batas 500 baris kode per file.
 
 <!-- BEGIN:nextjs-agent-rules -->
 

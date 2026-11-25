@@ -4,6 +4,7 @@ import { db } from "@/db"
 import { tasks } from "@/db/schema"
 import { eq } from "drizzle-orm"
 import { getSession } from "@/lib/auth"
+import { serverTaskCreateSchema, serverTaskUpdateSchema } from "@/lib/validations"
 
 export async function createTaskAction(data: {
   course_id: string
@@ -18,16 +19,22 @@ export async function createTaskAction(data: {
     throw new Error("Hanya publisher (PJ atau Ketua Kelas) yang dapat membuat tugas.")
   }
 
+  const parsed = serverTaskCreateSchema.safeParse(data)
+  if (!parsed.success) {
+    throw new Error(parsed.error.issues[0]?.message || "Data tugas tidak valid.")
+  }
+
+  const valid = parsed.data
   const [inserted] = await db
     .insert(tasks)
     .values({
-      idCourse: data.course_id,
+      idCourse: valid.course_id,
       idAcc: session.userId,
-      title: data.title,
-      description: data.instructions,
-      dueDate: data.due_date,
-      submissionUrl: data.submission_url || null,
-      status: data.status,
+      title: valid.title,
+      description: valid.instructions,
+      dueDate: valid.due_date,
+      submissionUrl: valid.submission_url || null,
+      status: valid.status,
     })
     .returning()
 
@@ -50,6 +57,11 @@ export async function updateTaskAction(
     throw new Error("Hanya publisher yang berhak memperbarui tugas.")
   }
 
+  const parsed = serverTaskUpdateSchema.safeParse(data)
+  if (!parsed.success) {
+    throw new Error(parsed.error.issues[0]?.message || "Pembaruan tugas tidak valid.")
+  }
+
   const existing = await db.select().from(tasks).where(eq(tasks.id, id)).get()
   if (!existing) throw new Error("Tugas tidak ditemukan.")
 
@@ -57,15 +69,17 @@ export async function updateTaskAction(
     throw new Error("Anda hanya dapat mengedit tugas yang Anda buat sendiri.")
   }
 
+  const valid = parsed.data
   const [updated] = await db
     .update(tasks)
     .set({
-      idCourse: data.course_id ?? existing.idCourse,
-      title: data.title ?? existing.title,
-      description: data.instructions ?? existing.description,
-      dueDate: data.due_date ?? existing.dueDate,
-      submissionUrl: data.submission_url !== undefined ? data.submission_url : existing.submissionUrl,
-      status: data.status ?? existing.status,
+      idCourse: valid.course_id ?? existing.idCourse,
+      title: valid.title ?? existing.title,
+      description: valid.instructions ?? existing.description,
+      dueDate: valid.due_date ?? existing.dueDate,
+      submissionUrl:
+        valid.submission_url !== undefined ? valid.submission_url || null : existing.submissionUrl,
+      status: valid.status ?? existing.status,
       updatedAt: new Date().toISOString(),
     })
     .where(eq(tasks.id, id))

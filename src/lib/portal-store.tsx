@@ -1,10 +1,17 @@
 "use client"
 
-import React, { createContext, useContext, useState, useEffect, useCallback } from "react"
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useCallback,
+  useRef,
+} from "react"
 import { Task, Announcement, Course, Schedule, UserRole, UserProfile, ActiveTab } from "@/types"
-import { MockStoreContextType, LoginResult } from "@/types/store"
+import { PortalStoreContextType, LoginResult } from "@/types/store"
 import { loginAction, logoutAction } from "@/lib/actions/auth"
-import { getInitialPortalData } from "@/lib/actions/portal"
+import { getInitialPortalData, InitialPortalPayload } from "@/lib/actions/portal"
 import { createTaskAction, updateTaskAction, deleteTaskAction } from "@/lib/actions/tasks"
 import {
   createEventAction,
@@ -19,9 +26,9 @@ import {
 } from "@/lib/actions/schedules"
 import { toast } from "sonner"
 
-const MockStoreContext = createContext<MockStoreContextType | undefined>(undefined)
+const PortalStoreContext = createContext<PortalStoreContextType | undefined>(undefined)
 
-export function MockStoreProvider({ children }: { children: React.ReactNode }) {
+export function PortalStoreProvider({ children }: { children: React.ReactNode }) {
   const [activeTab, setActiveTab] = useState<ActiveTab>("schedule")
   const [userRole, setUserRole] = useState<UserRole>("guest")
   const [currentUser, setCurrentUser] = useState<UserProfile>({
@@ -36,6 +43,9 @@ export function MockStoreProvider({ children }: { children: React.ReactNode }) {
   const [schedules, setSchedules] = useState<Schedule[]>([])
   const [isTasksGated, setIsTasksGated] = useState(true)
   const [isLoading, setIsLoading] = useState(true)
+  const [hasError, setHasError] = useState(false)
+  const [errorMessage, setErrorMessage] = useState<string | null>(null)
+  const ssrHydratedRef = useRef(false)
 
   // Filter & Search states
   const [searchQuery, setSearchQuery] = useState("")
@@ -50,42 +60,60 @@ export function MockStoreProvider({ children }: { children: React.ReactNode }) {
     data: Task | Announcement
   } | null>(null)
 
-  const loadData = useCallback(async () => {
-    try {
-      setIsLoading(true)
-      const data = await getInitialPortalData()
-      setCourses(data.courses)
-      setSchedules(data.schedules)
-      setAnnouncements(data.announcements)
-      setTasks(data.tasks)
-      setIsTasksGated(data.isTasksGated)
-      setCurrentUser(data.currentUser)
-      setUserRole(data.currentUser.role)
-      if (data.currentUser.role !== "guest") {
-        const tabParam =
-          typeof window !== "undefined"
-            ? new URLSearchParams(window.location.search).get("tab")
-            : null
-        if (!tabParam) {
-          setActiveTab("tasks")
-        }
+  const applyPortalPayload = useCallback((data: InitialPortalPayload) => {
+    setCourses(data.courses)
+    setSchedules(data.schedules)
+    setAnnouncements(data.announcements)
+    setTasks(data.tasks)
+    setIsTasksGated(data.isTasksGated)
+    setCurrentUser(data.currentUser)
+    setUserRole(data.currentUser.role)
+    setHasError(false)
+    setErrorMessage(null)
+    setIsLoading(false)
+
+    if (data.currentUser.role !== "guest" && typeof window !== "undefined") {
+      const tabParam = new URLSearchParams(window.location.search).get("tab")
+      if (!tabParam) {
+        setActiveTab("tasks")
       }
-    } catch (err) {
-      console.error("Gagal memuat data portal:", err)
-      toast.error("Gagal memuat data dari database.")
-    } finally {
-      setIsLoading(false)
     }
   }, [])
 
+  const hydrateInitialData = useCallback(
+    (payload: InitialPortalPayload) => {
+      ssrHydratedRef.current = true
+      applyPortalPayload(payload)
+    },
+    [applyPortalPayload]
+  )
+
+  const loadData = useCallback(async () => {
+    try {
+      setIsLoading(true)
+      setHasError(false)
+      setErrorMessage(null)
+      const data = await getInitialPortalData()
+      applyPortalPayload(data)
+    } catch (err) {
+      console.error("Gagal memuat data portal:", err)
+      setHasError(true)
+      setErrorMessage("Gagal memuat info terbaru. Periksa koneksi internetmu.")
+      toast.error("Gagal memuat data dari server.")
+    } finally {
+      setIsLoading(false)
+    }
+  }, [applyPortalPayload])
+
   useEffect(() => {
+    if (ssrHydratedRef.current) return
     loadData()
   }, [loadData])
 
   const canManageContent = (createdBy?: string) => {
     if (userRole === "guest" || userRole === "member") return false
     if (userRole === "ketua_kelas") return true
-    if (userRole === "pj" || userRole === "pj_matkul") {
+    if (userRole === "pj") {
       return !createdBy || createdBy === currentUser.id
     }
     return false
@@ -115,11 +143,12 @@ export function MockStoreProvider({ children }: { children: React.ReactNode }) {
       await logoutAction()
       setCurrentUser({ id: "guest-user", name: "Pengunjung", role: "guest" })
       setUserRole("guest")
-      setActiveTab("tasks")
+      setActiveTab("schedule")
       await loadData()
-      toast.success("Berhasil keluar.")
+      toast.success("Berhasil keluar dari sesi.")
     } catch (err) {
       console.error("Logout error:", err)
+      toast.error("Gagal keluar dari sesi.")
     }
   }
 
@@ -180,6 +209,7 @@ export function MockStoreProvider({ children }: { children: React.ReactNode }) {
         title: announcement.title,
         content: announcement.content,
         course_id: announcement.course_id,
+        event_date: announcement.event_date,
         source_url: announcement.source_url,
         poster_url: announcement.poster_url,
         poster_file_id: announcement.poster_file_id,
@@ -205,6 +235,7 @@ export function MockStoreProvider({ children }: { children: React.ReactNode }) {
         title: partial.title,
         content: partial.content,
         course_id: partial.course_id,
+        event_date: partial.event_date,
         source_url: partial.source_url,
         poster_url: partial.poster_url,
         poster_file_id: partial.poster_file_id,
@@ -308,12 +339,8 @@ export function MockStoreProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
-  const resetToDefaults = () => {
-    loadData()
-  }
-
   return (
-    <MockStoreContext.Provider
+    <PortalStoreContext.Provider
       value={{
         activeTab,
         setActiveTab,
@@ -328,7 +355,10 @@ export function MockStoreProvider({ children }: { children: React.ReactNode }) {
         announcements,
         schedules,
         isLoading,
+        hasError,
+        errorMessage,
         refreshData: loadData,
+        hydrateInitialData,
         searchQuery,
         setSearchQuery,
         selectedCourseFilter,
@@ -351,18 +381,17 @@ export function MockStoreProvider({ children }: { children: React.ReactNode }) {
         addSchedule,
         updateSchedule,
         deleteSchedule,
-        resetToDefaults,
       }}
     >
       {children}
-    </MockStoreContext.Provider>
+    </PortalStoreContext.Provider>
   )
 }
 
-export function useMockStore() {
-  const context = useContext(MockStoreContext)
+export function usePortalStore() {
+  const context = useContext(PortalStoreContext)
   if (!context) {
-    throw new Error("useMockStore must be used within a MockStoreProvider")
+    throw new Error("usePortalStore must be used within a PortalStoreProvider")
   }
   return context
 }

@@ -4,7 +4,7 @@ import React from "react"
 import { Task, Announcement } from "@/types"
 import { formatIndonesianDate } from "@/lib/date-utils"
 import { Edit3, Trash2, BookOpen, Megaphone, Lock, Image as ImageIcon, Pin } from "lucide-react"
-import { useMockStore } from "@/lib/mock-store"
+import { usePortalStore } from "@/lib/portal-store"
 
 interface PublisherContentItemProps {
   type: "task" | "announcement"
@@ -21,7 +21,7 @@ export function PublisherContentItem({
   onEdit,
   onDelete,
 }: PublisherContentItemProps) {
-  const { togglePinAnnouncement } = useMockStore()
+  const { togglePinAnnouncement } = usePortalStore()
   const isTask = type === "task"
   const task = isTask ? (item as Task) : null
   const announcement = !isTask ? (item as Announcement) : null
@@ -33,7 +33,7 @@ export function PublisherContentItem({
   })
 
   return (
-    <div className="bg-white rounded-[22px] p-4 sm:p-5 border border-[#E4E7F0] shadow-2xs hover:border-[#111318]/30 transition-all h-full flex flex-col justify-between gap-3">
+    <div className="bg-white rounded-[22px] p-4 sm:p-5 border border-[#E4E7F0] shadow-2xs hover:border-[#111318]/30 transition-[border-color] duration-150 h-full flex flex-col justify-between gap-3">
       <div className="space-y-2.5">
         {/* Top Header */}
         <div className="flex items-center justify-between gap-2">
@@ -108,17 +108,18 @@ export function PublisherContentItem({
         </span>
 
         {canManage ? (
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-0.5">
             {!isTask && announcement && (
               <button
                 type="button"
                 onClick={() => togglePinAnnouncement(announcement.id)}
-                className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
+                className={`w-11 h-11 rounded-xl flex items-center justify-center transition-colors cursor-pointer ${
                   announcement.is_pinned
                     ? "text-[#111318] bg-[#EEF1F6]"
                     : "text-[#6E7485] hover:text-[#111318] hover:bg-[#EEF1F6]"
                 }`}
                 title={announcement.is_pinned ? "Lepas Sematan (Unpin)" : "Sematkan di Atas (Pin)"}
+                aria-label={announcement.is_pinned ? "Lepas Sematan" : "Sematkan di Atas"}
               >
                 <Pin
                   className={`w-4 h-4 ${
@@ -130,16 +131,18 @@ export function PublisherContentItem({
             <button
               type="button"
               onClick={onEdit}
-              className="p-1.5 rounded-lg text-[#6E7485] hover:text-[#111318] hover:bg-[#EEF1F6] transition-colors cursor-pointer"
+              className="w-11 h-11 rounded-xl flex items-center justify-center text-[#6E7485] hover:text-[#111318] hover:bg-[#EEF1F6] transition-colors cursor-pointer"
               title="Edit Konten"
+              aria-label="Edit Konten"
             >
               <Edit3 className="w-4 h-4" />
             </button>
             <button
               type="button"
               onClick={onDelete}
-              className="p-1.5 rounded-lg text-[#6E7485] hover:text-[#F05252] hover:bg-[#F05252]/10 transition-colors cursor-pointer"
+              className="w-11 h-11 rounded-xl flex items-center justify-center text-[#6E7485] hover:text-[#F05252] hover:bg-[#F05252]/10 transition-colors cursor-pointer"
               title="Hapus Konten"
+              aria-label="Hapus Konten"
             >
               <Trash2 className="w-4 h-4" />
             </button>

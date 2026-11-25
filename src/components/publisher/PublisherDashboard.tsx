@@ -1,11 +1,12 @@
 "use client"
 
 import React, { useState } from "react"
-import { useMockStore } from "@/lib/mock-store"
+import { usePortalStore } from "@/lib/portal-store"
 import { Task, Announcement } from "@/types"
 import { PublisherContentItem } from "@/components/publisher/PublisherContentItem"
 import { DeleteConfirmDialog } from "@/components/publisher/DeleteConfirmDialog"
-import { Plus, Inbox, RotateCcw, LogOut } from "lucide-react"
+import { AdminManageSheet } from "@/components/publisher/AdminManageSheet"
+import { Plus, Inbox, RotateCcw, LogOut, Settings2 } from "lucide-react"
 import { toast } from "sonner"
 
 export function PublisherDashboard() {
@@ -21,22 +22,21 @@ export function PublisherDashboard() {
     deleteTask,
     deleteAnnouncement,
     refreshData,
-  } = useMockStore()
+  } = usePortalStore()
 
   const [activeSegment, setActiveSegment] = useState<"PUBLISHED" | "DRAFT">("PUBLISHED")
   const [typeFilter, setTypeFilter] = useState<"ALL" | "TASK" | "ANNOUNCEMENT">("ALL")
+  const [isAdminOpen, setIsAdminOpen] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false)
 
-  // Delete Dialog state
   const [deleteTarget, setDeleteTarget] = useState<{
     type: "task" | "announcement"
     item: Task | Announcement
   } | null>(null)
 
-  // Filter tasks & announcements by status (PUBLISHED vs DRAFT)
   const filteredTasks = tasks.filter((t) => t.status === activeSegment)
   const filteredAnnouncements = announcements.filter((a) => a.status === activeSegment)
 
-  // Combine items for display
   type CombinedItem = {
     type: "task" | "announcement"
     item: Task | Announcement
@@ -57,7 +57,6 @@ export function PublisherDashboard() {
 
   combinedItems.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
 
-  // Stats
   const totalPublished =
     tasks.filter((t) => t.status === "PUBLISHED").length +
     announcements.filter((a) => a.status === "PUBLISHED").length
@@ -70,43 +69,46 @@ export function PublisherDashboard() {
     setIsEditorOpen(true)
   }
 
-  const handleDeleteConfirm = () => {
-    if (!deleteTarget) return
-    if (deleteTarget.type === "task") {
-      deleteTask(deleteTarget.item.id)
-      toast.success("Tugas berhasil dihapus")
-    } else {
-      deleteAnnouncement(deleteTarget.item.id)
-      toast.success("Pengumuman berhasil dihapus")
+  const handleDeleteConfirm = async () => {
+    if (!deleteTarget || isDeleting) return
+    setIsDeleting(true)
+    try {
+      if (deleteTarget.type === "task") {
+        await deleteTask(deleteTarget.item.id)
+      } else {
+        await deleteAnnouncement(deleteTarget.item.id)
+      }
+      setDeleteTarget(null)
+    } catch {
+      // Error toast ditangani oleh portal-store; dialog tetap terbuka
+    } finally {
+      setIsDeleting(false)
     }
-    setDeleteTarget(null)
   }
 
   return (
     <div className="space-y-4">
       {/* Page Greeting Header */}
       <div className="space-y-1">
-        <h2 className="text-xl font-bold text-[#111318] tracking-tight">
-          Kelola Konten
-        </h2>
+        <h2 className="text-xl font-bold text-[#111318] tracking-tight">Kelola Konten</h2>
         <p className="text-xs text-[#6E7485] leading-relaxed">
           Buat tugas atau pengumuman baru, simpan sebagai draft, atau langsung terbitkan.
         </p>
       </div>
 
       {/* Overview Card */}
-      <div className="bg-white rounded-[22px] p-5 border border-[#E4E7F0] shadow-2xs space-y-4">
+      <div className="bg-white rounded-[22px] p-4 sm:p-5 border border-[#E4E7F0] shadow-2xs space-y-4">
         <div className="flex items-start justify-between gap-2">
-          <div>
+          <div className="min-w-0">
             <span className="text-[10px] font-bold uppercase tracking-wider text-[#6E7485]">
               Ruang Publisher
             </span>
-            <h2 className="text-base font-extrabold text-[#111318]">
-              {currentUser.full_name}
+            <h2 className="text-base font-extrabold text-[#111318] truncate">
+              {currentUser.full_name || currentUser.name}
             </h2>
             <p className="text-[11px] text-[#6E7485] mt-0.5">
               {userRole === "ketua_kelas"
-                ? "Ketua Kelas · Bisa kelola semua postingan dan jadwal"
+                ? "Ketua Kelas · Bisa kelola semua postingan, jadwal, matkul & akun"
                 : "PJ Matkul · Kelola postingan sendiri dan jadwal"}
             </p>
           </div>
@@ -118,28 +120,25 @@ export function PublisherDashboard() {
                 await refreshData()
                 toast.success("Data berhasil diperbarui dari database")
               }}
-              className="p-2 rounded-xl text-[#6E7485] hover:text-[#111318] hover:bg-[#EEF1F6] transition-colors cursor-pointer"
+              className="w-11 h-11 rounded-xl text-[#6E7485] hover:text-[#111318] hover:bg-[#EEF1F6] flex items-center justify-center transition-colors cursor-pointer"
               title="Perbarui Data Database"
+              aria-label="Perbarui Data Database"
             >
               <RotateCcw className="w-4 h-4" />
             </button>
             <button
               type="button"
-              onClick={() => {
-                logoutPublisher()
-                toast.info("Berhasil keluar dari sesi publisher")
-              }}
-              className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-[11px] font-bold text-[#6E7485] hover:text-[#F05252] hover:bg-[#F05252]/10 transition-colors cursor-pointer"
+              onClick={() => logoutPublisher()}
+              className="min-h-[44px] px-3 rounded-xl text-[11px] font-bold text-[#6E7485] hover:text-[#F05252] hover:bg-[#F05252]/10 inline-flex items-center gap-1 transition-colors cursor-pointer"
               title="Keluar Sesi"
             >
-              <LogOut className="w-3.5 h-3.5" />
+              <LogOut className="w-4 h-4" />
               <span className="hidden sm:inline">Keluar</span>
             </button>
           </div>
         </div>
 
         <div className="flex flex-col md:flex-row md:items-center gap-3">
-          {/* Quick Stats Grid */}
           <div className="grid grid-cols-2 gap-2.5 flex-1">
             <div className="bg-[#EEF1F6] p-3.5 rounded-2xl">
               <span className="text-[10px] font-semibold text-[#6E7485]">Sudah Terbit</span>
@@ -151,29 +150,40 @@ export function PublisherDashboard() {
             </div>
           </div>
 
-          {/* Primary Action Button */}
-          <button
-            type="button"
-            onClick={() => {
-              setEditingContent(null)
-              setIsEditorOpen(true)
-            }}
-            className="w-full md:w-auto md:px-6 min-h-[44px] rounded-full bg-[#111318] hover:bg-[#111318]/90 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-sm transition-all active:scale-[0.98] cursor-pointer shrink-0"
-          >
-            <Plus className="w-4 h-4" strokeWidth={2} />
-            <span>Buat Konten Baru</span>
-          </button>
+          <div className="flex flex-col sm:flex-row gap-2 shrink-0">
+            {userRole === "ketua_kelas" && (
+              <button
+                type="button"
+                onClick={() => setIsAdminOpen(true)}
+                className="w-full sm:w-auto px-4 min-h-[44px] rounded-full bg-[#EEF1F6] hover:bg-[#E4E7F0] border border-[#E4E7F0] text-[#111318] font-bold text-xs flex items-center justify-center gap-1.5 transition-transform active:scale-[0.98] cursor-pointer"
+              >
+                <Settings2 className="w-4 h-4" strokeWidth={2} />
+                <span>Matkul & Akun</span>
+              </button>
+            )}
+
+            <button
+              type="button"
+              onClick={() => {
+                setEditingContent(null)
+                setIsEditorOpen(true)
+              }}
+              className="w-full sm:w-auto sm:px-6 min-h-[44px] rounded-full bg-[#111318] hover:bg-[#111318]/90 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-sm transition-transform active:scale-[0.98] cursor-pointer"
+            >
+              <Plus className="w-4 h-4" strokeWidth={2} />
+              <span>Buat Konten Baru</span>
+            </button>
+          </div>
         </div>
       </div>
 
-      {/* Controls Toolbar: Segmented Control + Type Filters */}
+      {/* Controls Toolbar */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2.5">
-        {/* Segmented Control: Published vs Draft */}
         <div className="grid grid-cols-2 gap-1.5 p-1 bg-white rounded-2xl border border-[#E4E7F0] shadow-2xs md:w-72">
           <button
             type="button"
             onClick={() => setActiveSegment("PUBLISHED")}
-            className={`min-h-[38px] rounded-xl text-xs font-bold transition-all cursor-pointer ${
+            className={`min-h-[44px] rounded-xl text-xs font-bold transition-colors cursor-pointer ${
               activeSegment === "PUBLISHED"
                 ? "bg-[#111318] text-white shadow-2xs"
                 : "text-[#6E7485] hover:text-[#111318]"
@@ -184,7 +194,7 @@ export function PublisherDashboard() {
           <button
             type="button"
             onClick={() => setActiveSegment("DRAFT")}
-            className={`min-h-[38px] rounded-xl text-xs font-bold transition-all cursor-pointer ${
+            className={`min-h-[44px] rounded-xl text-xs font-bold transition-colors cursor-pointer ${
               activeSegment === "DRAFT"
                 ? "bg-[#111318] text-white shadow-2xs"
                 : "text-[#6E7485] hover:text-[#111318]"
@@ -194,14 +204,13 @@ export function PublisherDashboard() {
           </button>
         </div>
 
-        {/* Type Filter Pills */}
         <div className="flex items-center gap-1.5">
           {(["ALL", "TASK", "ANNOUNCEMENT"] as const).map((filter) => (
             <button
               key={filter}
               type="button"
               onClick={() => setTypeFilter(filter)}
-              className={`min-h-[34px] px-3.5 rounded-full text-[11px] font-semibold transition-all cursor-pointer ${
+              className={`min-h-[44px] md:min-h-[38px] px-3.5 rounded-full text-[11px] font-semibold transition-colors cursor-pointer ${
                 typeFilter === filter
                   ? "bg-[#111318] text-white"
                   : "bg-white text-[#6E7485] border border-[#E4E7F0] hover:text-[#111318]"
@@ -231,9 +240,7 @@ export function PublisherDashboard() {
             <div className="w-12 h-12 rounded-2xl bg-[#EEF1F6] text-[#6E7485] flex items-center justify-center mx-auto">
               <Inbox className="w-6 h-6" strokeWidth={1.75} />
             </div>
-            <h4 className="text-sm font-bold text-[#111318]">
-              Tidak Ada Konten
-            </h4>
+            <h4 className="text-sm font-bold text-[#111318]">Tidak Ada Konten</h4>
             <p className="text-xs text-[#6E7485] max-w-xs mx-auto leading-relaxed">
               Tidak ada konten berstatus {activeSegment === "PUBLISHED" ? "Tayang" : "Draft"}.
             </p>
@@ -248,7 +255,13 @@ export function PublisherDashboard() {
         onConfirm={handleDeleteConfirm}
         title={deleteTarget?.item.title || ""}
         itemType={deleteTarget?.type === "task" ? "tugas" : "pengumuman"}
+        isDeleting={isDeleting}
       />
+
+      {/* Admin Course & Account Management */}
+      {userRole === "ketua_kelas" && (
+        <AdminManageSheet isOpen={isAdminOpen} onClose={() => setIsAdminOpen(false)} />
+      )}
     </div>
   )
 }

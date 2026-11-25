@@ -143,10 +143,11 @@
     -webkit-user-select: none;
     -webkit-touch-callout: none;
   }
-  /* Mobile-native: prevent unwanted auto-zoom on coarse-pointer (touch) inputs */
+  /* Mobile-native: prevent unwanted iOS auto-zoom on text inputs without breaking compact selects */
   @media (pointer: coarse) {
-    input, select, textarea {
-      font-size: 16px !important;
+    input:not([type="checkbox"]):not([type="radio"]),
+    textarea {
+      font-size: 16px;
     }
   }
 }
