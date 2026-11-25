@@ -3,12 +3,12 @@ import { Trophy, Calendar, ShieldCheck, Pin, Lock } from "lucide-react"
 
 export function LandingFeatures() {
   const days = [
-    { label: "Sen", slots: "3 mk", active: false },
-    { label: "Sel", slots: "3 mk", active: true },
-    { label: "Rab", slots: "0 mk", active: false },
-    { label: "Kam", slots: "2 mk", active: false },
-    { label: "Jum", slots: "0 mk", active: false },
-    { label: "Sab", slots: "0 mk", active: false },
+    { label: "Sen", hasClass: true, active: false },
+    { label: "Sel", hasClass: true, active: true },
+    { label: "Rab", hasClass: false, active: false },
+    { label: "Kam", hasClass: true, active: false },
+    { label: "Jum", hasClass: false, active: false },
+    { label: "Sab", hasClass: false, active: false },
   ]
 
   return (
@@ -115,12 +115,20 @@ export function LandingFeatures() {
               {days.map((d) => (
                 <div
                   key={d.label}
-                  className={`py-1.5 rounded-lg flex flex-col items-center justify-center text-center select-none ${
-                    d.active ? "bg-[#111318] text-white font-extrabold shadow-2xs" : "text-[#6E7485] font-semibold"
+                  className={`py-2 rounded-lg flex flex-col items-center justify-center text-center select-none ${
+                    d.active ? "bg-[#111318] text-white font-extrabold shadow-2xs" : "text-[#111318] font-bold"
                   }`}
                 >
-                  <span className="text-[10px] uppercase leading-tight">{d.label}</span>
-                  <span className="text-[9px] opacity-75 mt-0.5 leading-none">{d.slots}</span>
+                  <span className="text-[10px] uppercase leading-none tracking-wider">{d.label}</span>
+                  <span
+                    className={`w-1.5 h-1.5 rounded-full mt-1.5 ${
+                      d.active
+                        ? "bg-[#F6C866]"
+                        : d.hasClass
+                        ? "bg-[#A8C0FF]"
+                        : "bg-transparent"
+                    }`}
+                  />
                 </div>
               ))}
             </div>

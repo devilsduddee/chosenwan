@@ -34,28 +34,21 @@ export function DaySelectorStrip({
             type="button"
             onClick={() => onSelectDay(d.dayNumber)}
             aria-label={`Pilih hari ${d.full} (${count} kelas)`}
-            className={`flex-1 min-h-[52px] py-2 px-0.5 rounded-2xl flex flex-col items-center justify-between transition-[background-color,color,transform] duration-150 select-none cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#111318] active:scale-95 ${
+            className={`flex-1 min-h-[46px] py-2.5 px-1 rounded-2xl flex flex-col items-center justify-center transition-[background-color,color,transform] duration-150 select-none cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#111318] active:scale-95 ${
               isActive
                 ? "bg-[#111318] text-white shadow-xs font-bold"
                 : "text-[#6E7485] hover:text-[#111318] hover:bg-[#EEF1F6]"
             }`}
           >
             <span
-              className={`text-[10px] uppercase font-bold tracking-wider leading-none ${
+              className={`text-[11px] sm:text-xs uppercase font-bold tracking-wider leading-none ${
                 isActive ? "text-white" : "text-[#111318]"
               }`}
             >
               {d.label}
             </span>
             <span
-              className={`text-[10px] font-semibold leading-none mt-1 tabular-nums ${
-                isActive ? "text-white/80" : "text-[#6E7485]"
-              }`}
-            >
-              {count} mk
-            </span>
-            <span
-              className={`w-1.5 h-1.5 rounded-full mt-1 transition-colors ${
+              className={`w-1.5 h-1.5 rounded-full mt-1.5 transition-colors ${
                 isActive
                   ? "bg-[#F6C866]"
                   : count > 0
