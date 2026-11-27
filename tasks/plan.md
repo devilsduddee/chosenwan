@@ -48,9 +48,15 @@ Namun, audit lintas-aspek menemukan **celah kritis & teknis** pada 4 area utama:
 - **Checkpoint Phase 3:** `npm run lint` 0 errors & 0 warnings, seluruh tombol interaktif >= 44×44 px, visual terverifikasi di 360px & 1280px.
 
 ### Phase 4: Automated Testing & Spec Traceability
-- [x] **Task 11:** Setup `tsx --test` (`node:test`) & Suite Pengujian Auth, Validasi, Rate Limit, Course Utils & Date Utils (`package.json`, `src/lib/__tests__/*.test.ts`) — **Size: M**
+- [x] **Task 11:** Setup `tsx --test` (`node:test`) & Suite Pengujian Auth, Validasi, Rate Limit, Course Utils & Date Utils (`package.json`, `src/lib/__tests__/*.test.ts`) — **Size: M** *(Catatan: folder `__tests__` dibersihkan pada commit `85e427e` sesuai arahan pengguna)*
 - [x] **Task 12:** Sinkronisasi Dokumen Spec/Rules (`docs/06-spec.md`, `AGENTS.md`) agar mencerminkan Server Actions + Turso + PASETO `v3.local` — **Size: S**
-- **Checkpoint Complete:** Seluruh test lulus (`12/12`), `npm run lint` & `tsc` & `npm run build` bersih, seluruh file `< 500` baris kode.
+- **Checkpoint Complete:** `npm run lint`, `npx tsc --noEmit`, dan `npm run build` bersih, seluruh file `< 500` baris kode.
+
+### Phase 5: Landing Page Motion & Selective Magic UI Animations (Preserve Design 100%)
+- [x] **Task 13:** Selaraskan dokumen (`AGENTS.md`, `docs/05-design.md`, `docs/06-spec.md`, `tasks/plan.md`, `tasks/todo.md`) dan pasang paket `motion` (`motion/react`) tanpa Aceternity UI maupun GSAP — **Size: S**
+- [x] **Task 14:** Buat 4 komponen Magic UI selektif di `src/components/magicui/` (`blur-fade.tsx`, `border-beam.tsx`, `animated-beam.tsx`, `number-ticker.tsx`) bertoken warna Playful Bento dan mendukung `prefers-reduced-motion` — **Size: S**
+- [x] **Task 15:** Terapkan animasi pada `LandingHero.tsx`, `LandingFeatures.tsx`, dan `LandingWorkflow.tsx` **tanpa mengubah tata letak, warna, copywriting, atau desain visual landing page** — **Size: M**
+- **Checkpoint Phase 5:** `npm run lint`, `npx tsc --noEmit`, `npm run build` lulus, dan tampilan visual landing page tetap identik secara desain.
 
 ---
 

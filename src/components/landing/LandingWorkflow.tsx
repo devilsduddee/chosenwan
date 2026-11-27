@@ -1,11 +1,20 @@
-import React from "react"
+"use client"
+
+import React, { useRef } from "react"
 import Link from "next/link"
 import { ArrowRight, Globe, Lock, ShieldCheck } from "lucide-react"
+import { BlurFade } from "@/components/magicui/blur-fade"
+import { AnimatedBeam } from "@/components/magicui/animated-beam"
 
 export function LandingWorkflow() {
+  const containerRef = useRef<HTMLDivElement>(null)
+  const card1Ref = useRef<HTMLDivElement>(null)
+  const card2Ref = useRef<HTMLDivElement>(null)
+  const card3Ref = useRef<HTMLDivElement>(null)
+
   return (
     <section id="alur-kerja" className="max-w-6xl mx-auto px-4 sm:px-6 py-12 sm:py-16 border-t border-[#E4E7F0]/80">
-      <div className="max-w-2xl space-y-2 mb-8 sm:mb-10">
+      <BlurFade delay={0.05} className="max-w-2xl space-y-2 mb-8 sm:mb-10">
         <span className="text-[11px] font-bold uppercase tracking-wider text-[#6E7485]">
           Alur Pengguna
         </span>
@@ -16,11 +25,39 @@ export function LandingWorkflow() {
           Tiga tingkatan peran yang dirancang di PRD v1.5 untuk memisahkan agenda publik,
           keamanan tugas privat kelas, dan kelancaran moderasi pengurus.
         </p>
-      </div>
+      </BlurFade>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5 sm:gap-4.5">
+      <div ref={containerRef} className="relative grid grid-cols-1 md:grid-cols-3 gap-3.5 sm:gap-4.5">
+        <AnimatedBeam
+          className="hidden md:block z-0"
+          containerRef={containerRef}
+          fromRef={card3Ref}
+          toRef={card2Ref}
+          reverse
+          gradientStartColor="#F6C866"
+          gradientStopColor="#A8C0FF"
+          pathColor="#D3D8E2"
+          duration={4.5}
+        />
+        <AnimatedBeam
+          className="hidden md:block z-0"
+          containerRef={containerRef}
+          fromRef={card2Ref}
+          toRef={card1Ref}
+          reverse
+          gradientStartColor="#A8C0FF"
+          gradientStopColor="#4CD98B"
+          pathColor="#D3D8E2"
+          duration={4.5}
+          delay={0.6}
+        />
+
         {/* Persona 1: Pengunjung Publik / Tamu */}
-        <div className="bg-white border border-[#E4E7F0] rounded-[22px] sm:rounded-[24px] p-4.5 sm:p-6 flex flex-col justify-between gap-5 sm:gap-6 shadow-2xs hover:-translate-y-0.5 transition-transform duration-200">
+        <BlurFade delay={0.08} className="relative z-10 flex">
+          <div
+            ref={card1Ref}
+            className="w-full bg-white border border-[#E4E7F0] rounded-[22px] sm:rounded-[24px] p-4.5 sm:p-6 flex flex-col justify-between gap-5 sm:gap-6 shadow-2xs hover:-translate-y-0.5 transition-transform duration-200"
+          >
           <div className="space-y-4">
             <div className="flex items-center justify-between gap-2">
               <div className="flex items-center gap-2 min-w-0">
@@ -63,10 +100,15 @@ export function LandingWorkflow() {
             <span>Buka Jadwal Publik</span>
             <ArrowRight className="w-3.5 h-3.5" />
           </Link>
-        </div>
+          </div>
+        </BlurFade>
 
         {/* Persona 2: Anggota Kelas (Member) */}
-        <div className="bg-[#EEF1F6] border border-[#E4E7F0] rounded-[22px] sm:rounded-[24px] p-4.5 sm:p-6 flex flex-col justify-between gap-5 sm:gap-6 hover:-translate-y-0.5 transition-transform duration-200">
+        <BlurFade delay={0.14} className="relative z-10 flex">
+          <div
+            ref={card2Ref}
+            className="w-full bg-[#EEF1F6] border border-[#E4E7F0] rounded-[22px] sm:rounded-[24px] p-4.5 sm:p-6 flex flex-col justify-between gap-5 sm:gap-6 hover:-translate-y-0.5 transition-transform duration-200"
+          >
           <div className="space-y-4">
             <div className="flex items-center justify-between gap-2">
               <div className="flex items-center gap-2 min-w-0">
@@ -109,10 +151,15 @@ export function LandingWorkflow() {
             <span>Masuk Akun Anggota</span>
             <ArrowRight className="w-3.5 h-3.5" />
           </Link>
-        </div>
+          </div>
+        </BlurFade>
 
         {/* Persona 3: Ketua Kelas & PJ Matkul (Publisher) */}
-        <div className="bg-white border border-[#E4E7F0] rounded-[22px] sm:rounded-[24px] p-4.5 sm:p-6 flex flex-col justify-between gap-5 sm:gap-6 shadow-2xs hover:-translate-y-0.5 transition-transform duration-200">
+        <BlurFade delay={0.2} className="relative z-10 flex">
+          <div
+            ref={card3Ref}
+            className="w-full bg-white border border-[#E4E7F0] rounded-[22px] sm:rounded-[24px] p-4.5 sm:p-6 flex flex-col justify-between gap-5 sm:gap-6 shadow-2xs hover:-translate-y-0.5 transition-transform duration-200"
+          >
           <div className="space-y-4">
             <div className="flex items-center justify-between gap-2">
               <div className="flex items-center gap-2 min-w-0">
@@ -155,7 +202,8 @@ export function LandingWorkflow() {
             <span>Login Publisher</span>
             <ArrowRight className="w-3.5 h-3.5" />
           </Link>
-        </div>
+          </div>
+        </BlurFade>
       </div>
     </section>
   )

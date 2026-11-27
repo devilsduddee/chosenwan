@@ -87,6 +87,10 @@ Seluruh komponen dibangun menggunakan library UI standar (seperti shadcn/ui, Tai
   - Pilihan kategori (`Tugas` vs `Pengumuman Simpel`, serta tag `Akademik`, `Berita Kampus`, `Info Lomba`) menggunakan tombol *segmented pill* agar publisher cukup satu ketukan tanpa membuka dropdown bertingkat.
 - **Icons:**
   - Menggunakan satu paket ikon garis (*outline icons*) dengan ketebalan seragam (`1.75px`), misalnya **Lucide Icons**, tanpa mencampur dengan ilustrasi doodle atau ikon 3D.
+- **Motion & Animasi Selektif (Khusus Landing Page):**
+  - Menggunakan `motion` (`motion/react`) dengan 4 komponen bergaya Magic UI (`BlurFade`, `BorderBeam`, `AnimatedBeam`, `NumberTicker`) yang disesuaikan sepenuhnya ke token warna Playful Bento (`#F6C866`, `#A8C0FF`, `#EA9DFB`, `#4CD98B`, `#111318`).
+  - **Aturan Ketat Desain:** Animasi hanya memperkuat kesan hidup (*entrance*, *metric ticker*, *border highlight* halus pada jangkar gelap `#111318`, dan alur koneksi antar peran) **tanpa mengubah tata letak, tipografi, radius kartu, maupun kontras warna** di landing page.
+  - Menggunakan kurva *ease-out* (`[0.23, 1, 0.32, 1]`), animasi scroll sekali masuk (`once: true`), dan wajib menghormati `prefers-reduced-motion`.
 
 ---
 

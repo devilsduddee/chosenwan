@@ -504,6 +504,7 @@ Sesuai preferensi arsitektur di `profile.md` bagian 9, antarmuka Chosenwan **tid
 | **Pilihan Dropdown Matkul** | `shadcn/ui Select` | Pemilih mata kuliah terstandarisasi saat publisher menginput tugas/pengumuman. |
 | **Feedback / Toast Notifikasi** | `sonner` (atau `shadcn/ui Toast`) | Menampilkan pesan sukses *"Info berhasil diterbitkan"* atau alert error jaringan. |
 | **Ikon Sistem** | `lucide-react` | Paket ikon outline seragam stroke 1.75px (`Calendar`, `Clock`, `BookOpen`, `Megaphone`, `Trophy`, `ExternalLink`, dll). |
+| **Animasi Landing Page** | `motion` (`motion/react`) + Magic UI selektif | `BlurFade`, `BorderBeam`, `AnimatedBeam`, `NumberTicker` dengan warna Playful Bento tanpa mengubah tata letak landing page. |
 | **Validasi Form & State** | `react-hook-form` + `zod` | Validasi skema client-side yang ketat sebelum mengirim payload ke server. |
 
 ---
@@ -560,6 +561,7 @@ chosenwan/
 │   │       └── page.tsx        # Portal tab Tugas, Info, Jadwal & Kelola
 │   ├── components/
 │   │   ├── ui/                 # Komponen shadcn/ui & ImageLightbox
+│   │   ├── magicui/            # Animasi landing page: BlurFade, BorderBeam, AnimatedBeam, NumberTicker
 │   │   ├── auth/               # LoginForm
 │   │   ├── landing/            # Komponen landing page
 │   │   ├── layout/             # TopHeader, BottomNavigationBar, PortalHydrator, PortalStatusBanner, PwaInstallModal

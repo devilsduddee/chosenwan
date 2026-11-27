@@ -4,6 +4,9 @@ import React from "react"
 import Link from "next/link"
 import { BrandLogo } from "@/components/layout/BrandLogo"
 import { usePwa } from "@/lib/pwa-context"
+import { BlurFade } from "@/components/magicui/blur-fade"
+import { BorderBeam } from "@/components/magicui/border-beam"
+import { NumberTicker } from "@/components/magicui/number-ticker"
 import {
   ArrowRight,
   CheckSquare,
@@ -26,29 +29,35 @@ export function LandingHero() {
         {/* Left Column: Copy & Actions */}
         <div className="lg:col-span-7 space-y-6">
           {/* Status Badge */}
-          <div className="inline-flex items-center gap-2.5 bg-white border border-[#E4E7F0] px-3.5 py-1.5 rounded-full text-xs font-semibold text-[#111318] shadow-2xs hover:border-[#111318]/25 transition-colors">
-            <span className="flex h-2 w-2 relative shrink-0">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#4CD98B] opacity-75" />
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-[#4CD98B]" />
-            </span>
-            <span className="font-bold text-[#111318]">Portal Kelas 3IA01</span>
-            <span className="text-[#D3D8E2]">·</span>
-            <span className="text-[#6E7485] font-medium">Universitas Gunadarma</span>
-          </div>
+          <BlurFade delay={0.04} inView={false}>
+            <div className="inline-flex items-center gap-2.5 bg-white border border-[#E4E7F0] px-3.5 py-1.5 rounded-full text-xs font-semibold text-[#111318] shadow-2xs hover:border-[#111318]/25 transition-colors">
+              <span className="flex h-2 w-2 relative shrink-0">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#4CD98B] opacity-75" />
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-[#4CD98B]" />
+              </span>
+              <span className="font-bold text-[#111318]">Portal Kelas 3IA01</span>
+              <span className="text-[#D3D8E2]">·</span>
+              <span className="text-[#6E7485] font-medium">Universitas Gunadarma</span>
+            </div>
+          </BlurFade>
 
           {/* Headline */}
-          <h1 className="text-[28px] sm:text-4xl lg:text-[46px] font-extrabold text-[#111318] tracking-[-0.035em] leading-[1.16] sm:leading-[1.14]">
-            Cari tugas dan jadwal kuliah tanpa menggali grup WhatsApp.
-          </h1>
+          <BlurFade delay={0.1} inView={false}>
+            <h1 className="text-[28px] sm:text-4xl lg:text-[46px] font-extrabold text-[#111318] tracking-[-0.035em] leading-[1.16] sm:leading-[1.14]">
+              Cari tugas dan jadwal kuliah tanpa menggali grup WhatsApp.
+            </h1>
+          </BlurFade>
 
           {/* Subtitle */}
-          <p className="text-sm sm:text-base lg:text-[17px] text-[#6E7485] leading-relaxed max-w-xl font-normal">
-            Cek jadwal kuliah dan info kampus seketika tanpa login. Akses tugas serta tautan
-            pengumpulan diamankan khusus untuk mahasiswa kelas 3IA01.
-          </p>
+          <BlurFade delay={0.16} inView={false}>
+            <p className="text-sm sm:text-base lg:text-[17px] text-[#6E7485] leading-relaxed max-w-xl font-normal">
+              Cek jadwal kuliah dan info kampus seketika tanpa login. Akses tugas serta tautan
+              pengumpulan diamankan khusus untuk mahasiswa kelas 3IA01.
+            </p>
+          </BlurFade>
 
           {/* Action CTAs & Secondary Links */}
-          <div className="space-y-3.5 pt-1">
+          <BlurFade delay={0.22} inView={false} className="space-y-3.5 pt-1">
             {/* Action Buttons Row */}
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
               <Link
@@ -104,12 +113,13 @@ export function LandingHero() {
                 )}
               </div>
             </div>
-          </div>
+          </BlurFade>
         </div>
 
         {/* Right Column: Authentic Playful Bento Window Preview */}
         <div className="lg:col-span-5">
-          <div className="bg-white rounded-[22px] sm:rounded-[26px] border border-[#E4E7F0] p-3.5 sm:p-5 shadow-[0_16px_40px_rgba(17,19,24,0.06)] max-w-[420px] mx-auto lg:ml-auto space-y-3 sm:space-y-3.5">
+          <BlurFade delay={0.18} inView={false}>
+            <div className="bg-white rounded-[22px] sm:rounded-[26px] border border-[#E4E7F0] p-3.5 sm:p-5 shadow-[0_16px_40px_rgba(17,19,24,0.06)] max-w-[420px] mx-auto lg:ml-auto space-y-3 sm:space-y-3.5">
             {/* Window Top Bar */}
             <div className="flex items-center justify-between pb-2.5 sm:pb-3 border-b border-[#E4E7F0]/70">
               <div className="flex items-center gap-2.5 min-w-0">
@@ -139,7 +149,9 @@ export function LandingHero() {
                 </div>
                 <div className="mt-2">
                   <p className="text-[10px] font-bold text-[#6E7485]">Semua Tugas</p>
-                  <p className="text-xl font-extrabold text-[#111318] leading-none mt-0.5 tabular-nums">4</p>
+                  <p className="text-xl font-extrabold text-[#111318] leading-none mt-0.5 tabular-nums">
+                    <NumberTicker value={4} delay={0.25} />
+                  </p>
                 </div>
               </div>
 
@@ -155,7 +167,9 @@ export function LandingHero() {
                 </div>
                 <div className="mt-2">
                   <p className="text-[10px] font-bold text-[#111318]/85">Tugas Mendesak</p>
-                  <p className="text-xl font-extrabold text-[#111318] leading-none mt-0.5 tabular-nums">1</p>
+                  <p className="text-xl font-extrabold text-[#111318] leading-none mt-0.5 tabular-nums">
+                    <NumberTicker value={1} delay={0.32} />
+                  </p>
                 </div>
               </div>
 
@@ -171,7 +185,9 @@ export function LandingHero() {
                 </div>
                 <div className="mt-2">
                   <p className="text-[10px] font-bold text-[#111318]/85">Berita Kampus</p>
-                  <p className="text-xl font-extrabold text-[#111318] leading-none mt-0.5 tabular-nums">1</p>
+                  <p className="text-xl font-extrabold text-[#111318] leading-none mt-0.5 tabular-nums">
+                    <NumberTicker value={1} delay={0.38} />
+                  </p>
                 </div>
               </div>
 
@@ -187,13 +203,16 @@ export function LandingHero() {
                 </div>
                 <div className="mt-2">
                   <p className="text-[10px] font-bold text-[#111318]/85">Info Lomba</p>
-                  <p className="text-xl font-extrabold text-[#111318] leading-none mt-0.5 tabular-nums">1</p>
+                  <p className="text-xl font-extrabold text-[#111318] leading-none mt-0.5 tabular-nums">
+                    <NumberTicker value={1} delay={0.44} />
+                  </p>
                 </div>
               </div>
             </div>
 
             {/* Urgent Task Card (Dark Anchor) */}
-            <div className="bg-[#111318] text-white rounded-[18px] sm:rounded-[20px] p-3 sm:p-3.5 space-y-2 sm:space-y-2.5 hover:-translate-y-0.5 transition-transform duration-200">
+            <div className="relative overflow-hidden bg-[#111318] text-white rounded-[18px] sm:rounded-[20px] p-3 sm:p-3.5 space-y-2 sm:space-y-2.5 hover:-translate-y-0.5 transition-transform duration-200">
+              <BorderBeam size={56} duration={10} colorFrom="#F6C866" colorTo="#EA9DFB" borderWidth={1.5} />
               <div className="flex items-center justify-between gap-2">
                 <div className="flex items-center gap-1.5">
                   <span className="text-[10px] font-extrabold bg-[#A8C0FF] text-[#111318] px-2 py-0.5 rounded-full">
@@ -228,7 +247,8 @@ export function LandingHero() {
               <span>Buka Portal Sekarang</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </Link>
-          </div>
+            </div>
+          </BlurFade>
         </div>
       </div>
     </section>

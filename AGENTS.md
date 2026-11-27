@@ -33,6 +33,7 @@ Dokumen ini adalah aturan wajib bagi coding agent (Antigravity atau coding agent
 - Komponen UI wajib menggunakan **shadcn/ui** berbasis Radix UI dan Tailwind CSS:
   - `Card`, `Button`, `Badge`, `Tabs`, `Dialog`, `Sheet` (drawer mobile), `Select`, `Input`, `Textarea`, `Toast` (`sonner`).
 - Seluruh ikon wajib menggunakan paket **`lucide-react`** dengan stroke outline seragam (1.75px).
+- **Animasi Landing Page:** Menggunakan **`motion`** (`motion/react`) dan komponen selektif Magic UI (`BlurFade`, `BorderBeam`, `AnimatedBeam`, `NumberTicker`) di `src/components/magicui/` dengan palet Playful Bento Chosenwan, khusus untuk gerakan/transisi **tanpa mengubah desain, tata letak, maupun warna dasar landing page**.
 - Jangan memasang dependency library baru tanpa persetujuan eksplisit pengguna.
 
 ---
@@ -42,6 +43,7 @@ Dokumen ini adalah aturan wajib bagi coding agent (Antigravity atau coding agent
 ### 2.1 Spesifikasi Stack
 - **Framework:** Next.js 16 (App Router, TypeScript, React 19)
 - **Styling:** Tailwind CSS v4 + shadcn/ui
+- **Animasi Landing Page:** `motion` (`motion/react`) + komponen selektif Magic UI (`BlurFade`, `BorderBeam`, `AnimatedBeam`, `NumberTicker`)
 - **Icons:** Lucide React
 - **Backend & Database:** Turso (libSQL / Edge SQLite) + Drizzle ORM
 - **Autentikasi & Sesi:** PASETO `v3.local` encrypted HTTP-only cookie (`src/lib/auth.ts` + `src/lib/session-token.ts`) & `bcryptjs`
@@ -62,6 +64,7 @@ src/
 │       └── page.tsx            # Halaman portal mahasiswa & dashboard publisher
 ├── components/
 │   ├── ui/                     # Komponen shadcn/ui & ImageLightbox
+│   ├── magicui/                # Komponen animasi selektif landing page (BlurFade, BorderBeam, AnimatedBeam, NumberTicker)
 │   ├── auth/                   # LoginForm
 │   ├── landing/                # LandingNavbar, LandingHero, LandingFeatures, LandingWorkflow, LandingFooter
 │   ├── layout/                 # TopHeader, BottomNavigationBar, PortalHydrator, PortalStatusBanner, PwaInstallModal

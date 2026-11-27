@@ -220,5 +220,30 @@
 ## Checkpoint: Complete
 - [x] `npm run lint` (0 errors, 0 warnings)
 - [x] `npx tsc --noEmit` & `npm run build` sukses
-- [x] `npm test` seluruh test pass (`12/12`)
 - [x] `npm audit` ditinjau (`10 moderate` pada dev/transitive deps `esbuild`/`minimatch`/`uuid`; 0 critical/high)
+
+---
+
+## Phase 5: Landing Page Motion & Selective Magic UI Animations
+
+### Task 13: Install `motion` & Sync Markdown Documentation
+**Description:** Memasang dependensi `motion` atas persetujuan pengguna (`AGENTS.md` Rule 4) dan memperbarui dokumen aturan/desain/spec (`AGENTS.md`, `docs/05-design.md`, `docs/06-spec.md`) tanpa memakai Aceternity UI maupun GSAP.
+**Acceptance criteria:**
+- [x] Paket `motion` terpasang di `package.json`.
+- [x] `AGENTS.md`, `docs/05-design.md`, `docs/06-spec.md`, `tasks/plan.md`, dan `tasks/todo.md` mencantumkan adopsi selektif Magic UI (`BlurFade`, `BorderBeam`, `AnimatedBeam`, `NumberTicker`) serta aturan mempertahankan desain landing page.
+
+### Task 14: Build Selective Magic UI Components (Playful Bento Tokens)
+**Description:** Membuat 4 komponen ringan berbasis `motion/react` di `src/components/magicui/` yang memakai warna `#111318`, `#F6C866`, `#A8C0FF`, `#EA9DFB`, `#4CD98B` dan menghormati `prefers-reduced-motion`.
+**Acceptance criteria:**
+- [x] `blur-fade.tsx`, `border-beam.tsx`, `animated-beam.tsx`, dan `number-ticker.tsx` tersedia di `src/components/magicui/` dan masing-masing `< 200` baris.
+**Verification:**
+- [x] Typecheck passes: `npx tsc --noEmit`
+
+### Task 15: Wire Animations into Landing Page Without Visual Layout Changes
+**Description:** Memasang `BlurFade`, `NumberTicker`, `BorderBeam`, dan `AnimatedBeam` pada `LandingHero.tsx`, `LandingFeatures.tsx`, dan `LandingWorkflow.tsx` tanpa mengubah desain, warna, jarak, maupun isi teks landing page.
+**Acceptance criteria:**
+- [x] `LandingHero` menggunakan `BlurFade` entrance berurutan, `NumberTicker` pada 4 angka metrik Bento preview, dan `BorderBeam` halus pada kartu anchor gelap `#111318`.
+- [x] `LandingFeatures` menggunakan `BlurFade` stagger saat masuk viewport dan `BorderBeam` pada kartu anchor gelap tugas privat.
+- [x] `LandingWorkflow` menggunakan `BlurFade` pada 3 kartu persona serta `AnimatedBeam` halus di balik gap grid desktop antar 3 peran tanpa mengubah tampilan kartu.
+**Verification:**
+- [x] `npm run lint` (0 warnings), `npx tsc --noEmit`, dan `npm run build` sukses.
