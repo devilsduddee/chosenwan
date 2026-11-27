@@ -1,4 +1,7 @@
 import { cookies } from "next/headers"
+import { eq } from "drizzle-orm"
+import { db } from "@/db"
+import { accounts } from "@/db/schema"
 import {
   encryptSessionToken,
   decryptSessionToken,
@@ -28,12 +31,32 @@ export async function createSession(payload: SessionPayload) {
 }
 
 /**
- * Membaca dan mendekripsi sesi aktif PASETO v3.local dari HTTP-only cookie.
+ * Membaca, mendekripsi, dan menyinkronkan sesi aktif PASETO v3.local terhadap tabel akun.
+ * Memastikan penghapusan akun atau perubahan role langsung berlaku tanpa menunggu token kadaluarsa.
  */
 export async function getSession(): Promise<SessionPayload | null> {
   const cookieStore = await cookies()
   const token = cookieStore.get(SESSION_COOKIE_NAME)?.value
-  return decryptSessionToken(token)
+  const payload = await decryptSessionToken(token)
+  if (!payload) return null
+
+  const liveAccount = await db
+    .select({
+      id: accounts.id,
+      name: accounts.name,
+      role: accounts.role,
+    })
+    .from(accounts)
+    .where(eq(accounts.id, payload.userId))
+    .get()
+
+  if (!liveAccount) return null
+
+  return {
+    userId: liveAccount.id,
+    name: liveAccount.name,
+    role: liveAccount.role,
+  }
 }
 
 /**

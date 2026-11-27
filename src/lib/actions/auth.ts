@@ -5,9 +5,12 @@ import { db } from "@/db"
 import { accounts } from "@/db/schema"
 import { eq } from "drizzle-orm"
 import { createSession, destroySession, getSession } from "@/lib/auth"
-import { checkRateLimit } from "@/lib/rate-limit"
+import { checkRateLimit, resetRateLimit } from "@/lib/rate-limit"
 import { loginFormSchema } from "@/lib/validations"
 import { UserProfile } from "@/types"
+
+// Dummy bcrypt hash untuk menyamakan biaya waktu saat username tidak ditemukan (anti-enumeration)
+const DUMMY_BCRYPT_HASH = "$2b$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy"
 
 export async function loginAction(
   name: string,
@@ -39,14 +42,14 @@ export async function loginAction(
       .where(eq(accounts.name, trimmedName))
       .get()
 
-    if (!account) {
+    const candidateHash = account ? account.password : DUMMY_BCRYPT_HASH
+    const isValid = await bcrypt.compare(parsed.data.password, candidateHash)
+
+    if (!account || !isValid) {
       return { ok: false, error: "Nama pengguna atau kata sandi salah." }
     }
 
-    const isValid = await bcrypt.compare(parsed.data.password, account.password)
-    if (!isValid) {
-      return { ok: false, error: "Nama pengguna atau kata sandi salah." }
-    }
+    resetRateLimit(`login-account:${trimmedName.toLowerCase()}`)
 
     await createSession({
       userId: account.id,

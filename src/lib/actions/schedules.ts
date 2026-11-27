@@ -3,7 +3,7 @@
 import { db } from "@/db"
 import { schedules } from "@/db/schema"
 import { eq } from "drizzle-orm"
-import { getSession } from "@/lib/auth"
+import { assertCourseExists, parseEntityId, requirePublisherSession } from "@/lib/actions/guards"
 import { serverScheduleCreateSchema, serverScheduleUpdateSchema } from "@/lib/validations"
 
 export async function createScheduleAction(data: {
@@ -13,10 +13,9 @@ export async function createScheduleAction(data: {
   end_time: string
   room: string
 }) {
-  const session = await getSession()
-  if (!session || (session.role !== "ketua_kelas" && session.role !== "pj")) {
-    throw new Error("Hanya Ketua Kelas atau PJ yang berhak menambah jadwal kuliah.")
-  }
+  const session = await requirePublisherSession(
+    "Hanya Ketua Kelas atau PJ yang berhak menambah jadwal kuliah."
+  )
 
   const parsed = serverScheduleCreateSchema.safeParse(data)
   if (!parsed.success) {
@@ -24,6 +23,8 @@ export async function createScheduleAction(data: {
   }
 
   const valid = parsed.data
+  await assertCourseExists(valid.course_id)
+
   const [inserted] = await db
     .insert(schedules)
     .values({
@@ -50,10 +51,10 @@ export async function updateScheduleAction(
     room: string
   }
 ) {
-  const session = await getSession()
-  if (!session || (session.role !== "ketua_kelas" && session.role !== "pj")) {
-    throw new Error("Hanya Ketua Kelas atau PJ yang berhak memperbarui jadwal kuliah statis.")
-  }
+  const session = await requirePublisherSession(
+    "Hanya Ketua Kelas atau PJ yang berhak memperbarui jadwal kuliah statis."
+  )
+  const validId = parseEntityId(id, "ID jadwal")
 
   const parsed = serverScheduleUpdateSchema.safeParse(data)
   if (!parsed.success) {
@@ -61,6 +62,8 @@ export async function updateScheduleAction(
   }
 
   const valid = parsed.data
+  await assertCourseExists(valid.course_id)
+
   const [updated] = await db
     .update(schedules)
     .set({
@@ -72,18 +75,20 @@ export async function updateScheduleAction(
       idAcc: session.userId,
       updatedAt: new Date().toISOString(),
     })
-    .where(eq(schedules.id, id))
+    .where(eq(schedules.id, validId))
     .returning()
 
+  if (!updated) throw new Error("Jadwal tidak ditemukan.")
   return updated
 }
 
 export async function deleteScheduleAction(id: string) {
-  const session = await getSession()
-  if (!session || (session.role !== "ketua_kelas" && session.role !== "pj")) {
-    throw new Error("Hanya Ketua Kelas atau PJ yang berhak menghapus slot jadwal.")
-  }
+  await requirePublisherSession("Hanya Ketua Kelas atau PJ yang berhak menghapus slot jadwal.")
+  const validId = parseEntityId(id, "ID jadwal")
 
-  await db.delete(schedules).where(eq(schedules.id, id))
+  const existing = await db.select({ id: schedules.id }).from(schedules).where(eq(schedules.id, validId)).get()
+  if (!existing) throw new Error("Jadwal tidak ditemukan.")
+
+  await db.delete(schedules).where(eq(schedules.id, validId))
   return { success: true }
 }

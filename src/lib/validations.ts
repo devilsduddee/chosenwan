@@ -1,12 +1,18 @@
 import { z } from "zod"
-import { isSafeHttpUrl, isSafePosterSrc } from "@/lib/url-safety"
+import { isSafeHttpUrl, isSafePosterSrc, MAX_POSTER_DATA_URL_LENGTH } from "@/lib/url-safety"
+
+export const entityIdSchema = z
+  .string()
+  .trim()
+  .min(1, "ID wajib diisi")
+  .max(128, "Format ID tidak valid")
 
 const optionalHttpUrl = z
   .string()
   .trim()
   .max(2048, "Tautan maksimal 2048 karakter")
   .refine((val) => !val || isSafeHttpUrl(val), {
-    message: "Tautan harus berupa URL http(s) publik yang valid",
+    message: "Tautan harus berupa URL http(s) publik tanpa kredensial",
   })
   .optional()
   .nullable()
@@ -15,6 +21,7 @@ const optionalHttpUrl = z
 const optionalPosterUrl = z
   .string()
   .trim()
+  .max(MAX_POSTER_DATA_URL_LENGTH, "Ukuran poster melebihi batas maksimal server")
   .refine((val) => !val || isSafePosterSrc(val), {
     message: "Poster harus berupa gambar (PNG/JPG/WebP) atau tautan https:// yang valid",
   })

@@ -573,7 +573,6 @@ chosenwan/
 │   │   └── seed.ts             # Seeder awal jadwal & akun kelas
 │   ├── lib/
 │   │   ├── actions/            # Server Actions: auth, portal, tasks, events, schedules, admin
-│   │   ├── __tests__/          # Unit test (node:test + tsx)
 │   │   ├── portal-store.tsx    # State client & mutasi portal
 │   │   ├── auth.ts             # Cookie sesi PASETO v3.local
 │   │   ├── session-token.ts    # Enkripsi/dekripsi PASETO v3.local

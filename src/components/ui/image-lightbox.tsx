@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from "react"
 import { X, ZoomIn, ZoomOut, RotateCcw, ExternalLink } from "lucide-react"
+import { isSafeHttpUrl, isSafePosterSrc } from "@/lib/url-safety"
 
 interface ImageLightboxProps {
   src: string | null
@@ -60,7 +61,10 @@ export function ImageLightbox({
     setScale((prev) => (prev > 1.2 ? 1 : 2))
   }, [])
 
-  if (!isOpen || !src) return null
+  const safeSrc = src && isSafePosterSrc(src) ? src : null
+  const canOpenExternal = isSafeHttpUrl(safeSrc)
+
+  if (!isOpen || !safeSrc) return null
 
   return (
     <div
@@ -81,17 +85,19 @@ export function ImageLightbox({
         </div>
 
         <div className="flex items-center gap-1.5 shrink-0">
-          <a
-            href={src}
-            target="_blank"
-            rel="noopener noreferrer"
-            title="Buka ukuran penuh di tab baru"
-            aria-label="Buka ukuran penuh di tab baru"
-            className="h-9 px-2.5 rounded-full bg-white/10 hover:bg-white/20 text-white text-xs font-semibold inline-flex items-center gap-1.5 transition-colors cursor-pointer"
-          >
-            <ExternalLink className="w-3.5 h-3.5" strokeWidth={2} />
-            <span className="hidden sm:inline">Ukuran Penuh</span>
-          </a>
+          {canOpenExternal && (
+            <a
+              href={safeSrc}
+              target="_blank"
+              rel="noopener noreferrer"
+              title="Buka ukuran penuh di tab baru"
+              aria-label="Buka ukuran penuh di tab baru"
+              className="h-9 px-2.5 rounded-full bg-white/10 hover:bg-white/20 text-white text-xs font-semibold inline-flex items-center gap-1.5 transition-colors cursor-pointer"
+            >
+              <ExternalLink className="w-3.5 h-3.5" strokeWidth={2} />
+              <span className="hidden sm:inline">Ukuran Penuh</span>
+            </a>
+          )}
 
           <button
             type="button"
@@ -124,7 +130,7 @@ export function ImageLightbox({
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src={src}
+            src={safeSrc}
             alt={alt}
             draggable={false}
             className="max-h-[82dvh] max-w-full sm:max-w-4xl w-auto h-auto object-contain rounded-xl shadow-2xl drop-shadow-2xl border border-white/10 pointer-events-auto"

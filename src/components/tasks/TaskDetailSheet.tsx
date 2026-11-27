@@ -4,6 +4,7 @@ import React, { useState } from "react"
 import { usePortalStore } from "@/lib/portal-store"
 import { useCurrentTime } from "@/lib/use-current-time"
 import { formatIndonesianDate, formatIndonesianTime } from "@/lib/date-utils"
+import { isSafeHttpUrl } from "@/lib/url-safety"
 import {
   Sheet,
   SheetContent,
@@ -37,6 +38,7 @@ export function TaskDetailSheet() {
     showYear: true,
   })
   const formattedTime = formatIndonesianTime(dueDate)
+  const safeSubmissionUrl = isSafeHttpUrl(task.submission_url) ? task.submission_url : null
 
   const handleCopyWhatsApp = () => {
     const text = `📢 *TUGAS KELAS: ${task.course?.name || task.course?.code}*\n` +
@@ -125,9 +127,9 @@ export function TaskDetailSheet() {
 
         {/* Action Buttons */}
         <div className="mt-6 space-y-2.5 pt-2 border-t border-[#E4E7F0]">
-          {task.submission_url ? (
+          {safeSubmissionUrl ? (
             <a
-              href={task.submission_url}
+              href={safeSubmissionUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="w-full min-h-[44px] rounded-full bg-[#111318] hover:bg-[#111318]/90 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-sm transition-all active:scale-[0.98]"

@@ -3,7 +3,7 @@
 import { db } from "@/db"
 import { events } from "@/db/schema"
 import { eq } from "drizzle-orm"
-import { getSession } from "@/lib/auth"
+import { assertCourseExists, parseEntityId, requirePublisherSession } from "@/lib/actions/guards"
 import {
   uploadPosterToImageKit,
   deletePosterFromImageKit,
@@ -79,10 +79,9 @@ export async function createEventAction(data: {
   is_pinned?: boolean
   status: "DRAFT" | "PUBLISHED"
 }) {
-  const session = await getSession()
-  if (!session || (session.role !== "pj" && session.role !== "ketua_kelas")) {
-    throw new Error("Hanya publisher yang dapat membuat pengumuman/event.")
-  }
+  const session = await requirePublisherSession(
+    "Hanya publisher yang dapat membuat pengumuman/event."
+  )
 
   const parsed = serverEventCreateSchema.safeParse(data)
   if (!parsed.success) {
@@ -90,6 +89,9 @@ export async function createEventAction(data: {
   }
 
   const valid = parsed.data
+  if (valid.course_id) {
+    await assertCourseExists(valid.course_id)
+  }
   const resolvedPoster = await resolvePosterUpdate(valid.poster_url, null, null)
 
   const [inserted] = await db
@@ -127,17 +129,15 @@ export async function updateEventAction(
     status: "DRAFT" | "PUBLISHED"
   }>
 ) {
-  const session = await getSession()
-  if (!session || (session.role !== "pj" && session.role !== "ketua_kelas")) {
-    throw new Error("Hanya publisher yang berhak mengubah event.")
-  }
+  const session = await requirePublisherSession("Hanya publisher yang berhak mengubah event.")
+  const validId = parseEntityId(id, "ID pengumuman")
 
   const parsed = serverEventUpdateSchema.safeParse(data)
   if (!parsed.success) {
     throw new Error(parsed.error.issues[0]?.message || "Pembaruan pengumuman tidak valid.")
   }
 
-  const existing = await db.select().from(events).where(eq(events.id, id)).get()
+  const existing = await db.select().from(events).where(eq(events.id, validId)).get()
   if (!existing) throw new Error("Event tidak ditemukan.")
 
   if (session.role !== "ketua_kelas" && existing.idAcc !== session.userId) {
@@ -145,6 +145,9 @@ export async function updateEventAction(
   }
 
   const valid = parsed.data
+  if (valid.course_id) {
+    await assertCourseExists(valid.course_id)
+  }
   const resolvedPoster = await resolvePosterUpdate(
     valid.poster_url,
     existing.posterUrl,
@@ -166,19 +169,19 @@ export async function updateEventAction(
       status: valid.status ?? existing.status,
       updatedAt: new Date().toISOString(),
     })
-    .where(eq(events.id, id))
+    .where(eq(events.id, validId))
     .returning()
 
   return updated
 }
 
 export async function togglePinEventAction(id: string) {
-  const session = await getSession()
-  if (!session || (session.role !== "pj" && session.role !== "ketua_kelas")) {
-    throw new Error("Hanya publisher (PJ atau Ketua Kelas) yang dapat menyematkan info.")
-  }
+  const session = await requirePublisherSession(
+    "Hanya publisher (PJ atau Ketua Kelas) yang dapat menyematkan info."
+  )
+  const validId = parseEntityId(id, "ID pengumuman")
 
-  const existing = await db.select().from(events).where(eq(events.id, id)).get()
+  const existing = await db.select().from(events).where(eq(events.id, validId)).get()
   if (!existing) throw new Error("Pengumuman tidak ditemukan.")
 
   if (session.role !== "ketua_kelas" && existing.idAcc !== session.userId) {
@@ -192,19 +195,17 @@ export async function togglePinEventAction(id: string) {
       isPinned: newPinState,
       updatedAt: new Date().toISOString(),
     })
-    .where(eq(events.id, id))
+    .where(eq(events.id, validId))
     .returning()
 
   return updated
 }
 
 export async function deleteEventAction(id: string) {
-  const session = await getSession()
-  if (!session || (session.role !== "pj" && session.role !== "ketua_kelas")) {
-    throw new Error("Hanya publisher yang berhak menghapus event.")
-  }
+  const session = await requirePublisherSession("Hanya publisher yang berhak menghapus event.")
+  const validId = parseEntityId(id, "ID pengumuman")
 
-  const existing = await db.select().from(events).where(eq(events.id, id)).get()
+  const existing = await db.select().from(events).where(eq(events.id, validId)).get()
   if (!existing) return
 
   if (session.role !== "ketua_kelas" && existing.idAcc !== session.userId) {
@@ -215,5 +216,5 @@ export async function deleteEventAction(id: string) {
     await deletePosterFromImageKit(existing.posterFileId)
   }
 
-  await db.delete(events).where(eq(events.id, id))
+  await db.delete(events).where(eq(events.id, validId))
 }

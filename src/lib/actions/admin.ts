@@ -6,6 +6,8 @@ import { db } from "@/db"
 import { accounts, courses } from "@/db/schema"
 import { eq } from "drizzle-orm"
 import { getSession } from "@/lib/auth"
+import { parseEntityId } from "@/lib/actions/guards"
+import { entityIdSchema } from "@/lib/validations"
 
 const CourseAdminSchema = z.object({
   name: z.string().trim().min(2, "Nama mata kuliah minimal 2 karakter").max(120),
@@ -24,7 +26,7 @@ const CreateAccountSchema = z.object({
 })
 
 const ResetPasswordSchema = z.object({
-  accountId: z.string().min(1),
+  accountId: entityIdSchema,
   newPassword: z.string().min(6, "Kata sandi baru minimal 6 karakter").max(128),
 })
 
@@ -58,10 +60,11 @@ export async function upsertCourseAction(input: { id?: string; name: string; lec
 
   const cleanLecturer = parsed.data.lecturer?.trim() || null
   if (input.id) {
+    const validId = parseEntityId(input.id, "ID mata kuliah")
     const [updated] = await db
       .update(courses)
       .set({ name: parsed.data.name, lecturer: cleanLecturer })
-      .where(eq(courses.id, input.id))
+      .where(eq(courses.id, validId))
       .returning()
     if (!updated) throw new Error("Mata kuliah tidak ditemukan.")
     return updated

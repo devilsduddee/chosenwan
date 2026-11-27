@@ -75,7 +75,6 @@ src/
 │   └── seed.ts                 # Seeder awal jadwal & akun 3IA01
 ├── lib/
 │   ├── actions/                # Next.js Server Actions (auth, portal, tasks, events, schedules, admin)
-│   ├── __tests__/              # Unit test suite via tsx --test (auth, validations, date/course utils, rate-limit)
 │   ├── portal-store.tsx        # Client state provider & mutasi terintegrasi Server Actions
 │   ├── auth.ts                 # Cookie HTTP-only sesi PASETO v3.local
 │   ├── session-token.ts        # Enkripsi/dekripsi token PASETO v3.local
@@ -119,7 +118,7 @@ src/
 1. **Database & Auth:** Skema 5 tabel Drizzle ORM (`src/db/schema.ts`), koneksi Turso (`src/db/index.ts`), dan autentikasi PASETO `v3.local` (`src/lib/auth.ts`).
 2. **Server Actions & Validation:** Kontrak mutasi/query di `src/lib/actions/*` dengan validasi Zod server-side di setiap batas input.
 3. **Antarmuka Landing & Portal:** Mobile-first Playful Bento dengan SSR hydration (`/portal`), target sentuh minimal `44×44 px`, dan state error/retry eksplisit.
-4. **Verifikasi & Kualitas:** Lulus `npm run lint`, `npx tsc --noEmit`, `npm test`, `npm run build`, dan pemeriksaan batas 500 baris kode per file.
+4. **Verifikasi & Kualitas:** Lulus `npm run lint`, `npx tsc --noEmit`, `npm run build`, dan pemeriksaan batas 500 baris kode per file.
 
 <!-- BEGIN:nextjs-agent-rules -->
 

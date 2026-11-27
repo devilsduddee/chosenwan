@@ -95,3 +95,10 @@ export function checkRateLimit(key: string, options: RateLimitOptions): RateLimi
     retryAfterSeconds,
   }
 }
+
+/**
+ * Menghapus counter rate-limit untuk kunci tertentu (misalnya setelah login valid).
+ */
+export function resetRateLimit(key: string): void {
+  store.delete(key)
+}

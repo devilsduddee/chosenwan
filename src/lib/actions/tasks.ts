@@ -3,7 +3,7 @@
 import { db } from "@/db"
 import { tasks } from "@/db/schema"
 import { eq } from "drizzle-orm"
-import { getSession } from "@/lib/auth"
+import { assertCourseExists, parseEntityId, requirePublisherSession } from "@/lib/actions/guards"
 import { serverTaskCreateSchema, serverTaskUpdateSchema } from "@/lib/validations"
 
 export async function createTaskAction(data: {
@@ -14,10 +14,9 @@ export async function createTaskAction(data: {
   submission_url?: string | null
   status: "DRAFT" | "PUBLISHED"
 }) {
-  const session = await getSession()
-  if (!session || (session.role !== "pj" && session.role !== "ketua_kelas")) {
-    throw new Error("Hanya publisher (PJ atau Ketua Kelas) yang dapat membuat tugas.")
-  }
+  const session = await requirePublisherSession(
+    "Hanya publisher (PJ atau Ketua Kelas) yang dapat membuat tugas."
+  )
 
   const parsed = serverTaskCreateSchema.safeParse(data)
   if (!parsed.success) {
@@ -25,6 +24,7 @@ export async function createTaskAction(data: {
   }
 
   const valid = parsed.data
+  await assertCourseExists(valid.course_id)
   const [inserted] = await db
     .insert(tasks)
     .values({
@@ -52,17 +52,15 @@ export async function updateTaskAction(
     status: "DRAFT" | "PUBLISHED"
   }>
 ) {
-  const session = await getSession()
-  if (!session || (session.role !== "pj" && session.role !== "ketua_kelas")) {
-    throw new Error("Hanya publisher yang berhak memperbarui tugas.")
-  }
+  const session = await requirePublisherSession("Hanya publisher yang berhak memperbarui tugas.")
+  const validId = parseEntityId(id, "ID tugas")
 
   const parsed = serverTaskUpdateSchema.safeParse(data)
   if (!parsed.success) {
     throw new Error(parsed.error.issues[0]?.message || "Pembaruan tugas tidak valid.")
   }
 
-  const existing = await db.select().from(tasks).where(eq(tasks.id, id)).get()
+  const existing = await db.select().from(tasks).where(eq(tasks.id, validId)).get()
   if (!existing) throw new Error("Tugas tidak ditemukan.")
 
   if (session.role !== "ketua_kelas" && existing.idAcc !== session.userId) {
@@ -70,6 +68,10 @@ export async function updateTaskAction(
   }
 
   const valid = parsed.data
+  if (valid.course_id) {
+    await assertCourseExists(valid.course_id)
+  }
+
   const [updated] = await db
     .update(tasks)
     .set({
@@ -82,24 +84,22 @@ export async function updateTaskAction(
       status: valid.status ?? existing.status,
       updatedAt: new Date().toISOString(),
     })
-    .where(eq(tasks.id, id))
+    .where(eq(tasks.id, validId))
     .returning()
 
   return updated
 }
 
 export async function deleteTaskAction(id: string) {
-  const session = await getSession()
-  if (!session || (session.role !== "pj" && session.role !== "ketua_kelas")) {
-    throw new Error("Hanya publisher yang berhak menghapus tugas.")
-  }
+  const session = await requirePublisherSession("Hanya publisher yang berhak menghapus tugas.")
+  const validId = parseEntityId(id, "ID tugas")
 
-  const existing = await db.select().from(tasks).where(eq(tasks.id, id)).get()
+  const existing = await db.select().from(tasks).where(eq(tasks.id, validId)).get()
   if (!existing) return
 
   if (session.role !== "ketua_kelas" && existing.idAcc !== session.userId) {
     throw new Error("Anda hanya dapat menghapus tugas yang Anda buat sendiri.")
   }
 
-  await db.delete(tasks).where(eq(tasks.id, id))
+  await db.delete(tasks).where(eq(tasks.id, validId))
 }
